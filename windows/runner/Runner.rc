@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.noajou" "\0"
-            VALUE "FileDescription", "veil" "\0"
+            VALUE "CompanyName", "Veilmi" "\0"
+            VALUE "FileDescription", "Veilmi" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "veil" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.noajou. All rights reserved." "\0"
-            VALUE "OriginalFilename", "veil.exe" "\0"
-            VALUE "ProductName", "veil" "\0"
+            VALUE "InternalName", "Veilmi" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Veilmi. All rights reserved." "\0"
+            VALUE "OriginalFilename", "veilmi.exe" "\0"
+            VALUE "ProductName", "Veilmi" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

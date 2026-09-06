@@ -1,4 +1,4 @@
-package com.noajou.veil
+package com.veilmi.app
 
 import io.flutter.embedding.android.FlutterActivity
 
