@@ -87,7 +87,9 @@ class MessageEnvelope {
         );
       }
 
-      if (iterationsValue != CryptoConstants.pbkdf2Iterations) {
+      if (!CryptoConstants.supportedPbkdf2Iterations.contains(
+        iterationsValue,
+      )) {
         throw const FormatException(
           'Unsupported Veilmi PBKDF2 iteration count.',
         );

@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'message_envelope.dart';
-import 'crypto_constants.dart';
-
 import 'package:cryptography/cryptography.dart';
+
+import 'crypto_constants.dart';
+import 'message_envelope.dart';
+import 'protection_level.dart';
 
 class CryptoService {
   const CryptoService();
@@ -65,17 +66,22 @@ class CryptoService {
   Future<String> encryptMessage({
     required String plaintext,
     required String passphrase,
+    ProtectionLevel protectionLevel = ProtectionLevel.stronger,
   }) async {
     final salt = generateSalt();
 
-    final secretKey = await deriveKey(passphrase: passphrase, salt: salt);
+    final secretKey = await deriveKey(
+      passphrase: passphrase,
+      salt: salt,
+      iterations: protectionLevel.iterations,
+    );
 
     final secretBox = await encrypt(plaintext: plaintext, secretKey: secretKey);
 
     final envelope = MessageEnvelope(
       salt: salt,
       secretBox: secretBox,
-      iterations: CryptoConstants.pbkdf2Iterations,
+      iterations: protectionLevel.iterations,
     );
 
     return envelope.encode();

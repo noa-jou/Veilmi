@@ -1,5 +1,6 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:veilmi/crypto/crypto_constants.dart';
 import 'package:veilmi/crypto/message_envelope.dart';
 import 'package:veilmi/crypto/crypto_service.dart';
 
@@ -267,14 +268,30 @@ void main() {
       'm': base64UrlEncode(List<int>.generate(16, (index) => index + 32)),
     };
 
-    final encoded =
-        'VEILMI1:${base64UrlEncode(utf8.encode(jsonEncode(data)))}';
+    final encoded = 'VEILMI1:${base64UrlEncode(utf8.encode(jsonEncode(data)))}';
 
     expect(
       () => MessageEnvelope.decode(encoded),
       throwsA(isA<FormatException>()),
     );
-});
+  });
+  test('accepts all supported PBKDF2 iteration counts', () {
+    for (final iterations in CryptoConstants.supportedPbkdf2Iterations) {
+      final json = jsonEncode({
+        'v': 1,
+        'k': 'PBKDF2-SHA256',
+        'i': iterations,
+        's': base64UrlEncode(List<int>.filled(16, 1)),
+        'n': base64UrlEncode(List<int>.filled(12, 2)),
+        'c': base64UrlEncode([3]),
+        'm': base64UrlEncode(List<int>.filled(16, 4)),
+      });
 
+      final encoded = 'VEILMI1:${base64UrlEncode(utf8.encode(json))}';
 
+      final envelope = MessageEnvelope.decode(encoded);
+
+      expect(envelope.iterations, iterations);
+    }
+  });
 }

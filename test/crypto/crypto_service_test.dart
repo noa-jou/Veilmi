@@ -1,6 +1,9 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:veilmi/crypto/crypto_service.dart';
+import 'package:veilmi/crypto/crypto_constants.dart';
+import 'package:veilmi/crypto/message_envelope.dart';
+import 'package:veilmi/crypto/protection_level.dart';
 
 void main() {
   const cryptoService = CryptoService();
@@ -83,5 +86,19 @@ void main() {
     );
 
     expect(decrypted, plaintext);
+  });
+
+  test('encryptMessage uses the selected protection level', () async {
+    const service = CryptoService();
+
+    final encodedMessage = await service.encryptMessage(
+      plaintext: 'Hello Veilmi',
+      passphrase: 'shared-secret',
+      protectionLevel: ProtectionLevel.balanced,
+    );
+
+    final envelope = MessageEnvelope.decode(encodedMessage);
+
+    expect(envelope.iterations, CryptoConstants.balancedIterations);
   });
 }
