@@ -1,3 +1,4 @@
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadProtectionLevel() async {
     final level = await _settingsService.loadProtectionLevel();
 
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
@@ -65,11 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final passphrase = _passphraseController.text;
 
     if (plaintext.isEmpty || passphrase.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter both a message and a shared passphrase.'),
-        ),
-      );
+      _showMessage('Enter both a message and a shared passphrase.');
       return;
     }
 
@@ -97,9 +94,66 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not encrypt this message.')),
+      _showMessage('Could not encrypt this message.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _decryptMessage() async {
+    final encodedMessage = _messageController.text.trim();
+    final passphrase = _passphraseController.text;
+
+    if (encodedMessage.isEmpty || passphrase.isEmpty) {
+      _showMessage(
+        'Enter both an encrypted message and the shared passphrase.',
       );
+      return;
+    }
+
+    setState(() {
+      _isProcessing = true;
+      _result = '';
+    });
+
+    try {
+      final plaintext = await _cryptoService.decryptMessage(
+        encodedMessage: encodedMessage,
+        passphrase: passphrase,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _result = plaintext;
+      });
+    } on FormatException {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage('This is not a valid Veilmi encrypted message.');
+    } on SecretBoxAuthenticationError {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(
+        'Could not decrypt the message. '
+        'Check the passphrase and message integrity.',
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage('Could not decrypt this message.');
     } finally {
       if (mounted) {
         setState(() {
@@ -116,9 +170,16 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Encrypted message copied.')));
+    _showMessage(
+      _isEncryptMode
+          ? 'Encrypted message copied.'
+          : 'Decrypted message copied.',
+    );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -161,6 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               selected: {_isEncryptMode},
               onSelectionChanged: (selection) {
+                _messageController.clear();
+
                 setState(() {
                   _isEncryptMode = selection.first;
                   _result = '';
@@ -190,6 +253,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     : 'Paste a Veilmi encrypted message here.',
                 border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  tooltip: 'Clear',
+                  onPressed: () {
+                    _messageController.clear();
+
+                    setState(() {
+                      _result = '';
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -215,48 +289,61 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'Protection: ${_protectionLevel.title}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 24),
-
             if (_isEncryptMode)
-              FilledButton.icon(
-                onPressed: !_settingsLoaded || _isProcessing
-                    ? null
-                    : _encryptMessage,
-                icon: _isProcessing
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.lock_outline),
-                label: Text(
-                  _isProcessing ? 'Encrypting...' : 'Encrypt Message',
-                ),
+              Text(
+                'Protection: ${_protectionLevel.title}',
+                style: Theme.of(context).textTheme.bodySmall,
+              )
+            else
+              Text(
+                'The protection level is read from the encrypted message.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-
-            if (!_isEncryptMode)
-              const FilledButton(
-                onPressed: null,
-                child: Text('Decrypt Message'),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: _isProcessing || (_isEncryptMode && !_settingsLoaded)
+                  ? null
+                  : _isEncryptMode
+                  ? _encryptMessage
+                  : _decryptMessage,
+              icon: _isProcessing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      _isEncryptMode
+                          ? Icons.lock_outline
+                          : Icons.lock_open_outlined,
+                    ),
+              label: Text(
+                _isProcessing
+                    ? _isEncryptMode
+                          ? 'Encrypting...'
+                          : 'Decrypting...'
+                    : _isEncryptMode
+                    ? 'Encrypt Message'
+                    : 'Decrypt Message',
               ),
-
+            ),
             if (_result.isNotEmpty) ...[
               const SizedBox(height: 32),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Encrypted message',
+                      _isEncryptMode
+                          ? 'Encrypted message'
+                          : 'Decrypted message',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy_outlined),
-                    tooltip: 'Copy encrypted message',
+                    tooltip: _isEncryptMode
+                        ? 'Copy encrypted message'
+                        : 'Copy decrypted message',
                     onPressed: _copyResult,
                   ),
                 ],
