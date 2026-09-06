@@ -256,4 +256,25 @@ void main() {
       throwsFormatException,
     );
   });
+  test('rejects unsupported PBKDF2 iteration count', () {
+    final data = {
+      'v': 1,
+      'k': 'PBKDF2-SHA256',
+      'i': 999999999,
+      's': base64UrlEncode(List<int>.generate(16, (index) => index)),
+      'n': base64UrlEncode(List<int>.generate(12, (index) => index + 16)),
+      'c': base64UrlEncode([1, 2, 3]),
+      'm': base64UrlEncode(List<int>.generate(16, (index) => index + 32)),
+    };
+
+    final encoded =
+        'VEILMI1:${base64UrlEncode(utf8.encode(jsonEncode(data)))}';
+
+    expect(
+      () => MessageEnvelope.decode(encoded),
+      throwsA(isA<FormatException>()),
+    );
+});
+
+
 }

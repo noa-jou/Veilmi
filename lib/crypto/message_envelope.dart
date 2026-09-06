@@ -1,14 +1,12 @@
 import 'dart:convert';
 
+import 'crypto_constants.dart';
+
 import 'package:cryptography/cryptography.dart';
 
 class MessageEnvelope {
   static const String prefix = 'VEILMI1:';
   static const int version = 1;
-
-  static const int expectedSaltLength = 16;
-  static const int expectedNonceLength = 12;
-  static const int expectedMacLength = 16;
 
   final List<int> salt;
   final SecretBox secretBox;
@@ -84,11 +82,15 @@ class MessageEnvelope {
       }
 
       if (kdfValue != kdf) {
-        throw const FormatException('Unsupported Veilmi key derivation function.');
+        throw const FormatException(
+          'Unsupported Veilmi key derivation function.',
+        );
       }
 
-      if (iterationsValue <= 0) {
-        throw const FormatException('Invalid Veilmi PBKDF2 iteration count.');
+      if (iterationsValue != CryptoConstants.pbkdf2Iterations) {
+        throw const FormatException(
+          'Unsupported Veilmi PBKDF2 iteration count.',
+        );
       }
 
       final salt = base64Url.decode(saltValue);
@@ -96,15 +98,15 @@ class MessageEnvelope {
       final cipherText = base64Url.decode(cipherTextValue);
       final macBytes = base64Url.decode(macValue);
 
-      if (salt.length != expectedSaltLength) {
+      if (salt.length != CryptoConstants.saltLength) {
         throw const FormatException('Invalid Veilmi salt length.');
       }
 
-      if (nonce.length != expectedNonceLength) {
+      if (nonce.length != CryptoConstants.nonceLength) {
         throw const FormatException('Invalid Veilmi nonce length.');
       }
 
-      if (macBytes.length != expectedMacLength) {
+      if (macBytes.length != CryptoConstants.macLength) {
         throw const FormatException('Invalid authentication tag length.');
       }
 

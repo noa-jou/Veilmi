@@ -3,14 +3,12 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'message_envelope.dart';
+import 'crypto_constants.dart';
 
 import 'package:cryptography/cryptography.dart';
 
 class CryptoService {
   const CryptoService();
-
-  static const int saltLength = 16;
-  static const int pbkdf2Iterations = 600000;
 
   Uint8List generateRandomBytes(int length) {
     final random = Random.secure();
@@ -21,13 +19,13 @@ class CryptoService {
   }
 
   Uint8List generateSalt() {
-    return generateRandomBytes(saltLength);
+    return generateRandomBytes(CryptoConstants.saltLength);
   }
 
   Future<SecretKey> deriveKey({
     required String passphrase,
     required List<int> salt,
-    int iterations = pbkdf2Iterations,
+    int iterations = CryptoConstants.pbkdf2Iterations,
   }) async {
     final pbkdf2 = Pbkdf2(
       macAlgorithm: Hmac.sha256(),
@@ -77,7 +75,7 @@ class CryptoService {
     final envelope = MessageEnvelope(
       salt: salt,
       secretBox: secretBox,
-      iterations: pbkdf2Iterations,
+      iterations: CryptoConstants.pbkdf2Iterations,
     );
 
     return envelope.encode();
@@ -97,5 +95,4 @@ class CryptoService {
 
     return decrypt(secretBox: envelope.secretBox, secretKey: secretKey);
   }
-
 }
