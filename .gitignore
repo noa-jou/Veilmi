@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# 1. Gradle & Android 專案建置與快取 (Android / Kotlin)
+# 1. Gradle & Android project build files and cache (Android / Kotlin)
 # ------------------------------------------------------------------------------
 .gradle/
 build/
@@ -26,7 +26,7 @@ captures/
 *.apk
 *.aab
 
-# Signing files & Secret configuration
+# Signing files and secret configuration
 *.jks
 *.keystore
 keystore.properties
@@ -37,7 +37,7 @@ android/.kotlin/
 
 
 # ------------------------------------------------------------------------------
-# 2. Flutter / Dart 相關檔案 (Flutter Core)
+# 2. Flutter / Dart related files (Flutter Core)
 # ------------------------------------------------------------------------------
 .dart_tool/
 .packages
@@ -50,7 +50,7 @@ android/.kotlin/
 
 
 # ------------------------------------------------------------------------------
-# 3. iOS & macOS 專案建置檔 (CocoaPods & Xcode) - ⚠️ 原本缺少的關鍵部分
+# 3. iOS & macOS project build files (CocoaPods & Xcode)
 # ------------------------------------------------------------------------------
 ios/Pods/
 ios/.symlinks/
@@ -69,7 +69,7 @@ macOS/Flutter/ephemeral/
 
 
 # ------------------------------------------------------------------------------
-# 4. 編輯器與 IDE 設定檔 (VS Code / 其他) - ⚠️ 建議加入
+# 4. Editor and IDE configuration files (VS Code / other tools)
 # ------------------------------------------------------------------------------
 .vscode/
 !.vscode/settings.json
@@ -77,13 +77,13 @@ macOS/Flutter/ephemeral/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# 密碼、金鑰與環境變數檔 (例如 flutter_dotenv 使用的 .env)
+# Secrets, keys, and environment variable files (for example .env used by flutter_dotenv)
 *.env
 *.env.*
 
 
 # ------------------------------------------------------------------------------
-# 5. 作業系統暫存檔 (OS Files)
+# 5. Operating system temporary files
 # ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
@@ -95,3 +95,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# ------------------------------------------------------------------------------
+# 6. Additional platform-generated files that are commonly not tracked
+# ------------------------------------------------------------------------------
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.*

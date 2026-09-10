@@ -1,5 +1,18 @@
+# This file configures the flutter_launcher_icons package.
+# It is used to generate the app icons for Android and iOS automatically.
+# In simple terms: it tells Flutter which image to use as the app icon.
+
 flutter_launcher_icons:
+  # Set to true to generate/update the Android app icon.
   android: true
+
+  # Set to true to generate/update the iOS app icon.
   ios: true
+
+  # The source image file used to create the launcher/app icon.
+  # This is the original image that Flutter will resize and export.
   image_path: "assets/icon/veilmi_icon.png"
+
+  # For iOS, remove the alpha channel from the icon.
+  # This is a platform-specific setting that helps with iOS icon generation.
   remove_alpha_ios: true

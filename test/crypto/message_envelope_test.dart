@@ -6,9 +6,15 @@ import 'package:veilmi/crypto/crypto_service.dart';
 
 import 'dart:convert';
 
+// We use one shared crypto service for the tests below.
 final cryptoService = CryptoService();
 
+// These tests check that the message envelope format is valid,
+// that data can be safely encoded and decoded,
+// and that tampering is detected.
 void main() {
+  // This test checks that a message envelope can be created,
+  // encoded into a string, decoded back, and still contain the same data.
   test('encodes and decodes a Veilmi message envelope', () {
     final salt = List<int>.generate(16, (index) => index);
 
@@ -31,17 +37,23 @@ void main() {
     final encoded = envelope.encode();
     final decoded = MessageEnvelope.decode(encoded);
 
+    // All valid Veilmi messages start with this prefix.
     expect(encoded.startsWith('VEILMI1:'), isTrue);
 
+    // After decoding, the original values should still be present.
     expect(decoded.salt, equals(salt));
     expect(decoded.secretBox.cipherText, equals(secretBox.cipherText));
     expect(decoded.secretBox.nonce, equals(secretBox.nonce));
     expect(decoded.secretBox.mac.bytes, equals(secretBox.mac.bytes));
   });
+
+  // This test checks that invalid messages are rejected.
   test('rejects messages without the VEILMI1 prefix', () {
     expect(() => MessageEnvelope.decode('NOTVEIL:abc'), throwsFormatException);
   });
 
+  // This test checks the full real-world flow:
+  // encrypt a message, then decrypt it back using the same passphrase.
   test('encrypts and decrypts a complete Veilmi message', () async {
     const passphrase = 'correct horse battery staple';
     const plaintext = '這是一封秘密訊息 🔐';
@@ -51,6 +63,7 @@ void main() {
       passphrase: passphrase,
     );
 
+    // The encoded result should start with a Veilmi header and should not contain plain text.
     expect(encodedMessage.startsWith('VEILMI1:'), isTrue);
     expect(encodedMessage, isNot(contains(plaintext)));
 
@@ -62,6 +75,7 @@ void main() {
     expect(decrypted, plaintext);
   });
 
+  // This test checks that the wrong passphrase cannot decrypt the message.
   test('rejects an incorrect passphrase', () async {
     final encodedMessage = await cryptoService.encryptMessage(
       plaintext: 'Top secret',
@@ -77,6 +91,7 @@ void main() {
     );
   });
 
+  // This test changes the ciphertext and verifies the app rejects the tampered message.
   test('rejects tampered ciphertext', () async {
     const passphrase = 'correct horse battery staple';
 
@@ -110,6 +125,8 @@ void main() {
     );
   });
 
+  // This test changes the nonce and checks that the message is rejected.
+  // A nonce is a random value used in encryption; changing it should break the authentication.
   test('rejects tampered nonce', () async {
     const passphrase = 'correct horse battery staple';
 
@@ -143,6 +160,7 @@ void main() {
     );
   });
 
+  // This test changes the authentication tag (MAC) and ensures the message is rejected.
   test('rejects tampered authentication tag', () async {
     const passphrase = 'correct horse battery staple';
 
@@ -176,6 +194,8 @@ void main() {
     );
   });
 
+  // This test checks that encrypting the same text twice does not produce exactly the same string.
+  // Different random values should be used so attackers cannot tell that the plaintext is the same.
   test('encrypting the same message twice produces different output', () async {
     const passphrase = 'correct horse battery staple';
     const plaintext = 'Same secret message';
@@ -193,6 +213,7 @@ void main() {
     expect(first, isNot(equals(second)));
   });
 
+  // These tests verify that malformed envelope payloads are rejected.
   test('rejects an empty payload', () {
     expect(() => MessageEnvelope.decode('VEILMI1:'), throwsFormatException);
   });
@@ -275,6 +296,7 @@ void main() {
       throwsA(isA<FormatException>()),
     );
   });
+  // This test verifies that every valid supported iteration count is accepted.
   test('accepts all supported PBKDF2 iteration counts', () {
     for (final iterations in CryptoConstants.supportedPbkdf2Iterations) {
       final json = jsonEncode({

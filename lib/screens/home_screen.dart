@@ -8,6 +8,8 @@ import '../l10n/app_localizations.dart';
 import '../settings/settings_service.dart';
 import 'settings_screen.dart';
 
+// This screen is the main place where the user encrypts and decrypts messages.
+// It also lets the user switch the app language and open the settings screen.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
@@ -23,25 +25,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // This is the main encryption service used to protect or unlock messages.
   final CryptoService _cryptoService = const CryptoService();
+
+  // This helps read and save user preferences like language and protection level.
   final SettingsService _settingsService = const SettingsService();
 
+  // These controllers keep track of what the user types in the message and passphrase fields.
   final TextEditingController _messageController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
 
+  // These booleans represent the current mode and UI state.
   bool _isEncryptMode = true;
   bool _obscurePassphrase = true;
   bool _isProcessing = false;
   bool _settingsLoaded = false;
 
+  // Default protection level for encrypting messages.
   ProtectionLevel _protectionLevel = ProtectionLevel.balanced;
 
   @override
   void initState() {
     super.initState();
+    // Load the saved protection level when the screen is created.
     _loadProtectionLevel();
   }
 
+  // Read the saved protection level from storage.
   Future<void> _loadProtectionLevel() async {
     final level = await _settingsService.loadProtectionLevel();
 
@@ -55,20 +65,24 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Toggle between English and Chinese for the app.
   Future<void> _toggleLanguage() async {
     final newLanguageCode = widget.currentLocale.languageCode == 'en'
         ? 'zh'
         : 'en';
 
+    // Save the choice so it remains the next time the app is opened.
     await _settingsService.saveLanguageCode(newLanguageCode);
 
     if (!mounted) {
       return;
     }
 
+    // Tell the parent widget to rebuild the app using the new locale.
     widget.onLocaleChanged(Locale(newLanguageCode));
   }
 
+  // Open the settings screen and then refresh the saved protection level.
   Future<void> _openSettings() async {
     await Navigator.push(
       context,
@@ -81,11 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadProtectionLevel();
   }
 
+  // Encrypt the text the user entered.
   Future<void> _encryptMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final plaintext = _messageController.text;
     final passphrase = _passphraseController.text;
 
+    // Make sure both fields are not empty before trying to encrypt.
     if (plaintext.isEmpty || passphrase.isEmpty) {
       _showMessage(l10n.enterMessageAndPassphrase);
       return;
@@ -106,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
+      // Replace the message text with the encrypted result.
       _messageController.text = encryptedMessage;
 
       setState(() {});
@@ -124,11 +141,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Decrypt the encrypted message the user entered.
   Future<void> _decryptMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final encodedMessage = _messageController.text.trim();
     final passphrase = _passphraseController.text;
 
+    // Both fields are required before decrypting the message.
     if (encodedMessage.isEmpty || passphrase.isEmpty) {
       _showMessage(l10n.enterEncryptedMessageAndPassphrase);
       return;
@@ -148,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
+      // Replace the encrypted text with the original plain text after decrypting.
       _messageController.text = plaintext;
 
       setState(() {});
@@ -178,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Copy the message into the device clipboard.
   Future<void> _copyMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final message = _messageController.text;
@@ -199,16 +220,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Clear the message box.
   void _clearMessage() {
     _messageController.clear();
     setState(() {});
   }
 
+  // Show a small floating message at the bottom of the screen.
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  // Convert the selected protection level into a string for display.
   String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
     switch (level) {
       case ProtectionLevel.compatibility:
@@ -222,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    // Clean up text inputs when the screen is removed.
     _messageController.dispose();
     _passphraseController.dispose();
     super.dispose();
@@ -232,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
+    // The page color changes depending on whether the user is encrypting or decrypting.
     final pageBackgroundColor = _isEncryptMode
         ? Colors.white
         : Colors.amber.shade100;
@@ -250,6 +276,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ? colorScheme.onPrimary
         : Colors.black87;
 
+    // The main screen layout includes:
+    // - top app bar
+    // - mode switcher (Encrypt/Decrypt)
+    // - text fields for message and passphrase
+    // - message action buttons
+    // - main action button to encrypt or decrypt
     return Scaffold(
       backgroundColor: pageBackgroundColor,
       appBar: AppBar(
@@ -257,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: primaryTextColor,
         centerTitle: true,
         leading: TextButton(
+          // This button toggles between English and Chinese.
           onPressed: _toggleLanguage,
           style: TextButton.styleFrom(foregroundColor: primaryTextColor),
           child: Text(widget.currentLocale.languageCode == 'en' ? '中文' : 'EN'),
@@ -281,6 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // This lets the user switch between encrypting and decrypting mode.
             SegmentedButton<bool>(
               style: ButtonStyle(
                 minimumSize: const WidgetStatePropertyAll(Size(120, 54)),
@@ -355,6 +389,8 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             const SizedBox(height: 32),
+
+            // This text changes based on whether the user is encrypting or decrypting.
             Text(
               _isEncryptMode ? l10n.protectMessage : l10n.openProtectedMessage,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -371,6 +407,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ?.copyWith(color: secondaryTextColor),
             ),
             const SizedBox(height: 24),
+
+            // Buttons for clearing and copying the current message.
             Row(
               children: [
                 IconButton(
@@ -394,6 +432,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+
+            // This is the main message field.
             TextField(
               controller: _messageController,
               maxLines: 8,
@@ -415,6 +455,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
+            // Passphrase field. It can be hidden or shown using the eye icon.
             TextField(
               controller: _passphraseController,
               obscureText: _obscurePassphrase,
@@ -440,6 +482,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
+
+            // Tell the user which protection level is currently selected,
+            // or that the protection level is being read from the message.
             if (_isEncryptMode)
               Text(
                 l10n.protection(_protectionTitle(l10n, _protectionLevel)),
@@ -453,6 +498,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ?.copyWith(color: secondaryTextColor),
               ),
             const SizedBox(height: 24),
+
+            // This is the main action button.
+            // It encrypts in encrypt mode and decrypts in decrypt mode.
             FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: actionBackgroundColor,
