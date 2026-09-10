@@ -13,7 +13,7 @@ class AboutScreen extends StatelessWidget {
   );
 
   // Replace this after choosing a support platform.
-  static final Uri _supportUrl = Uri.parse('https://example.com');
+  static final Uri _supportUrl = Uri.parse('https://buymeacoffee.com/noajou');
 
   Future<void> _openUrl(BuildContext context, Uri url) async {
     final opened = await launchUrl(url, mode: LaunchMode.externalApplication);
