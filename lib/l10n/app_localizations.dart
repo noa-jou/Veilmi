@@ -481,6 +481,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} turns'**
   String turns(String count);
+
+  /// No description provided for @aboutVeilmi.
+  ///
+  /// In en, this message translates to:
+  /// **'About Veilmi'**
+  String get aboutVeilmi;
+
+  /// No description provided for @openSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source'**
+  String get openSource;
+
+  /// No description provided for @openSourceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Veilmi is an open-source project. If you are interested in how Veilmi is built, you are welcome to visit the project on GitHub.'**
+  String get openSourceDescription;
+
+  /// No description provided for @docsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The docs folder contains explanations of Veilmi\'s cryptographic design, security decisions, testing, and development process.'**
+  String get docsDescription;
+
+  /// No description provided for @viewOnGitHub.
+  ///
+  /// In en, this message translates to:
+  /// **'View on GitHub'**
+  String get viewOnGitHub;
+
+  /// No description provided for @readDocumentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the Documentation'**
+  String get readDocumentation;
+
+  /// No description provided for @supportVeilmi.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Veilmi'**
+  String get supportVeilmi;
+
+  /// No description provided for @supportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Veilmi is free and open source. If you find it useful and would like to support its continued development, you can make a completely optional contribution.'**
+  String get supportDescription;
+
+  /// No description provided for @couldNotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this link.'**
+  String get couldNotOpenLink;
 }
 
 class _AppLocalizationsDelegate

@@ -227,4 +227,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String turns(String count) {
     return '$count turns';
   }
+
+  @override
+  String get aboutVeilmi => 'About Veilmi';
+
+  @override
+  String get openSource => 'Open Source';
+
+  @override
+  String get openSourceDescription =>
+      'Veilmi is an open-source project. If you are interested in how Veilmi is built, you are welcome to visit the project on GitHub.';
+
+  @override
+  String get docsDescription =>
+      'The docs folder contains explanations of Veilmi\'s cryptographic design, security decisions, testing, and development process.';
+
+  @override
+  String get viewOnGitHub => 'View on GitHub';
+
+  @override
+  String get readDocumentation => 'Read the Documentation';
+
+  @override
+  String get supportVeilmi => 'Support Veilmi';
+
+  @override
+  String get supportDescription =>
+      'Veilmi is free and open source. If you find it useful and would like to support its continued development, you can make a completely optional contribution.';
+
+  @override
+  String get couldNotOpenLink => 'Could not open this link.';
 }

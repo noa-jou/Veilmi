@@ -94,5 +94,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "aboutVeilmi": "About Veilmi",
+  "openSource": "Open Source",
+  "openSourceDescription": "Veilmi is an open-source project. If you are interested in how Veilmi is built, you are welcome to visit the project on GitHub.",
+  "docsDescription": "The docs folder contains explanations of Veilmi's cryptographic design, security decisions, testing, and development process.",
+  "viewOnGitHub": "View on GitHub",
+  "readDocumentation": "Read the Documentation",
+  "supportVeilmi": "Support Veilmi",
+  "supportDescription": "Veilmi is free and open source. If you find it useful and would like to support its continued development, you can make a completely optional contribution.",
+  "couldNotOpenLink": "Could not open this link."
 }

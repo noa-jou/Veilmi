@@ -209,4 +209,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String turns(String count) {
     return '$count 次運算';
   }
+
+  @override
+  String get aboutVeilmi => '關於 Veilmi';
+
+  @override
+  String get openSource => '開放原始碼';
+
+  @override
+  String get openSourceDescription =>
+      'Veilmi 是一個開放原始碼專案。如果你對 Veilmi 的製作方式有興趣，歡迎到 GitHub 查看這個專案。';
+
+  @override
+  String get docsDescription => 'docs 資料夾包含 Veilmi 的加密設計、安全考量、測試與開發相關文件。';
+
+  @override
+  String get viewOnGitHub => '前往 GitHub';
+
+  @override
+  String get readDocumentation => '閱讀技術文件';
+
+  @override
+  String get supportVeilmi => '支持 Veilmi';
+
+  @override
+  String get supportDescription =>
+      'Veilmi 是免費且開放原始碼的。如果你覺得它對你有幫助，也希望支持它繼續發展，可以自由選擇提供贊助。';
+
+  @override
+  String get couldNotOpenLink => '無法開啟這個連結。';
 }

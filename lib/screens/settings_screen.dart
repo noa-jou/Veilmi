@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'about_screen.dart';
 import '../crypto/protection_level.dart';
 import '../l10n/app_localizations.dart';
 import '../settings/settings_service.dart';

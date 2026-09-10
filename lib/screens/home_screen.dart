@@ -230,15 +230,44 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final pageBackgroundColor = _isEncryptMode
+        ? Colors.white
+        : Colors.amber.shade100;
+
+    final primaryTextColor = _isEncryptMode
+        ? colorScheme.primary
+        : Colors.black87;
+
+    final secondaryTextColor = _isEncryptMode ? Colors.black54 : Colors.black87;
+
+    final actionBackgroundColor = _isEncryptMode
+        ? colorScheme.primary
+        : Colors.amber.shade600;
+
+    final actionForegroundColor = _isEncryptMode
+        ? colorScheme.onPrimary
+        : Colors.black87;
 
     return Scaffold(
+      backgroundColor: pageBackgroundColor,
       appBar: AppBar(
+        backgroundColor: pageBackgroundColor,
+        foregroundColor: primaryTextColor,
         centerTitle: true,
         leading: TextButton(
           onPressed: _toggleLanguage,
+          style: TextButton.styleFrom(foregroundColor: primaryTextColor),
           child: Text(widget.currentLocale.languageCode == 'en' ? '中文' : 'EN'),
         ),
-        title: Text(l10n.appTitle),
+        title: Text(
+          l10n.appTitle,
+          style: TextStyle(
+            color: primaryTextColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -253,6 +282,59 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SegmentedButton<bool>(
+              style: ButtonStyle(
+                minimumSize: const WidgetStatePropertyAll(Size(120, 54)),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return _isEncryptMode
+                        ? colorScheme.primary
+                        : Colors.amber.shade600;
+                  }
+
+                  return _isEncryptMode ? Colors.grey.shade100 : Colors.white;
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return _isEncryptMode
+                        ? colorScheme.onPrimary
+                        : Colors.black87;
+                  }
+
+                  return _isEncryptMode ? Colors.grey.shade700 : Colors.black54;
+                }),
+                textStyle: WidgetStateProperty.resolveWith<TextStyle?>((
+                  states,
+                ) {
+                  return TextStyle(
+                    fontWeight: states.contains(WidgetState.selected)
+                        ? FontWeight.bold
+                        : FontWeight.w500,
+                  );
+                }),
+                side: WidgetStateProperty.resolveWith<BorderSide?>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return BorderSide(
+                      color: _isEncryptMode
+                          ? colorScheme.primary
+                          : Colors.amber.shade800,
+                      width: 2,
+                    );
+                  }
+
+                  return BorderSide(
+                    color: _isEncryptMode
+                        ? Colors.grey.shade400
+                        : Colors.amber.shade700,
+                  );
+                }),
+              ),
               segments: [
                 ButtonSegment(
                   value: true,
@@ -275,22 +357,26 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 32),
             Text(
               _isEncryptMode ? l10n.protectMessage : l10n.openProtectedMessage,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: primaryTextColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               _isEncryptMode
                   ? l10n.encryptDescription
                   : l10n.decryptDescription,
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(color: secondaryTextColor),
             ),
             const SizedBox(height: 24),
-
             Row(
               children: [
                 IconButton(
                   icon: const Icon(Icons.clear),
                   tooltip: l10n.clear,
+                  color: primaryTextColor,
                   onPressed: _messageController.text.isEmpty
                       ? null
                       : _clearMessage,
@@ -301,20 +387,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   tooltip: _isEncryptMode
                       ? l10n.copyEncryptedMessage
                       : l10n.copyDecryptedMessage,
+                  color: primaryTextColor,
                   onPressed: _messageController.text.isEmpty
                       ? null
                       : _copyMessage,
                 ),
               ],
             ),
-
             TextField(
               controller: _messageController,
               maxLines: 8,
               onChanged: (_) {
                 setState(() {});
               },
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
                 labelText: _isEncryptMode
                     ? l10n.message
                     : l10n.encryptedMessage,
@@ -329,7 +418,10 @@ class _HomeScreenState extends State<HomeScreen> {
             TextField(
               controller: _passphraseController,
               obscureText: _obscurePassphrase,
+              style: const TextStyle(color: Colors.black87),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
                 labelText: l10n.sharedPassphrase,
                 hintText: l10n.passphraseHint,
                 border: const OutlineInputBorder(),
@@ -351,25 +443,39 @@ class _HomeScreenState extends State<HomeScreen> {
             if (_isEncryptMode)
               Text(
                 l10n.protection(_protectionTitle(l10n, _protectionLevel)),
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: secondaryTextColor),
               )
             else
               Text(
                 l10n.protectionReadFromMessage,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: secondaryTextColor),
               ),
             const SizedBox(height: 24),
             FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: actionBackgroundColor,
+                foregroundColor: actionForegroundColor,
+                minimumSize: const Size.fromHeight(54),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               onPressed: _isProcessing || (_isEncryptMode && !_settingsLoaded)
                   ? null
                   : _isEncryptMode
                   ? _encryptMessage
                   : _decryptMessage,
               icon: _isProcessing
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: actionForegroundColor,
+                      ),
                     )
                   : Icon(
                       _isEncryptMode
