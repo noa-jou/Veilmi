@@ -25,7 +25,7 @@ Flutter
    ↓
 Android SDK
    ↓
-ADB
+ADB (Android Debug Bridge)
    ↓
 USB connection
    ↓
@@ -256,7 +256,7 @@ Possible causes include:
 
 ---
 
-## 8. Restart ADB
+## 8. Restart ADB (Android Debug Bridge)
 
 If the phone previously worked but suddenly disappears, restart the ADB server.
 

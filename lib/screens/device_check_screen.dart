@@ -13,6 +13,8 @@ class DeviceCheckScreen extends StatefulWidget {
 }
 
 class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
+  static const int _recommendedMaxMilliseconds = 5000;
+
   bool _isRunning = false;
   String _result = '';
 
@@ -27,7 +29,6 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
     });
 
     final buffer = StringBuffer();
-
     final times = <ProtectionLevel, double>{};
 
     try {
@@ -43,7 +44,6 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
       buffer.writeln();
 
       final salt = List<int>.generate(16, (index) => index);
-
       const passphrase = 'veilmi-device-check';
 
       for (final level in ProtectionLevel.values) {
@@ -64,7 +64,6 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
           );
 
           stopwatch.stop();
-
           runTimes.add(stopwatch.elapsedMilliseconds);
         }
 
@@ -79,15 +78,16 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
         );
       }
 
-      final strongerTime = times[ProtectionLevel.stronger] ?? double.infinity;
-
-      final balancedTime = times[ProtectionLevel.balanced] ?? double.infinity;
+      final strongerTime =
+          times[ProtectionLevel.stronger] ?? double.infinity;
+      final balancedTime =
+          times[ProtectionLevel.balanced] ?? double.infinity;
 
       String recommendation;
 
-      if (strongerTime <= 5000) {
+      if (strongerTime <= _recommendedMaxMilliseconds) {
         recommendation = ProtectionLevel.stronger.title;
-      } else if (balancedTime <= 5000) {
+      } else if (balancedTime <= _recommendedMaxMilliseconds) {
         recommendation = ProtectionLevel.balanced.title;
       } else {
         recommendation = ProtectionLevel.compatibility.title;
@@ -124,43 +124,80 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Protection & Device Check')),
+      appBar: AppBar(
+        title: const Text('Protection & Device Check'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'How protection levels work',
+              'How protection works',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             const Text(
-              'Imagine your passphrase is the key to your front door. '
-              'Before the key can open the door, the lock requires it '
-              'to turn again and again.',
+              'Think of your message as a locked door.',
             ),
             const SizedBox(height: 12),
             const Text(
-              'A higher protection level requires more turns. '
-              'This makes each passphrase guess more expensive for '
-              'an attacker, but your phone must also spend more time '
-              'unlocking the message.',
+              'Your shared passphrase is the key.',
             ),
             const SizedBox(height: 12),
             const Text(
-              "The recipient's phone must do the same work, so a level "
-              'that feels fast on your phone may be slower on theirs.',
+              'Before the door opens, the lock has to turn many times.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'More turns make it harder for someone to keep guessing '
+              'the key.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'But more turns also make the phone work harder.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "The other person's phone has to do the same work too, "
+              'so a very strong setting may be slow on an older phone.',
             ),
             const SizedBox(height: 32),
             Text(
-              'Which lock fits this device?',
+              'The three protection levels',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            _ProtectionLevelCard(
+              title: ProtectionLevel.compatibility.title,
+              turns: ProtectionLevel.compatibility.iterations,
+              description:
+                  'Fewer turns. Faster, especially on older phones.',
+            ),
+            const SizedBox(height: 12),
+            _ProtectionLevelCard(
+              title: ProtectionLevel.balanced.title,
+              turns: ProtectionLevel.balanced.iterations,
+              description:
+                  'More work for guessing, with a moderate phone workload.',
+            ),
+            const SizedBox(height: 12),
+            _ProtectionLevelCard(
+              title: ProtectionLevel.stronger.title,
+              turns: ProtectionLevel.stronger.iterations,
+              description:
+                  'Many more turns. Harder to guess repeatedly, but slower '
+                  'on some phones.',
+            ),
+            const SizedBox(height: 32),
+            Text(
+              'Which level fits this device?',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             const Text(
-              'Veilmi can test how long each protection level takes '
-              'on this device and suggest a suitable option.',
+              'Veilmi can measure how long each level takes on this phone '
+              'and suggest one that should feel practical.',
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -169,10 +206,16 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
                     )
                   : const Icon(Icons.speed_outlined),
-              label: Text(_isRunning ? 'Checking...' : 'Check This Device'),
+              label: Text(
+                _isRunning
+                    ? 'Checking...'
+                    : 'Check This Device',
+              ),
             ),
             if (_result.isNotEmpty) ...[
               const SizedBox(height: 24),
@@ -185,5 +228,57 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
         ),
       ),
     );
+  }
+}
+
+class _ProtectionLevelCard extends StatelessWidget {
+  const _ProtectionLevelCard({
+    required this.title,
+    required this.turns,
+    required this.description,
+  });
+
+  final String title;
+  final int turns;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${_formatNumber(turns)} turns',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Text(description),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatNumber(int value) {
+    final text = value.toString();
+    final buffer = StringBuffer();
+
+    for (var i = 0; i < text.length; i++) {
+      if (i > 0 && (text.length - i) % 3 == 0) {
+        buffer.write(',');
+      }
+
+      buffer.write(text[i]);
+    }
+
+    return buffer.toString();
   }
 }

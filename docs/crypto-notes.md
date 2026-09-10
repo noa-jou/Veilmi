@@ -1,27 +1,60 @@
 # Veilmi Cryptography Notes
 
-This document records the cryptographic concepts used in Veilmi and explains
-how a message moves through the encryption and decryption process.
+This document explains how Veilmi currently encrypts and decrypts messages.
 
-It is primarily a development and learning reference.
+It is written as a beginner-friendly development reference.
 
-## 1. Message Envelope Fields
+---
 
-A Veilmi message contains several fields:
+## 1. The Big Picture
+
+Veilmi starts with two things:
+
+```text
+message
++
+shared passphrase
+```
+
+The passphrase is not used directly as an encryption key.
+
+Instead:
+
+```text
+shared passphrase
+       |
+       v
+  key derivation
+       |
+       v
+ encryption key
+       |
+       v
+ AES-256-GCM
+       |
+       v
+encrypted message
+```
+
+The receiver performs the same process in reverse.
+
+---
+
+## 2. Message Envelope
+
+A Veilmi encrypted message contains several pieces of information:
 
 | Field | Meaning | Purpose |
 |---|---|---|
-| `v` | Version | Identifies the Veilmi message format version |
-| `k` | Key Derivation Function | Identifies how the encryption key is derived from the passphrase |
-| `i` | Iterations | Controls how many PBKDF2 iterations are performed |
-| `s` | Salt | Used with the passphrase when deriving the encryption key |
-| `n` | Nonce | A value used by AES-GCM for a particular encryption operation |
-| `c` | Ciphertext | The encrypted form of the user's plaintext message |
-| `m` | Authentication Tag | Allows AES-GCM to detect modification or corruption |
+| `v` | Version | Identifies the Veilmi message format |
+| `k` | Key Derivation Function | Tells Veilmi how the key was created |
+| `i` | Iterations | Controls how much work PBKDF2 performs |
+| `s` | Salt | Used with the passphrase to derive the key |
+| `n` | Nonce | Used by AES-GCM for this encryption |
+| `c` | Ciphertext | The encrypted message |
+| `m` | Authentication Tag | Detects modification or a wrong key |
 
-These values are encoded into the Veilmi message envelope.
-
-Example structure:
+Conceptually, the envelope looks like:
 
 ```json
 {
@@ -35,96 +68,136 @@ Example structure:
 }
 ```
 
-The JSON data is encoded using Base64URL and prefixed with:
-```
+The JSON is encoded using Base64URL and prefixed with:
+
+```text
 VEILMI1:
 ```
-A final encrypted message therefore looks approximately like:
-```
+
+A complete encrypted message therefore looks approximately like:
+
+```text
 VEILMI1:eyJ2IjoxLCJrIjoi...
 ```
-The prefix is not secret. It identifies the message as a Veilmi protocol
-message and indicates its protocol version.
 
-## 2. Passphrase and Key Derivation
+The prefix is not secret.
 
-Veilmi does not directly use the user's passphrase as an AES encryption key.
+It tells Veilmi which message format it is reading.
 
-Instead, it uses PBKDF2-HMAC-SHA256 to derive a 256-bit key.
+---
 
-Conceptually:
+## 3. Passphrase and Key Derivation
 
-```
-passphrase
-    +
-random salt (s)
-    |
-    v
+Veilmi currently uses:
+
+```text
 PBKDF2-HMAC-SHA256
-    |
-    | repeated i times
-    v
-256-bit encryption key
 ```
 
-### Salt (s)
-
-The salt is a random value used during key derivation.
-
-Even when the same passphrase is reused, different salts cause PBKDF2 to
-derive different keys.
-
-```
-same passphrase + salt A -> key A
-same passphrase + salt B -> key B
-```
-The salt does not need to be secret. It is stored in the message envelope so
-the receiver can derive the same key.
-
-### Iterations (i)
-
-The iteration count determines how much computational work PBKDF2 performs
-when deriving a key.
-
-Veilmi currently uses a development value of:
-
-```
-600000 iterations
-```
-A higher iteration count makes each passphrase guess more computationally
-expensive.
-
-This is useful because an attacker who obtains an encrypted message can try
-to guess the passphrase offline.
-
-For every guess, the attacker must perform the PBKDF2 computation before
-testing whether the resulting key is correct.
-
-However, a very large iteration count also increases the workload for
-legitimate users.
-
-For this reason, Veilmi must not blindly trust an iteration count supplied by
-an incoming message.
-
-The current implementation only accepts the iteration count configured by
-Veilmi.
-
-The final iteration count should be benchmarked on target mobile devices
-before the VEILMI1 protocol is considered stable.
-
-## 3. AES-GCM Encryption
-
-After PBKDF2 derives the 256-bit key, Veilmi uses AES-256-GCM to encrypt the
-plaintext.
+to turn the shared passphrase into a 256-bit encryption key.
 
 Conceptually:
 
+```text
+shared passphrase
+       +
+  random salt (s)
+       |
+       v
+PBKDF2-HMAC-SHA256
+       |
+       | repeated i times
+       v
+  256-bit key
 ```
+
+### Salt (`s`)
+
+The salt is a fresh random value used during key derivation.
+
+For example:
+
+```text
+same passphrase + salt A
+        |
+        v
+      key A
+
+
+same passphrase + salt B
+        |
+        v
+      key B
+```
+
+The salt does not need to be secret.
+
+The receiver needs the same salt to derive the same key, so it is included in
+the encrypted message.
+
+---
+
+## 4. Iterations (`i`)
+
+A simple way to understand the iteration count is to imagine a locked door.
+
+```text
+message     = locked door
+passphrase  = key
+iterations  = how many turns the lock must perform
+```
+
+More turns mean more work.
+
+```text
+fewer turns
+    |
+    v
+faster for the phone
+but cheaper to guess repeatedly
+```
+
+```text
+more turns
+    |
+    v
+slower for the phone
+but more expensive to guess repeatedly
+```
+
+Veilmi currently has three protection levels:
+
+| Level | Iterations |
+|---|---:|
+| Compatibility | 50,000 |
+| Balanced | 100,000 |
+| Stronger | 600,000 |
+
+The sender chooses the protection level.
+
+The receiver does not need to choose the same setting manually because the
+iteration count is stored inside the message envelope.
+
+---
+
+## 5. AES-GCM Encryption
+
+After the key is derived, Veilmi uses:
+
+```text
+AES-256-GCM
+```
+
+to encrypt the plaintext.
+
+Conceptually:
+
+```text
 256-bit key
      |
-     |       nonce (n)
-     |          |
-     v          v
+     |        nonce (n)
+     |           |
+     v           v
       AES-256-GCM
            ^
            |
@@ -137,62 +210,125 @@ Conceptually:
    +----------------+
 ```
 
-### Nonce (n)
+AES-GCM does two important jobs:
+
+```text
+hide the message
++
+detect modification
+```
+
+---
+
+## 6. Nonce (`n`)
 
 The nonce is used by AES-GCM during encryption.
 
-It does not need to be secret, but a nonce must not be reused with the same
-AES-GCM key.
+It is not secret.
 
-Veilmi stores the nonce in the message envelope because the receiver needs it
-to decrypt the ciphertext.
+Veilmi generates a fresh nonce for each encryption.
 
-The nonce and salt have different purposes:
+The salt and nonce have different jobs:
 
+```text
+salt
+ |
+ v
+PBKDF2
+ |
+ v
+derive key
 ```
-salt  -> used by PBKDF2 to derive a key
-nonce -> used by AES-GCM to encrypt/decrypt a message
+
+```text
+nonce
+ |
+ v
+AES-GCM
+ |
+ v
+encrypt message
 ```
 
-### Ciphertext (c)
+So:
 
-Ciphertext is the encrypted form of the user's plaintext.
+```text
+salt  -> key derivation
+nonce -> message encryption
+```
+
+---
+
+## 7. Ciphertext (`c`)
+
+Ciphertext is the encrypted form of the original message.
 
 For example:
 
-```
-plaintext
+```text
 "Meet me at 8 PM."
         |
         v
-     AES-GCM
+    AES-256-GCM
         |
         v
+ encrypted bytes
+        |
+        v
+  ciphertext (c)
+```
+
+The ciphertext is what carries the hidden message.
+
+It is not expected to be readable by a person.
+
+---
+
+## 8. Authentication Tag (`m`)
+
+AES-GCM also creates an authentication tag.
+
+The tag helps Veilmi detect whether the encrypted data can be trusted.
+
+For example:
+
+```text
 ciphertext
+   +
+auth tag
+   +
+derived key
+     |
+     v
+authentication check
+     |
+ +---+---+
+ |       |
+valid  invalid
+ |       |
+ v       v
+decrypt REJECT
 ```
-Without the ciphertext, the receiver has no encrypted message to decrypt.
 
-### Authentication Tag (m)
+Authentication should fail when:
 
-AES-GCM also produces an authentication tag.
-
-The receiver verifies this tag before accepting the decrypted message.
-
-If an attacker modifies the ciphertext, nonce, or authentication tag, the
-authentication check should fail and Veilmi must reject the message rather
-than return potentially modified plaintext.
-
-The authentication tag does not identify a specific sender in Veilmi's
-shared-passphrase model.
-
-Anyone who possesses the shared secret can derive the encryption key and
-create a valid authenticated message.
-
-## 4. Complete Encryption Flow
-
-The complete encryption process is:
-
+```text
+the passphrase is wrong
+or
+the encrypted data was modified
 ```
+
+Veilmi should reject the message instead of returning corrupted plaintext.
+
+The authentication tag does not prove which person sent the message.
+
+Anyone who knows the shared passphrase can create a valid Veilmi message.
+
+---
+
+## 9. Complete Encryption Flow
+
+```text
 User plaintext
       |
       |                     Shared passphrase
@@ -227,12 +363,16 @@ User plaintext
                     v
        VEILMI1:eyJ2IjoxLCJr...
 ```
-The encrypted text can then be copied into an existing communication channel.
 
-## 5. Complete Decryption Flow
+The encrypted text can then be copied into another communication channel.
+
+---
+
+## 10. Complete Decryption Flow
 
 The receiver performs the process in reverse:
-```
+
+```text
 VEILMI1:eyJ2IjoxLCJr...
              |
              v
@@ -246,7 +386,9 @@ VEILMI1:eyJ2IjoxLCJr...
              |
              v
    Read envelope fields
+
  v / k / i / s / n / c / m
+
              |
              +-------------------+
              |                   |
@@ -275,18 +417,23 @@ VEILMI1:eyJ2IjoxLCJr...
               v
            plaintext
 ```
-A wrong passphrase derives the wrong key, causing AES-GCM authentication to
-fail.
 
-Modified authenticated encryption data should likewise be rejected.
+A wrong passphrase derives the wrong key.
 
-## 6. What Is Secret?
+That causes AES-GCM authentication to fail.
 
-Most values in a Veilmi message are not secrets.
+Modified encrypted data should also be rejected.
+
+---
+
+## 11. What Is Secret?
+
+Most values inside a Veilmi message are not secrets.
 
 An observer may know:
-```
-VEILMI1 protocol format
+
+```text
+VEILMI1 format
 algorithm
 KDF
 iteration count
@@ -296,67 +443,125 @@ ciphertext
 authentication tag
 source code
 ```
-Veilmi does not depend on hiding these values.
 
-The important secret is the shared passphrase and, consequently, the key
-derived from it.
+The important secret is:
 
-This follows an important cryptographic design principle: the security of a
-system should not depend on keeping its algorithm or implementation secret.
+```text
+shared passphrase
+```
 
-## 7. Important Limitation: Passphrase Guessing
+and therefore the encryption key derived from it.
 
-Possession of the encrypted message allows an attacker to attempt offline
-passphrase guesses.
+Veilmi should remain secure even when someone understands exactly how the
+program works.
+
+---
+
+## 12. Same Message, Different Result
+
+Encrypting the same plaintext twice with the same passphrase should normally
+produce different encrypted messages.
 
 For example:
+
+```text
+"I love you"
++
+same passphrase
+        |
+        v
+ encryption #1
+        |
+        v
+VEILMI1:AAA...
 ```
-guess passphrase
-      |
-      v
-PBKDF2(passphrase, salt)
-      |
-      v
-candidate key
-      |
-      v
-attempt AES-GCM authentication
-      |
-   +--+--+
-   |     |
- fail  success
-         |
-         v
-likely correct passphrase
+
+and:
+
+```text
+"I love you"
++
+same passphrase
+        |
+        v
+ encryption #2
+        |
+        v
+VEILMI1:XYZ...
 ```
-PBKDF2 increases the cost of each guess, but it cannot make a weak passphrase
-strong.
 
-Therefore, Veilmi should encourage users to choose strong shared
-passphrases.
+This happens because Veilmi generates fresh random values such as:
 
-## 8. PBKDF2 Benchmark
+```text
+salt
+nonce
+```
 
-Before finalizing the PBKDF2 iteration count for VEILMI1, the key
-derivation performance should be measured on target devices.
+for each encryption.
 
-An initial benchmark was performed in the Chromebook Debian development
-environment using Dart.
+This is expected behavior.
 
-Each configuration was measured three times.
+---
 
-| Iterations | Run 1 | Run 2 | Run 3 | Average |
-|---:|---:|---:|---:|---:|
-| 100,000 | 496 ms | 431 ms | 430 ms | 452.3 ms |
-| 300,000 | 1288 ms | 1293 ms | 1278 ms | 1286.3 ms |
-| 600,000 | 2579 ms | 2550 ms | 2571 ms | 2566.7 ms |
+## 13. Wrong Passphrase
 
-These results are preliminary.
+If the receiver enters the wrong passphrase:
 
-They measure PBKDF2 performance in the development environment and should
-not be treated as representative of Android or iOS performance.
+```text
+wrong passphrase
+       |
+       v
+different derived key
+       |
+       v
+AES-GCM authentication
+       |
+       v
+     FAIL
+       |
+       v
+    REJECT
+```
 
-The final VEILMI1 iteration count should not be selected until benchmarks
-have been performed on actual target mobile devices.
+Veilmi does not return partially decrypted text.
 
+---
 
+## 14. Summary
+
+The current Veilmi encryption process is:
+
+```text
+Passphrase
+    +
+Salt
+    |
+    v
+PBKDF2
+    |
+    v
+256-bit key
+
+Plaintext
+    +
+Key
+    +
+Nonce
+    |
+    v
+AES-256-GCM
+    |
+    v
+Ciphertext + Authentication Tag
+
+All required public values
+    |
+    v
+Message Envelope
+    |
+    v
+VEILMI1:...
+```
+
+The receiver uses the same passphrase and the values stored in the envelope to
+reverse the process.
