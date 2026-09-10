@@ -1,7 +1,12 @@
-# Gradle
+# ------------------------------------------------------------------------------
+# 1. Gradle & Android 專案建置與快取 (Android / Kotlin)
+# ------------------------------------------------------------------------------
 .gradle/
 build/
 **/build/
+android/.gradle/
+android/app/build/
+android/app/src/main/assets/
 
 # Local configuration
 local.properties
@@ -9,6 +14,8 @@ local.properties
 # Android Studio / IntelliJ IDEA
 .idea/
 *.iml
+*.ipr
+*.iws
 
 # Android Studio generated files
 captures/
@@ -19,24 +26,72 @@ captures/
 *.apk
 *.aab
 
-# Signing files
+# Signing files & Secret configuration
 *.jks
 *.keystore
-
-# Signing / secret configuration
 keystore.properties
 
-# OS files
+# Kotlin compiler session cache
+.kotlin/
+android/.kotlin/
+
+
+# ------------------------------------------------------------------------------
+# 2. Flutter / Dart 相關檔案 (Flutter Core)
+# ------------------------------------------------------------------------------
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.fvm/
+/pubspec.lock
+
+
+# ------------------------------------------------------------------------------
+# 3. iOS & macOS 專案建置檔 (CocoaPods & Xcode) - ⚠️ 原本缺少的關鍵部分
+# ------------------------------------------------------------------------------
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.fltf
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+
+macOS/Pods/
+macOS/.symlinks/
+macOS/Flutter/ephemeral/
+
+
+# ------------------------------------------------------------------------------
+# 4. 編輯器與 IDE 設定檔 (VS Code / 其他) - ⚠️ 建議加入
+# ------------------------------------------------------------------------------
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# 密碼、金鑰與環境變數檔 (例如 flutter_dotenv 使用的 .env)
+*.env
+*.env.*
+
+
+# ------------------------------------------------------------------------------
+# 5. 作業系統暫存檔 (OS Files)
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
-
-# Flutter / Dart
-.dart_tool/
-.packages
-.pub/
-build/
-.flutter-plugins
-.flutter-plugins-dependencies
