@@ -1,0 +1,117 @@
+{
+  "@@locale": "zh",
+
+  "appTitle": "Veilmi",
+  "settings": "設定",
+
+  "encrypt": "加密",
+  "decrypt": "解密",
+
+  "protectMessage": "保護訊息",
+  "openProtectedMessage": "開啟受保護的訊息",
+
+  "encryptDescription": "使用共享密碼在本機加密文字。",
+  "decryptDescription": "使用共享密碼在本機解密文字。",
+
+  "message": "訊息",
+  "encryptedMessage": "加密訊息",
+  "decryptedMessage": "解密訊息",
+
+  "messageHint": "輸入或貼上你想保護的訊息。",
+  "encryptedMessageHint": "在這裡貼上 Veilmi 加密訊息。",
+
+  "clear": "清除",
+
+  "sharedPassphrase": "共享密碼",
+  "passphraseHint": "輸入你與收件者共享的密碼。",
+
+  "protection": "保護等級：{level}",
+  "@protection": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+
+  "protectionReadFromMessage": "保護等級會自動從加密訊息中讀取。",
+
+  "encrypting": "加密中...",
+  "decrypting": "解密中...",
+
+  "encryptMessage": "加密訊息",
+  "decryptMessage": "解密訊息",
+
+  "copyEncryptedMessage": "複製加密訊息",
+  "copyDecryptedMessage": "複製解密訊息",
+
+  "encryptedMessageCopied": "已複製加密訊息。",
+  "decryptedMessageCopied": "已複製解密訊息。",
+
+  "enterMessageAndPassphrase": "請輸入訊息和共享密碼。",
+  "enterEncryptedMessageAndPassphrase": "請輸入加密訊息和共享密碼。",
+
+  "encryptionFailed": "無法加密這則訊息。",
+  "invalidEncryptedMessage": "這不是有效的 Veilmi 加密訊息。",
+  "decryptionAuthenticationFailed": "無法解密訊息。請檢查共享密碼和訊息是否完整。",
+  "decryptionFailed": "無法解密這則訊息。",
+
+  "protectionLevel": "保護等級",
+  "protectionLevelDescription": "選擇 Veilmi 在處理共享密碼時需要進行多少運算。",
+
+  "compatibility": "相容",
+  "compatibilitySummary": "在較舊的裝置上速度較快。",
+  "balanced": "平衡",
+  "balancedSummary": "在保護強度與速度之間取得平衡。",
+  "stronger": "較強",
+  "strongerSummary": "提高重複猜測共享密碼所需的成本。",
+
+  "protectionDeviceCheck": "保護與裝置檢查",
+  "protectionDeviceCheckDescription": "了解保護等級的運作方式，並找出適合這台裝置的設定。",
+  "deviceCheckTitle": "保護與裝置檢查",
+  "howProtectionWorks": "保護機制如何運作",
+  "lockedDoor": "把你的訊息想像成一扇上鎖的門。",
+  "sharedPassphraseKey": "共享密碼就是鑰匙。",
+  "lockTurns": "在門打開之前，這把鎖需要進行很多次運算。",
+  "moreTurnsHarderGuessing": "運算次數越多，持續猜測密碼所需的成本也越高。",
+  "moreTurnsMoreWork": "但運算次數越多，手機也需要做更多工作。",
+  "otherPhoneSameWork": "對方的手機也需要進行相同的運算，因此較強的設定在舊手機上可能會比較慢。",
+  "threeProtectionLevels": "三種保護等級",
+  "compatibilityDeviceDescription": "運算次數較少，在較舊的手機上速度較快。",
+  "balancedDeviceDescription": "提高猜測成本，同時維持中等的手機負擔。",
+  "strongerDeviceDescription": "運算次數更多，能提高重複猜測的成本，但在部分手機上會較慢。",
+  "whichLevelFits": "哪個等級適合這台裝置？",
+  "deviceCheckDescription": "Veilmi 可以測量每個保護等級在這台手機上所需的時間，並提供一個較實用的建議。",
+  "checkingDevice": "正在檢查這台裝置...",
+  "checking": "檢查中...",
+  "checkThisDevice": "檢查這台裝置",
+  "deviceCheckFailed": "裝置檢查失敗。",
+  "recommendedForDevice": "建議這台裝置使用：",
+  "pbkdf2Implementation": "PBKDF2 實作：{implementation}",
+  "@pbkdf2Implementation": {
+    "placeholders": {
+      "implementation": {
+        "type": "String"
+      }
+    }
+  },
+  "protectionTime": "{level}：{seconds} 秒",
+  "@protectionTime": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "turns": "{count} 次運算",
+  "@turns": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
+}

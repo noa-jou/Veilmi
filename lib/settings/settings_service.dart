@@ -6,6 +6,7 @@ class SettingsService {
   const SettingsService();
 
   static const String _protectionLevelKey = 'protection_level';
+  static const String _languageCodeKey = 'language_code';
 
   Future<void> saveProtectionLevel(ProtectionLevel level) async {
     final preferences = await SharedPreferences.getInstance();
@@ -29,5 +30,23 @@ class SettingsService {
     }
 
     return ProtectionLevel.balanced;
+  }
+
+  Future<void> saveLanguageCode(String languageCode) async {
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_languageCodeKey, languageCode);
+  }
+
+  Future<String> loadLanguageCode() async {
+    final preferences = await SharedPreferences.getInstance();
+
+    final languageCode = preferences.getString(_languageCodeKey);
+
+    if (languageCode == 'zh') {
+      return 'zh';
+    }
+
+    return 'en';
   }
 }

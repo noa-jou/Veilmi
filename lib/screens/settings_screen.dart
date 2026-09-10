@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../crypto/protection_level.dart';
+import '../l10n/app_localizations.dart';
 import '../settings/settings_service.dart';
 import 'device_check_screen.dart';
 
@@ -32,22 +33,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _settingsService.saveProtectionLevel(level);
   }
 
+  String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
+    switch (level) {
+      case ProtectionLevel.compatibility:
+        return l10n.compatibility;
+      case ProtectionLevel.balanced:
+        return l10n.balanced;
+      case ProtectionLevel.stronger:
+        return l10n.stronger;
+    }
+  }
+
+  String _protectionSummary(AppLocalizations l10n, ProtectionLevel level) {
+    switch (level) {
+      case ProtectionLevel.compatibility:
+        return l10n.compatibilitySummary;
+      case ProtectionLevel.balanced:
+        return l10n.balancedSummary;
+      case ProtectionLevel.stronger:
+        return l10n.strongerSummary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            'Protection Level',
+            l10n.protectionLevel,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Choose how much work Veilmi should require when preparing '
-            'your shared passphrase.',
-          ),
+          Text(l10n.protectionLevelDescription),
           const SizedBox(height: 20),
           RadioGroup<ProtectionLevel>(
             groupValue: _protectionLevel,
@@ -61,8 +83,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: ProtectionLevel.values.map((level) {
                 return RadioListTile<ProtectionLevel>(
-                  title: Text(level.title),
-                  subtitle: Text(level.summary),
+                  title: Text(_protectionTitle(l10n, level)),
+                  subtitle: Text(_protectionSummary(l10n, level)),
                   value: level,
                 );
               }).toList(),
@@ -74,11 +96,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.security_outlined),
-            title: const Text('Protection & Device Check'),
-            subtitle: const Text(
-              'Learn how protection levels work and find a suitable '
-              'level for this device.',
-            ),
+            title: Text(l10n.protectionDeviceCheck),
+            subtitle: Text(l10n.protectionDeviceCheckDescription),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(

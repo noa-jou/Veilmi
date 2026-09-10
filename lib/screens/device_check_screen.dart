@@ -4,6 +4,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 
 import '../crypto/protection_level.dart';
+import '../l10n/app_localizations.dart';
 
 class DeviceCheckScreen extends StatefulWidget {
   const DeviceCheckScreen({super.key});
@@ -18,14 +19,27 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
   bool _isRunning = false;
   String _result = '';
 
+  String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
+    switch (level) {
+      case ProtectionLevel.compatibility:
+        return l10n.compatibility;
+      case ProtectionLevel.balanced:
+        return l10n.balanced;
+      case ProtectionLevel.stronger:
+        return l10n.stronger;
+    }
+  }
+
   Future<void> _checkDevice() async {
     if (_isRunning) {
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isRunning = true;
-      _result = 'Checking this device...';
+      _result = l10n.checkingDevice;
     });
 
     final buffer = StringBuffer();
@@ -39,7 +53,7 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
       );
 
       buffer.writeln(
-        'PBKDF2 implementation: ${implementationCheck.runtimeType}',
+        l10n.pbkdf2Implementation(implementationCheck.runtimeType.toString()),
       );
       buffer.writeln();
 
@@ -73,29 +87,29 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
         times[level] = averageMilliseconds;
 
         buffer.writeln(
-          '${level.title}: '
-          '${(averageMilliseconds / 1000).toStringAsFixed(1)} s',
+          l10n.protectionTime(
+            _protectionTitle(l10n, level),
+            (averageMilliseconds / 1000).toStringAsFixed(1),
+          ),
         );
       }
 
-      final strongerTime =
-          times[ProtectionLevel.stronger] ?? double.infinity;
-      final balancedTime =
-          times[ProtectionLevel.balanced] ?? double.infinity;
+      final strongerTime = times[ProtectionLevel.stronger] ?? double.infinity;
+      final balancedTime = times[ProtectionLevel.balanced] ?? double.infinity;
 
-      String recommendation;
+      ProtectionLevel recommendation;
 
       if (strongerTime <= _recommendedMaxMilliseconds) {
-        recommendation = ProtectionLevel.stronger.title;
+        recommendation = ProtectionLevel.stronger;
       } else if (balancedTime <= _recommendedMaxMilliseconds) {
-        recommendation = ProtectionLevel.balanced.title;
+        recommendation = ProtectionLevel.balanced;
       } else {
-        recommendation = ProtectionLevel.compatibility.title;
+        recommendation = ProtectionLevel.compatibility;
       }
 
       buffer.writeln();
-      buffer.writeln('Recommended for this device:');
-      buffer.writeln(recommendation);
+      buffer.writeln(l10n.recommendedForDevice);
+      buffer.writeln(_protectionTitle(l10n, recommendation));
 
       if (!mounted) {
         return;
@@ -110,7 +124,7 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
       }
 
       setState(() {
-        _result = 'Device check failed.';
+        _result = l10n.deviceCheckFailed;
       });
     } finally {
       if (mounted) {
@@ -123,82 +137,64 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Protection & Device Check'),
-      ),
+      appBar: AppBar(title: Text(l10n.deviceCheckTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'How protection works',
+              l10n.howProtectionWorks,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Think of your message as a locked door.',
-            ),
+            Text(l10n.lockedDoor),
             const SizedBox(height: 12),
-            const Text(
-              'Your shared passphrase is the key.',
-            ),
+            Text(l10n.sharedPassphraseKey),
             const SizedBox(height: 12),
-            const Text(
-              'Before the door opens, the lock has to turn many times.',
-            ),
+            Text(l10n.lockTurns),
             const SizedBox(height: 12),
-            const Text(
-              'More turns make it harder for someone to keep guessing '
-              'the key.',
-            ),
+            Text(l10n.moreTurnsHarderGuessing),
             const SizedBox(height: 12),
-            const Text(
-              'But more turns also make the phone work harder.',
-            ),
+            Text(l10n.moreTurnsMoreWork),
             const SizedBox(height: 12),
-            const Text(
-              "The other person's phone has to do the same work too, "
-              'so a very strong setting may be slow on an older phone.',
-            ),
+            Text(l10n.otherPhoneSameWork),
             const SizedBox(height: 32),
             Text(
-              'The three protection levels',
+              l10n.threeProtectionLevels,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             _ProtectionLevelCard(
-              title: ProtectionLevel.compatibility.title,
+              title: l10n.compatibility,
               turns: ProtectionLevel.compatibility.iterations,
-              description:
-                  'Fewer turns. Faster, especially on older phones.',
+              turnsLabel: l10n.turns,
+              description: l10n.compatibilityDeviceDescription,
             ),
             const SizedBox(height: 12),
             _ProtectionLevelCard(
-              title: ProtectionLevel.balanced.title,
+              title: l10n.balanced,
               turns: ProtectionLevel.balanced.iterations,
-              description:
-                  'More work for guessing, with a moderate phone workload.',
+              turnsLabel: l10n.turns,
+              description: l10n.balancedDeviceDescription,
             ),
             const SizedBox(height: 12),
             _ProtectionLevelCard(
-              title: ProtectionLevel.stronger.title,
+              title: l10n.stronger,
               turns: ProtectionLevel.stronger.iterations,
-              description:
-                  'Many more turns. Harder to guess repeatedly, but slower '
-                  'on some phones.',
+              turnsLabel: l10n.turns,
+              description: l10n.strongerDeviceDescription,
             ),
             const SizedBox(height: 32),
             Text(
-              'Which level fits this device?',
+              l10n.whichLevelFits,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Veilmi can measure how long each level takes on this phone '
-              'and suggest one that should feel practical.',
-            ),
+            Text(l10n.deviceCheckDescription),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: _isRunning ? null : _checkDevice,
@@ -206,16 +202,10 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.speed_outlined),
-              label: Text(
-                _isRunning
-                    ? 'Checking...'
-                    : 'Check This Device',
-              ),
+              label: Text(_isRunning ? l10n.checking : l10n.checkThisDevice),
             ),
             if (_result.isNotEmpty) ...[
               const SizedBox(height: 24),
@@ -235,11 +225,13 @@ class _ProtectionLevelCard extends StatelessWidget {
   const _ProtectionLevelCard({
     required this.title,
     required this.turns,
+    required this.turnsLabel,
     required this.description,
   });
 
   final String title;
   final int turns;
+  final String Function(String) turnsLabel;
   final String description;
 
   @override
@@ -250,13 +242,10 @@ class _ProtectionLevelCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              '${_formatNumber(turns)} turns',
+              turnsLabel(_formatNumber(turns)),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),

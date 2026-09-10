@@ -4,11 +4,19 @@ import 'package:flutter/services.dart';
 
 import '../crypto/crypto_service.dart';
 import '../crypto/protection_level.dart';
+import '../l10n/app_localizations.dart';
 import '../settings/settings_service.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.currentLocale,
+    required this.onLocaleChanged,
+  });
+
+  final Locale currentLocale;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -27,8 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _settingsLoaded = false;
 
   ProtectionLevel _protectionLevel = ProtectionLevel.balanced;
-
-  String _result = '';
 
   @override
   void initState() {
@@ -49,6 +55,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _toggleLanguage() async {
+    final newLanguageCode = widget.currentLocale.languageCode == 'en'
+        ? 'zh'
+        : 'en';
+
+    await _settingsService.saveLanguageCode(newLanguageCode);
+
+    if (!mounted) {
+      return;
+    }
+
+    widget.onLocaleChanged(Locale(newLanguageCode));
+  }
+
   Future<void> _openSettings() async {
     await Navigator.push(
       context,
@@ -62,17 +82,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _encryptMessage() async {
+    final l10n = AppLocalizations.of(context)!;
     final plaintext = _messageController.text;
     final passphrase = _passphraseController.text;
 
     if (plaintext.isEmpty || passphrase.isEmpty) {
-      _showMessage('Enter both a message and a shared passphrase.');
+      _showMessage(l10n.enterMessageAndPassphrase);
       return;
     }
 
     setState(() {
       _isProcessing = true;
-      _result = '';
     });
 
     try {
@@ -86,15 +106,15 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      setState(() {
-        _result = encryptedMessage;
-      });
+      _messageController.text = encryptedMessage;
+
+      setState(() {});
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      _showMessage('Could not encrypt this message.');
+      _showMessage(l10n.encryptionFailed);
     } finally {
       if (mounted) {
         setState(() {
@@ -105,19 +125,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _decryptMessage() async {
+    final l10n = AppLocalizations.of(context)!;
     final encodedMessage = _messageController.text.trim();
     final passphrase = _passphraseController.text;
 
     if (encodedMessage.isEmpty || passphrase.isEmpty) {
-      _showMessage(
-        'Enter both an encrypted message and the shared passphrase.',
-      );
+      _showMessage(l10n.enterEncryptedMessageAndPassphrase);
       return;
     }
 
     setState(() {
       _isProcessing = true;
-      _result = '';
     });
 
     try {
@@ -130,30 +148,27 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      setState(() {
-        _result = plaintext;
-      });
+      _messageController.text = plaintext;
+
+      setState(() {});
     } on FormatException {
       if (!mounted) {
         return;
       }
 
-      _showMessage('This is not a valid Veilmi encrypted message.');
+      _showMessage(l10n.invalidEncryptedMessage);
     } on SecretBoxAuthenticationError {
       if (!mounted) {
         return;
       }
 
-      _showMessage(
-        'Could not decrypt the message. '
-        'Check the passphrase and message integrity.',
-      );
+      _showMessage(l10n.decryptionAuthenticationFailed);
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      _showMessage('Could not decrypt this message.');
+      _showMessage(l10n.decryptionFailed);
     } finally {
       if (mounted) {
         setState(() {
@@ -163,8 +178,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _copyResult() async {
-    await Clipboard.setData(ClipboardData(text: _result));
+  Future<void> _copyMessage() async {
+    final l10n = AppLocalizations.of(context)!;
+    final message = _messageController.text;
+
+    if (message.isEmpty) {
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: message));
 
     if (!mounted) {
       return;
@@ -172,14 +194,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _showMessage(
       _isEncryptMode
-          ? 'Encrypted message copied.'
-          : 'Decrypted message copied.',
+          ? l10n.encryptedMessageCopied
+          : l10n.decryptedMessageCopied,
     );
+  }
+
+  void _clearMessage() {
+    _messageController.clear();
+    setState(() {});
   }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
+    switch (level) {
+      case ProtectionLevel.compatibility:
+        return l10n.compatibility;
+      case ProtectionLevel.balanced:
+        return l10n.balanced;
+      case ProtectionLevel.stronger:
+        return l10n.stronger;
+    }
   }
 
   @override
@@ -191,13 +229,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Veilmi'),
+        centerTitle: true,
+        leading: TextButton(
+          onPressed: _toggleLanguage,
+          child: Text(widget.currentLocale.languageCode == 'en' ? '中文' : 'EN'),
+        ),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
+            tooltip: l10n.settings,
             onPressed: _openSettings,
           ),
         ],
@@ -208,62 +253,76 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SegmentedButton<bool>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: true,
-                  icon: Icon(Icons.lock_outline),
-                  label: Text('Encrypt'),
+                  icon: const Icon(Icons.lock_outline),
+                  label: Text(l10n.encrypt),
                 ),
                 ButtonSegment(
                   value: false,
-                  icon: Icon(Icons.lock_open_outlined),
-                  label: Text('Decrypt'),
+                  icon: const Icon(Icons.lock_open_outlined),
+                  label: Text(l10n.decrypt),
                 ),
               ],
               selected: {_isEncryptMode},
               onSelectionChanged: (selection) {
-                _messageController.clear();
-
                 setState(() {
                   _isEncryptMode = selection.first;
-                  _result = '';
                 });
               },
             ),
             const SizedBox(height: 32),
             Text(
-              _isEncryptMode ? 'Protect a message' : 'Open a protected message',
+              _isEncryptMode ? l10n.protectMessage : l10n.openProtectedMessage,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
             Text(
               _isEncryptMode
-                  ? 'Encrypt text locally with a shared passphrase.'
-                  : 'Decrypt text locally with the shared passphrase.',
+                  ? l10n.encryptDescription
+                  : l10n.decryptDescription,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 24),
+
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  tooltip: l10n.clear,
+                  onPressed: _messageController.text.isEmpty
+                      ? null
+                      : _clearMessage,
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.copy_outlined),
+                  tooltip: _isEncryptMode
+                      ? l10n.copyEncryptedMessage
+                      : l10n.copyDecryptedMessage,
+                  onPressed: _messageController.text.isEmpty
+                      ? null
+                      : _copyMessage,
+                ),
+              ],
+            ),
+
             TextField(
               controller: _messageController,
-              maxLines: 6,
+              maxLines: 8,
+              onChanged: (_) {
+                setState(() {});
+              },
               decoration: InputDecoration(
-                labelText: _isEncryptMode ? 'Message' : 'Encrypted message',
+                labelText: _isEncryptMode
+                    ? l10n.message
+                    : l10n.encryptedMessage,
                 hintText: _isEncryptMode
-                    ? 'Type or paste the message you want to protect.'
-                    : 'Paste a Veilmi encrypted message here.',
+                    ? l10n.messageHint
+                    : l10n.encryptedMessageHint,
                 border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  tooltip: 'Clear',
-                  onPressed: () {
-                    _messageController.clear();
-
-                    setState(() {
-                      _result = '';
-                    });
-                  },
-                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -271,8 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
               controller: _passphraseController,
               obscureText: _obscurePassphrase,
               decoration: InputDecoration(
-                labelText: 'Shared passphrase',
-                hintText: 'Enter the passphrase shared with the recipient.',
+                labelText: l10n.sharedPassphrase,
+                hintText: l10n.passphraseHint,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   onPressed: () {
@@ -291,12 +350,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12),
             if (_isEncryptMode)
               Text(
-                'Protection: ${_protectionLevel.title}',
+                l10n.protection(_protectionTitle(l10n, _protectionLevel)),
                 style: Theme.of(context).textTheme.bodySmall,
               )
             else
               Text(
-                'The protection level is read from the encrypted message.',
+                l10n.protectionReadFromMessage,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             const SizedBox(height: 24),
@@ -320,46 +379,13 @@ class _HomeScreenState extends State<HomeScreen> {
               label: Text(
                 _isProcessing
                     ? _isEncryptMode
-                          ? 'Encrypting...'
-                          : 'Decrypting...'
+                          ? l10n.encrypting
+                          : l10n.decrypting
                     : _isEncryptMode
-                    ? 'Encrypt Message'
-                    : 'Decrypt Message',
+                    ? l10n.encryptMessage
+                    : l10n.decryptMessage,
               ),
             ),
-            if (_result.isNotEmpty) ...[
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _isEncryptMode
-                          ? 'Encrypted message'
-                          : 'Decrypted message',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy_outlined),
-                    tooltip: _isEncryptMode
-                        ? 'Copy encrypted message'
-                        : 'Copy decrypted message',
-                    onPressed: _copyResult,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SelectableText(_result),
-              ),
-            ],
           ],
         ),
       ),

@@ -37,6 +37,9 @@ dependencies:
   cryptography: ^2.9.0
   cryptography_flutter: ^2.3.4
   shared_preferences: ^2.5.5
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +62,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:

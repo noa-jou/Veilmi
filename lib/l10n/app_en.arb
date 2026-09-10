@@ -1,0 +1,98 @@
+{
+  "@@locale": "en",
+  "appTitle": "Veilmi",
+  "settings": "Settings",
+  "encrypt": "Encrypt",
+  "decrypt": "Decrypt",
+  "protectMessage": "Protect a message",
+  "openProtectedMessage": "Open a protected message",
+  "encryptDescription": "Encrypt text locally with a shared passphrase.",
+  "decryptDescription": "Decrypt text locally with the shared passphrase.",
+  "message": "Message",
+  "encryptedMessage": "Encrypted message",
+  "decryptedMessage": "Decrypted message",
+  "messageHint": "Type or paste the message you want to protect.",
+  "encryptedMessageHint": "Paste a Veilmi encrypted message here.",
+  "clear": "Clear",
+  "sharedPassphrase": "Shared passphrase",
+  "passphraseHint": "Enter the passphrase shared with the recipient.",
+  "protection": "Protection: {level}",
+  "@protection": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "protectionReadFromMessage": "The protection level is read from the encrypted message.",
+  "encrypting": "Encrypting...",
+  "decrypting": "Decrypting...",
+  "encryptMessage": "Encrypt Message",
+  "decryptMessage": "Decrypt Message",
+  "copyEncryptedMessage": "Copy encrypted message",
+  "copyDecryptedMessage": "Copy decrypted message",
+  "encryptedMessageCopied": "Encrypted message copied.",
+  "decryptedMessageCopied": "Decrypted message copied.",
+  "enterMessageAndPassphrase": "Enter both a message and a shared passphrase.",
+  "enterEncryptedMessageAndPassphrase": "Enter both an encrypted message and the shared passphrase.",
+  "encryptionFailed": "Could not encrypt this message.",
+  "invalidEncryptedMessage": "This is not a valid Veilmi encrypted message.",
+  "decryptionAuthenticationFailed": "Could not decrypt the message. Check the passphrase and message integrity.",
+  "decryptionFailed": "Could not decrypt this message.",
+  "protectionLevel": "Protection Level",
+  "protectionLevelDescription": "Choose how much work Veilmi should require when preparing your shared passphrase.",
+  "compatibility": "Compatibility",
+  "compatibilitySummary": "Faster on older devices.",
+  "balanced": "Balanced",
+  "balancedSummary": "A balance between protection and speed.",
+  "stronger": "Stronger",
+  "strongerSummary": "More resistant to repeated passphrase guessing.",
+  "protectionDeviceCheck": "Protection & Device Check",
+  "protectionDeviceCheckDescription": "Learn how protection levels work and find a suitable level for this device.",
+  "deviceCheckTitle": "Protection & Device Check",
+  "howProtectionWorks": "How protection works",
+  "lockedDoor": "Think of your message as a locked door.",
+  "sharedPassphraseKey": "Your shared passphrase is the key.",
+  "lockTurns": "Before the door opens, the lock has to turn many times.",
+  "moreTurnsHarderGuessing": "More turns make it harder for someone to keep guessing the key.",
+  "moreTurnsMoreWork": "But more turns also make the phone work harder.",
+  "otherPhoneSameWork": "The other person's phone has to do the same work too, so a very strong setting may be slow on an older phone.",
+  "threeProtectionLevels": "The three protection levels",
+  "compatibilityDeviceDescription": "Fewer turns. Faster, especially on older phones.",
+  "balancedDeviceDescription": "More work for guessing, with a moderate phone workload.",
+  "strongerDeviceDescription": "Many more turns. Harder to guess repeatedly, but slower on some phones.",
+  "whichLevelFits": "Which level fits this device?",
+  "deviceCheckDescription": "Veilmi can measure how long each level takes on this phone and suggest one that should feel practical.",
+  "checkingDevice": "Checking this device...",
+  "checking": "Checking...",
+  "checkThisDevice": "Check This Device",
+  "deviceCheckFailed": "Device check failed.",
+  "recommendedForDevice": "Recommended for this device:",
+  "pbkdf2Implementation": "PBKDF2 implementation: {implementation}",
+  "@pbkdf2Implementation": {
+    "placeholders": {
+      "implementation": {
+        "type": "String"
+      }
+    }
+  },
+  "protectionTime": "{level}: {seconds} s",
+  "@protectionTime": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "turns": "{count} turns",
+  "@turns": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
+}
