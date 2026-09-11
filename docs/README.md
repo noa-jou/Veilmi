@@ -48,4 +48,4 @@ natural order.
 ---
 
 For a general introduction to the project, see the
-[main Veilmi README](../README.md).
+[main Veilmi README](https://github.com/noa-jou/Veilmi).
