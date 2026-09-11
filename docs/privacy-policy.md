@@ -1,3 +1,7 @@
+---
+permalink: /privacy-policy/
+---
+
 # Veilmi Privacy Policy
 
 **Effective date: September 11, 2026**
