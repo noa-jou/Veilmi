@@ -6,26 +6,26 @@ import '../crypto/protection_level.dart';
 import '../device_check/device_check_service.dart';
 import '../l10n/app_localizations.dart';
 
-// This screen explains the app's protection settings.
-// It is not the encryption logic itself.
-// Instead, it helps the user understand:
-// - why some security levels are slower,
-// - how the device speed affects the recommendation,
-// - and which level is best for this phone.
+// This screen helps the user decide which encryption strength level is best for this device.
+// It is mainly a UI screen that explains the idea and then shows the benchmark result.
+//
+// In beginner terms:
+// - test how fast the phone is,
+// - compare the available security levels,
+// - recommend the strongest level that still feels fast enough.
 class DeviceCheckScreen extends StatelessWidget {
   const DeviceCheckScreen({super.key});
 
-  // A shortcut to the singleton service that performs the device check.
+  // A shortcut to the app-wide device check service.
   DeviceCheckService get _service => DeviceCheckService.instance;
 
-  // Starts the benchmark in the background.
-  // unawaited(...) means: "run this without waiting for it here".
+  // Start the benchmark without blocking the UI.
+  // unawaited(...) means: "run this in the background and don't wait for it here".
   void _startCheck() {
     unawaited(_service.runCheck());
   }
 
-  // Convert a protection level enum into a user-facing label.
-  // For example: Compatibility, Balanced, Stronger.
+  // Turn a ProtectionLevel enum into a readable localised string.
   String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
     switch (level) {
       case ProtectionLevel.compatibility:
@@ -37,8 +37,7 @@ class DeviceCheckScreen extends StatelessWidget {
     }
   }
 
-  // Format a number like 600000 into 600,000 for display.
-  // This makes large numbers easier to read in the UI.
+  // Format numbers like 600000 into 600,000 so they are easier to read in the UI.
   String _formatNumber(int value) {
     final text = value.toString();
     final buffer = StringBuffer();
@@ -56,15 +55,15 @@ class DeviceCheckScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This gets the translated strings for the current app language.
+    // This gets the correct language strings for the current app language.
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      // The screen title shown in the app bar.
+      // The app bar at the top of the screen.
       appBar: AppBar(title: Text(l10n.deviceCheckTitle)),
 
       // AnimatedBuilder listens to the service state.
-      // When the device check changes state (running, finished, failed), the UI updates.
+      // When the device benchmark changes, the UI updates automatically.
       body: AnimatedBuilder(
         animation: _service,
         builder: (context, child) {
@@ -73,68 +72,17 @@ class DeviceCheckScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Intro section: explains the idea of protection levels.
-                Text(
-                  l10n.howProtectionWorks,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Text(l10n.lockedDoor),
-                const SizedBox(height: 12),
-                Text(l10n.sharedPassphraseKey),
-                const SizedBox(height: 12),
-                Text(l10n.lockTurns),
-                const SizedBox(height: 12),
-                Text(l10n.moreTurnsHarderGuessing),
-                const SizedBox(height: 12),
-                Text(l10n.moreTurnsMoreWork),
-                const SizedBox(height: 12),
-                Text(l10n.otherPhoneSameWork),
-                const SizedBox(height: 32),
-
-                // Shows the three available security levels.
-                Text(
-                  l10n.threeProtectionLevels,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-
-                // Each card shows a level and its iteration count.
-                _ProtectionLevelCard(
-                  title: l10n.compatibility,
-                  turns: ProtectionLevel.compatibility.iterations,
-                  turnsLabel: l10n.turns,
-                  description: l10n.compatibilityDeviceDescription,
-                  formatNumber: _formatNumber,
-                ),
-                const SizedBox(height: 12),
-                _ProtectionLevelCard(
-                  title: l10n.balanced,
-                  turns: ProtectionLevel.balanced.iterations,
-                  turnsLabel: l10n.turns,
-                  description: l10n.balancedDeviceDescription,
-                  formatNumber: _formatNumber,
-                ),
-                const SizedBox(height: 12),
-                _ProtectionLevelCard(
-                  title: l10n.stronger,
-                  turns: ProtectionLevel.stronger.iterations,
-                  turnsLabel: l10n.turns,
-                  description: l10n.strongerDeviceDescription,
-                  formatNumber: _formatNumber,
-                ),
-                const SizedBox(height: 32),
-
-                // Explain to the user when each protection level should be used.
+                // This is the main intro section.
                 Text(
                   l10n.whichLevelFits,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
+
                 Text(l10n.deviceCheckDescription),
                 const SizedBox(height: 20),
 
-                // A warning box telling the user that slower devices may need a lower level.
+                // A warning area that tells the user slower devices may need a weaker level.
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -155,23 +103,25 @@ class DeviceCheckScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // This button triggers the actual benchmark.
-                // If a check is already running, the button is disabled.
-                FilledButton.icon(
-                  onPressed: _service.isRunning ? null : _startCheck,
-                  icon: _service.isRunning
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.speed_outlined),
-                  label: Text(
-                    _service.isRunning ? l10n.checking : l10n.checkThisDevice,
+                // This button starts the device benchmark.
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _service.isRunning ? null : _startCheck,
+                    icon: _service.isRunning
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.speed_outlined),
+                    label: Text(
+                      _service.isRunning ? l10n.checking : l10n.checkThisDevice,
+                    ),
                   ),
                 ),
 
-                // While the benchmark is running, show a progress bar.
+                // While the benchmark runs, show progress information.
                 if (_service.isRunning) ...[
                   const SizedBox(height: 24),
                   LinearProgressIndicator(
@@ -186,7 +136,7 @@ class DeviceCheckScreen extends StatelessWidget {
                   ),
                 ],
 
-                // If something goes wrong, show an error message.
+                // If the check fails, show an error message.
                 if (_service.hasError) ...[
                   const SizedBox(height: 24),
                   Text(
@@ -195,7 +145,7 @@ class DeviceCheckScreen extends StatelessWidget {
                   ),
                 ],
 
-                // If the benchmark finished, display the recommendation result.
+                // If the benchmark is complete, show the result card.
                 if (_service.hasResult) ...[
                   const SizedBox(height: 24),
                   _DeviceCheckResult(
@@ -204,6 +154,79 @@ class DeviceCheckScreen extends StatelessWidget {
                     protectionTitle: _protectionTitle,
                   ),
                 ],
+
+                const SizedBox(height: 32),
+
+                // A collapsible section explaining the idea behind protection levels.
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ExpansionTile(
+                    leading: const Icon(Icons.lock_outline),
+                    title: Text(
+                      l10n.howProtectionWorks,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    initiallyExpanded: false,
+                    childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.lockedDoor),
+                      const SizedBox(height: 12),
+                      Text(l10n.sharedPassphraseKey),
+                      const SizedBox(height: 12),
+                      Text(l10n.lockTurns),
+                      const SizedBox(height: 12),
+                      Text(l10n.moreTurnsHarderGuessing),
+                      const SizedBox(height: 12),
+                      Text(l10n.moreTurnsMoreWork),
+                      const SizedBox(height: 12),
+                      Text(l10n.otherPhoneSameWork),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Another collapsible section showing the three protection levels.
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ExpansionTile(
+                    leading: const Icon(Icons.tune),
+                    title: Text(
+                      l10n.threeProtectionLevels,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    initiallyExpanded: false,
+                    childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                    children: [
+                      _ProtectionLevelCard(
+                        title: l10n.compatibility,
+                        turns: ProtectionLevel.compatibility.iterations,
+                        turnsLabel: l10n.turns,
+                        description: l10n.compatibilityDeviceDescription,
+                        formatNumber: _formatNumber,
+                      ),
+                      const SizedBox(height: 8),
+                      _ProtectionLevelCard(
+                        title: l10n.balanced,
+                        turns: ProtectionLevel.balanced.iterations,
+                        turnsLabel: l10n.turns,
+                        description: l10n.balancedDeviceDescription,
+                        formatNumber: _formatNumber,
+                      ),
+                      const SizedBox(height: 8),
+                      _ProtectionLevelCard(
+                        title: l10n.stronger,
+                        turns: ProtectionLevel.stronger.iterations,
+                        turnsLabel: l10n.turns,
+                        description: l10n.strongerDeviceDescription,
+                        formatNumber: _formatNumber,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
               ],
             ),
           );
@@ -213,9 +236,8 @@ class DeviceCheckScreen extends StatelessWidget {
   }
 }
 
-// This widget shows the actual benchmark results.
-// It displays how long each protection level took on this device,
-// and then recommends the best option.
+// This widget displays the measured device timings and the final recommendation.
+// It is a small result box that reads better than a raw list of numbers.
 class _DeviceCheckResult extends StatelessWidget {
   const _DeviceCheckResult({
     required this.service,
@@ -226,7 +248,7 @@ class _DeviceCheckResult extends StatelessWidget {
   final DeviceCheckService service;
   final AppLocalizations l10n;
 
-  // This function turns a ProtectionLevel enum into a proper translated label.
+  // Converts a protection level into a translated label, such as "Balanced".
   final String Function(AppLocalizations, ProtectionLevel) protectionTitle;
 
   @override
@@ -244,25 +266,26 @@ class _DeviceCheckResult extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // If the system tells us which PBKDF2 implementation is being used,
-          // show it to the user.
           if (implementation != null) ...[
             SelectableText(l10n.pbkdf2Implementation(implementation)),
             const SizedBox(height: 16),
           ],
 
-          // Show the time measured for each protection level.
+          // Show the measured time for each protection level.
           for (final level in ProtectionLevel.values) ...[
             if (service.timeFor(level) != null)
-              Text(
-                l10n.protectionTime(
-                  protectionTitle(l10n, level),
-                  (service.timeFor(level)! / 1000).toStringAsFixed(1),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  l10n.protectionTime(
+                    protectionTitle(l10n, level),
+                    (service.timeFor(level)! / 1000).toStringAsFixed(1),
+                  ),
                 ),
               ),
           ],
 
-          // Show the recommended protection level for this device.
+          // Show the app's recommendation for this device.
           if (recommendation != null) ...[
             const SizedBox(height: 20),
             Text(
@@ -282,7 +305,7 @@ class _DeviceCheckResult extends StatelessWidget {
   }
 }
 
-// A simple card used to display one protection level and its iteration count.
+// A reusable card showing one protection level and its iteration count.
 class _ProtectionLevelCard extends StatelessWidget {
   const _ProtectionLevelCard({
     required this.title,
@@ -301,23 +324,25 @@ class _ProtectionLevelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The protection level name, like Compatibility or Stronger.
+            // Name of the protection level.
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
 
-            // Show the estimated iteration count in a readable format.
+            // The number of iterations in a readable format.
             Text(
               turnsLabel(formatNumber(turns)),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
 
-            // Explain what this level means in plain language.
+            // A short description explaining what this level is for.
             Text(description),
           ],
         ),

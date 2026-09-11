@@ -7,6 +7,25 @@ import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
 import 'settings/settings_service.dart';
 
+// Converts the saved language value into a Flutter Locale.
+//
+// "en"      -> English
+// "zh"      -> Traditional Chinese (for compatibility with older saved values)
+// "zh_Hant" -> Traditional Chinese
+//
+// Any unknown value falls back to English.
+Locale localeFromLanguageCode(String languageCode) {
+  switch (languageCode) {
+    case 'zh':
+    case 'zh_Hant':
+      return const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant');
+
+    case 'en':
+    default:
+      return const Locale('en');
+  }
+}
+
 // This is the app entry point.
 // Flutter starts here when the app launches.
 Future<void> main() async {
@@ -18,8 +37,11 @@ Future<void> main() async {
 
   final languageCode = await settingsService.loadLanguageCode();
 
+  // Convert the saved language value into the correct Flutter Locale.
+  final initialLocale = localeFromLanguageCode(languageCode);
+
   // Start the app and pass the saved locale so the UI can use it.
-  runApp(VeilmiApp(initialLocale: Locale(languageCode)));
+  runApp(VeilmiApp(initialLocale: initialLocale));
 }
 
 // A StatefulWidget is used when the widget needs to change over time.
@@ -42,6 +64,7 @@ class _VeilmiAppState extends State<VeilmiApp> {
   @override
   void initState() {
     super.initState();
+
     // When the widget is first created, use the locale that was loaded earlier.
     _locale = widget.initialLocale;
   }

@@ -2,17 +2,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:veilmi/main.dart';
 import 'package:flutter/material.dart';
 
-// This file contains a widget test.
-// A widget test checks whether the Flutter UI renders correctly.
-// In simple terms: it opens the app in a test environment and looks for visible text.
+// This file is a widget test.
+// A widget test is a test that opens the Flutter UI and checks what is visible on screen.
+//
+// For a beginner:
+// - we create the app in a test environment,
+// - we wait for the UI to finish building,
+// - then we check whether important text is shown.
+// If the expected text is missing, the test fails.
 void main() {
-  // This test makes sure the app can start and display the main screen.
+  // This test checks that the app starts successfully and shows the main screen.
+  // It is a simple smoke test: the app should not crash and should display the main labels.
   testWidgets('Veilmi app loads', (WidgetTester tester) async {
-    // Build the app with English as the initial locale.
+    // Build the app with English as the starting language.
+    // This is useful because the test should not depend on a saved user setting.
     await tester.pumpWidget(const VeilmiApp(initialLocale: Locale('en')));
 
-    // Check that the expected text appears on the screen.
-    // If these texts are not found, the test fails.
+    // Wait for the UI to finish all animations and rebuilds.
+    await tester.pumpAndSettle();
+
+    // These are the texts we expect to see on the main screen.
+    // If the app has changed its layout or text, this test will catch it.
     expect(find.text('Veilmi'), findsOneWidget);
     expect(find.text('Encrypt'), findsOneWidget);
     expect(find.text('Decrypt'), findsOneWidget);

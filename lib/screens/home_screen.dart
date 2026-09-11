@@ -65,11 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Toggle between English and Chinese for the app.
+  // Toggle between English and Traditional Chinese for the app.
   Future<void> _toggleLanguage() async {
-    final newLanguageCode = widget.currentLocale.languageCode == 'en'
-        ? 'zh'
-        : 'en';
+    final isEnglish = widget.currentLocale.languageCode == 'en';
+
+    final newLanguageCode = isEnglish
+        ? SettingsService.traditionalChineseLanguageCode
+        : SettingsService.englishLanguageCode;
 
     // Save the choice so it remains the next time the app is opened.
     await _settingsService.saveLanguageCode(newLanguageCode);
@@ -78,8 +80,13 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    // Traditional Chinese needs an explicit Hant script code.
+    final newLocale = isEnglish
+        ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+        : const Locale('en');
+
     // Tell the parent widget to rebuild the app using the new locale.
-    widget.onLocaleChanged(Locale(newLanguageCode));
+    widget.onLocaleChanged(newLocale);
   }
 
   // Open the settings screen and then refresh the saved protection level.
