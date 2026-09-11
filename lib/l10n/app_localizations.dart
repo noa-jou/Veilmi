@@ -4,14 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+// This file is the language helper for the whole app.
+// It is generated from the ARB files in lib/l10n, and it gives Flutter a way to:
+// - load the current locale,
+// - use the right translation file,
+// - and access text like AppLocalizations.of(context)!.encrypt.
+//
+// For a beginner:
+// - this file acts like a translation dictionary,
+// - each getter returns one text value,
+// - and Flutter chooses the correct language automatically.
 class AppLocalizations {
   AppLocalizations._(this.locale, this._messages);
 
   final Locale locale;
   final Map<String, dynamic> _messages;
 
+  // These are the supported languages for the app.
   static const Locale englishLocale = Locale('en');
 
+  // Traditional Chinese uses a languageCode + scriptCode combination.
+  // This is the app's supported Chinese locale.
   static const Locale traditionalChineseLocale = Locale.fromSubtags(
     languageCode: 'zh',
     scriptCode: 'Hant',
@@ -25,6 +38,7 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
+  // These delegates tell Flutter how to load the proper localized data.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
     delegate,
     GlobalMaterialLocalizations.delegate,
@@ -32,10 +46,13 @@ class AppLocalizations {
     GlobalCupertinoLocalizations.delegate,
   ];
 
+  // This is the usual Flutter way to get localization data from the current context.
   static AppLocalizations? of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
+  // Read one translation value from the message map.
+  // If the key is missing, throw a clear error so the problem is easy to debug.
   String _text(String key) {
     final value = _messages[key];
 
@@ -48,6 +65,8 @@ class AppLocalizations {
     );
   }
 
+  // Replace placeholder values inside a string.
+  // Example: "Hello {name}" becomes "Hello Ada".
   String _replace(String key, Map<String, String> replacements) {
     var value = _text(key);
 
@@ -58,6 +77,8 @@ class AppLocalizations {
     return value;
   }
 
+  // These getters return the translated strings used by the app.
+  // Each one reads a text key from the language JSON file.
   String get appTitle => _text('appTitle');
   String get settings => _text('settings');
 
@@ -202,16 +223,20 @@ class AppLocalizations {
   String get deviceCheckWarning => _text('deviceCheckWarning');
 }
 
+// This delegate tells Flutter which language file to load for a locale.
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
   bool isSupported(Locale locale) {
+    // English is always supported.
     if (locale.languageCode == 'en') {
       return true;
     }
 
+    // Traditional Chinese is also supported.
+    // We specifically allow zh + Hant, which matches the app's locale settings.
     return locale.languageCode == 'zh' && locale.scriptCode == 'Hant';
   }
 
@@ -225,6 +250,7 @@ class _AppLocalizationsDelegate
       assetPath = 'lib/l10n/app_en.arb';
     }
 
+    // Load the JSON file that contains all text for the selected language.
     final jsonString = await rootBundle.loadString(assetPath);
 
     final decoded = jsonDecode(jsonString);

@@ -39,7 +39,7 @@ dependencies:
   shared_preferences: ^2.5.5
   flutter_localizations:
     sdk: flutter
-  intl: any
+ 
   url_launcher: ^6.3.2
 
 dev_dependencies:

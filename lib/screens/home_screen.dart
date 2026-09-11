@@ -25,33 +25,47 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // This is the main encryption service used to protect or unlock messages.
+  // This object does the real encryption and decryption work.
+  // In beginner terms: it takes your text + passphrase and turns it into protected data.
   final CryptoService _cryptoService = const CryptoService();
 
-  // This helps read and save user preferences like language and protection level.
+  // This object remembers app settings such as:
+  // - selected language
+  // - saved protection strength
+  // It uses a small local storage called SharedPreferences.
   final SettingsService _settingsService = const SettingsService();
 
-  // These controllers keep track of what the user types in the message and passphrase fields.
+  // These controllers are linked to the text fields.
+  // They let us read what the user types and also change the text programmatically.
+  // Example: after encryption, we replace the message text with the encrypted version.
   final TextEditingController _messageController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
 
-  // These booleans represent the current mode and UI state.
+  // These flags control the current screen behavior.
+  // _isEncryptMode: false means the screen is in decrypt mode.
+  // _obscurePassphrase: true means the passphrase is hidden.
+  // _isProcessing: true means the app is busy encrypting or decrypting.
+  // _settingsLoaded: false means the saved protection level has not finished loading yet.
   bool _isEncryptMode = true;
   bool _obscurePassphrase = true;
   bool _isProcessing = false;
   bool _settingsLoaded = false;
 
-  // Default protection level for encrypting messages.
+  // This is the security setting used for encryption.
+  // A higher/stronger setting takes more time, but is more secure.
+  // We start with balanced as the default.
   ProtectionLevel _protectionLevel = ProtectionLevel.balanced;
 
   @override
   void initState() {
     super.initState();
-    // Load the saved protection level when the screen is created.
+    // When the screen first appears, we load the saved protection level.
+    // This ensures the user sees the same security setting they chose before.
     _loadProtectionLevel();
   }
 
-  // Read the saved protection level from storage.
+  // Load the saved protection level from local storage.
+  // This does not change the UI immediately; after it returns, we call setState.
   Future<void> _loadProtectionLevel() async {
     final level = await _settingsService.loadProtectionLevel();
 
@@ -65,7 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Toggle between English and Traditional Chinese for the app.
+  // Change the app language between English and Traditional Chinese.
+  // The app remembers the chosen language so it stays the same next time you open it.
   Future<void> _toggleLanguage() async {
     final isEnglish = widget.currentLocale.languageCode == 'en';
 
@@ -73,23 +88,26 @@ class _HomeScreenState extends State<HomeScreen> {
         ? SettingsService.traditionalChineseLanguageCode
         : SettingsService.englishLanguageCode;
 
-    // Save the choice so it remains the next time the app is opened.
+    // Save the selected language to local storage.
     await _settingsService.saveLanguageCode(newLanguageCode);
 
     if (!mounted) {
       return;
     }
 
-    // Traditional Chinese needs an explicit Hant script code.
+    // In Flutter, Traditional Chinese is represented as:
+    // languageCode = 'zh', scriptCode = 'Hant'
+    // This is the proper locale for Traditional Chinese.
     final newLocale = isEnglish
         ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
         : const Locale('en');
 
-    // Tell the parent widget to rebuild the app using the new locale.
+    // Tell the parent widget to rebuild the whole app with the new locale.
     widget.onLocaleChanged(newLocale);
   }
 
-  // Open the settings screen and then refresh the saved protection level.
+  // Open the Settings screen.
+  // After returning, we reload the saved protection level in case the user changed it.
   Future<void> _openSettings() async {
     await Navigator.push(
       context,
@@ -102,18 +120,22 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadProtectionLevel();
   }
 
-  // Encrypt the text the user entered.
+  // Encrypt the user text.
+  // This means: take plain text + passphrase + chosen security level,
+  // then create an encrypted string that can only be opened with the same passphrase.
   Future<void> _encryptMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final plaintext = _messageController.text;
     final passphrase = _passphraseController.text;
 
-    // Make sure both fields are not empty before trying to encrypt.
+    // Do not allow empty inputs. Otherwise the app cannot encrypt anything useful.
     if (plaintext.isEmpty || passphrase.isEmpty) {
       _showMessage(l10n.enterMessageAndPassphrase);
       return;
     }
 
+    // This tells Flutter to rebuild the UI while the app is busy.
+    // It also disables the main button temporarily.
     setState(() {
       _isProcessing = true;
     });
@@ -129,7 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Replace the message text with the encrypted result.
+      // After encryption, replace the message text with the encrypted result.
+      // The user can then copy it or save it elsewhere.
       _messageController.text = encryptedMessage;
 
       setState(() {});
@@ -148,13 +171,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Decrypt the encrypted message the user entered.
+  // Decrypt the encrypted message.
+  // This takes the encoded string and the passphrase and tries to recover the original text.
   Future<void> _decryptMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final encodedMessage = _messageController.text.trim();
     final passphrase = _passphraseController.text;
 
-    // Both fields are required before decrypting the message.
+    // The input must not be empty, or there is nothing to decrypt.
     if (encodedMessage.isEmpty || passphrase.isEmpty) {
       _showMessage(l10n.enterEncryptedMessageAndPassphrase);
       return;
@@ -174,23 +198,26 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Replace the encrypted text with the original plain text after decrypting.
+      // Replace the encrypted text with the original plain text.
       _messageController.text = plaintext;
 
       setState(() {});
     } on FormatException {
+      // This happens when the text is not in the expected encrypted format.
       if (!mounted) {
         return;
       }
 
       _showMessage(l10n.invalidEncryptedMessage);
     } on SecretBoxAuthenticationError {
+      // This happens when the passphrase is wrong or the encrypted data was changed.
       if (!mounted) {
         return;
       }
 
       _showMessage(l10n.decryptionAuthenticationFailed);
     } catch (error) {
+      // Any other unexpected error is shown as a general decryption failure.
       if (!mounted) {
         return;
       }
@@ -205,7 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Copy the message into the device clipboard.
+  // Copy the current message to the phone clipboard.
+  // This is useful after encryption, so the user can paste the protected text elsewhere.
   Future<void> _copyMessage() async {
     final l10n = AppLocalizations.of(context)!;
     final message = _messageController.text;
@@ -227,19 +255,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Clear the message box.
+  // Clear the message field.
   void _clearMessage() {
     _messageController.clear();
     setState(() {});
   }
 
-  // Show a small floating message at the bottom of the screen.
+  // Show a small popup message at the bottom of the screen.
+  // This is the app's way to tell the user what happened, for example: copied, failed, or invalid input.
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  // Convert the selected protection level into a string for display.
+  // Convert the chosen protection level into a user-friendly name.
+  // Example: ProtectionLevel.balanced -> "Balanced"
   String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
     switch (level) {
       case ProtectionLevel.compatibility:
@@ -253,7 +283,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    // Clean up text inputs when the screen is removed.
+    // This is important for memory cleanup.
+    // When the screen is closed, we remove the text field listeners and free the memory.
     _messageController.dispose();
     _passphraseController.dispose();
     super.dispose();
@@ -264,7 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    // The page color changes depending on whether the user is encrypting or decrypting.
+    // These colors are chosen based on the current mode.
+    // Encrypt mode uses a clean white style.
+    // Decrypt mode uses a warm yellow background to make it feel different.
     final pageBackgroundColor = _isEncryptMode
         ? Colors.white
         : Colors.amber.shade100;
@@ -283,12 +316,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ? colorScheme.onPrimary
         : Colors.black87;
 
-    // The main screen layout includes:
-    // - top app bar
-    // - mode switcher (Encrypt/Decrypt)
-    // - text fields for message and passphrase
-    // - message action buttons
-    // - main action button to encrypt or decrypt
+    // The whole screen is built from widgets.
+    // In beginner terms, the screen is like a layout made of pieces:
+    // - app bar
+    // - mode switch
+    // - message input
+    // - passphrase input
+    // - action buttons
     return Scaffold(
       backgroundColor: pageBackgroundColor,
       appBar: AppBar(
@@ -296,7 +330,9 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: primaryTextColor,
         centerTitle: true,
         leading: TextButton(
-          // This button toggles between English and Chinese.
+          // This is the language button in the app bar.
+          // If the app is currently in English, the button shows Chinese.
+          // If it is already Chinese, the button shows EN to switch back.
           onPressed: _toggleLanguage,
           style: TextButton.styleFrom(foregroundColor: primaryTextColor),
           child: Text(widget.currentLocale.languageCode == 'en' ? '中文' : 'EN'),
@@ -321,7 +357,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // This lets the user switch between encrypting and decrypting mode.
+            // This segmented control lets the user choose the current action.
+            // It is basically a toggle between two pages: encrypt and decrypt.
             SegmentedButton<bool>(
               style: ButtonStyle(
                 minimumSize: const WidgetStatePropertyAll(Size(120, 54)),
@@ -397,7 +434,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 32),
 
-            // This text changes based on whether the user is encrypting or decrypting.
+            // This headline text changes depending on the selected mode.
+            // For example: "Protect message" in encrypt mode or "Open protected message" in decrypt mode.
             Text(
               _isEncryptMode ? l10n.protectMessage : l10n.openProtectedMessage,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -415,7 +453,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Buttons for clearing and copying the current message.
+            // These small buttons are quick actions for the text field.
+            // One clears the content, and the other copies it to the clipboard.
             Row(
               children: [
                 IconButton(
@@ -440,7 +479,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            // This is the main message field.
+            // This is the main text box where the user writes or reads the message.
+            // It is connected to _messageController so the app can read and update the text.
             TextField(
               controller: _messageController,
               maxLines: 8,
@@ -463,7 +503,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Passphrase field. It can be hidden or shown using the eye icon.
+            // This is the passphrase input.
+            // The user enters the secret key here.
+            // The eye icon lets them show or hide the passphrase while typing.
             TextField(
               controller: _passphraseController,
               obscureText: _obscurePassphrase,
@@ -490,8 +532,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Tell the user which protection level is currently selected,
-            // or that the protection level is being read from the message.
+            // This text tells the user which protection level is currently selected.
+            // In decrypt mode, it says the app is reading the level from the encrypted message.
             if (_isEncryptMode)
               Text(
                 l10n.protection(_protectionTitle(l10n, _protectionLevel)),
@@ -507,7 +549,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
 
             // This is the main action button.
-            // It encrypts in encrypt mode and decrypts in decrypt mode.
+            // It performs the main job:
+            // - encrypt the text when in encrypt mode
+            // - decrypt the text when in decrypt mode
             FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: actionBackgroundColor,
