@@ -121,7 +121,7 @@ location.
 
 Developer: Noa Jou
 
-Privacy contact: noa.jou@altmail.kr
+Privacy contact: https://www.linkedin.com/in/noa-jou/
 
 Project:
 https://github.com/noa-jou/Veilmi
