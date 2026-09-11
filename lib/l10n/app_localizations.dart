@@ -221,6 +221,12 @@ class AppLocalizations {
   String get couldNotOpenLink => _text('couldNotOpenLink');
 
   String get deviceCheckWarning => _text('deviceCheckWarning');
+
+  String get privacy => _text('privacy');
+
+  String get privacyDescription => _text('privacyDescription');
+
+  String get privacyPolicy => _text('privacyPolicy');
 }
 
 // This delegate tells Flutter which language file to load for a locale.
