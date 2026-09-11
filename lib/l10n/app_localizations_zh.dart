@@ -78,16 +78,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get decryptMessage => '解密訊息';
 
   @override
-  String get copyEncryptedMessage => '複製加密訊息';
+  String get copyEncryptedMessage => '複製訊息';
 
   @override
-  String get copyDecryptedMessage => '複製解密訊息';
+  String get copyDecryptedMessage => '複製訊息';
 
   @override
-  String get encryptedMessageCopied => '已複製加密訊息。';
+  String get encryptedMessageCopied => '已複製訊息。';
 
   @override
-  String get decryptedMessageCopied => '已複製解密訊息。';
+  String get decryptedMessageCopied => '已複製訊息。';
 
   @override
   String get enterMessageAndPassphrase => '請輸入訊息和共享密碼。';
@@ -114,7 +114,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get protectionLevelDescription => '選擇 Veilmi 在處理共享密碼時需要進行多少運算。';
 
   @override
-  String get compatibility => '相容';
+  String get compatibility => '較弱';
 
   @override
   String get compatibilitySummary => '在較舊的裝置上速度較快。';

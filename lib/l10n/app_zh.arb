@@ -42,11 +42,11 @@
   "encryptMessage": "加密訊息",
   "decryptMessage": "解密訊息",
 
-  "copyEncryptedMessage": "複製加密訊息",
-  "copyDecryptedMessage": "複製解密訊息",
+  "copyEncryptedMessage": "複製訊息",
+  "copyDecryptedMessage": "複製訊息",
 
-  "encryptedMessageCopied": "已複製加密訊息。",
-  "decryptedMessageCopied": "已複製解密訊息。",
+  "encryptedMessageCopied": "已複製訊息。",
+  "decryptedMessageCopied": "已複製訊息。",
 
   "enterMessageAndPassphrase": "請輸入訊息和共享密碼。",
   "enterEncryptedMessageAndPassphrase": "請輸入加密訊息和共享密碼。",
@@ -59,7 +59,7 @@
   "protectionLevel": "保護等級",
   "protectionLevelDescription": "選擇 Veilmi 在處理共享密碼時需要進行多少運算。",
 
-  "compatibility": "相容",
+  "compatibility": "較弱",
   "compatibilitySummary": "在較舊的裝置上速度較快。",
   "balanced": "平衡",
   "balancedSummary": "在保護強度與速度之間取得平衡。",

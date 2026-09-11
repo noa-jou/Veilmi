@@ -233,25 +233,25 @@ abstract class AppLocalizations {
   /// No description provided for @copyEncryptedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Copy encrypted message'**
+  /// **'Copy message'**
   String get copyEncryptedMessage;
 
   /// No description provided for @copyDecryptedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Copy decrypted message'**
+  /// **'Copy message'**
   String get copyDecryptedMessage;
 
   /// No description provided for @encryptedMessageCopied.
   ///
   /// In en, this message translates to:
-  /// **'Encrypted message copied.'**
+  /// **'Message copied.'**
   String get encryptedMessageCopied;
 
   /// No description provided for @decryptedMessageCopied.
   ///
   /// In en, this message translates to:
-  /// **'Decrypted message copied.'**
+  /// **'Message copied.'**
   String get decryptedMessageCopied;
 
   /// No description provided for @enterMessageAndPassphrase.
@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @compatibility.
   ///
   /// In en, this message translates to:
-  /// **'Compatibility'**
+  /// **'Weaker'**
   String get compatibility;
 
   /// No description provided for @compatibilitySummary.

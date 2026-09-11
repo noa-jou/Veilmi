@@ -82,16 +82,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get decryptMessage => 'Decrypt Message';
 
   @override
-  String get copyEncryptedMessage => 'Copy encrypted message';
+  String get copyEncryptedMessage => 'Copy message';
 
   @override
-  String get copyDecryptedMessage => 'Copy decrypted message';
+  String get copyDecryptedMessage => 'Copy message';
 
   @override
-  String get encryptedMessageCopied => 'Encrypted message copied.';
+  String get encryptedMessageCopied => 'Message copied.';
 
   @override
-  String get decryptedMessageCopied => 'Decrypted message copied.';
+  String get decryptedMessageCopied => 'Message copied.';
 
   @override
   String get enterMessageAndPassphrase =>
@@ -123,7 +123,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose how much work Veilmi should require when preparing your shared passphrase.';
 
   @override
-  String get compatibility => 'Compatibility';
+  String get compatibility => 'Weaker';
 
   @override
   String get compatibilitySummary => 'Faster on older devices.';
