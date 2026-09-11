@@ -122,5 +122,6 @@
   "readDocumentation": "閱讀技術文件",
   "supportVeilmi": "支持 Veilmi",
   "supportDescription": "Veilmi 是免費且開放原始碼的。如果你覺得它對你有幫助，也希望支持它繼續發展，可以自由選擇提供贊助。",
-  "couldNotOpenLink": "無法開啟這個連結。"
+  "couldNotOpenLink": "無法開啟這個連結。",
+  "deviceCheckWarning": "在較舊的手機上，裝置檢查可能需要一分鐘或更久。你可以先離開這個頁面，只要 Veilmi 仍然開著，稍後回來就可以查看結果。"
 }

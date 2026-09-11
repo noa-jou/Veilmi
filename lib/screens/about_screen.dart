@@ -54,7 +54,17 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 8),
 
           // App icon near the top.
-          const Icon(Icons.shield_outlined, size: 64),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/icon/veilmi_icon_small.png',
+                width: 88,
+                height: 88,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           const SizedBox(height: 12),
 
           // Main app name in the center.

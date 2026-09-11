@@ -535,6 +535,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open this link.'**
   String get couldNotOpenLink;
+
+  /// No description provided for @deviceCheckWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Check may take a minute or longer on older phones. You can leave this page and come back later while Veilmi remains open.'**
+  String get deviceCheckWarning;
 }
 
 class _AppLocalizationsDelegate

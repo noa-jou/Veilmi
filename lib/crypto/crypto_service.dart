@@ -8,9 +8,17 @@ import 'crypto_constants.dart';
 import 'message_envelope.dart';
 import 'protection_level.dart';
 
+// This class contains the main encryption and decryption operations.
+// In beginner terms:
+// - it turns the user's passphrase into a secure key,
+// - encrypts the message,
+// - wraps the result in a message envelope,
+// - and later reads it back.
 class CryptoService {
   const CryptoService();
 
+  // Generate random bytes of a requested length.
+  // This is used to create a salt, which makes the same password produce different keys.
   Uint8List generateRandomBytes(int length) {
     final random = Random.secure();
 
@@ -19,10 +27,15 @@ class CryptoService {
     );
   }
 
+  // Create a random salt for password-based key derivation.
+  // A salt makes the encryption stronger by preventing identical passwords
+  // from producing the same key every time.
   Uint8List generateSalt() {
     return generateRandomBytes(CryptoConstants.saltLength);
   }
 
+  // Turn a passphrase into a secret key using PBKDF2.
+  // PBKDF2 is slow on purpose, so attackers need much more work to guess passwords.
   Future<SecretKey> deriveKey({
     required String passphrase,
     required List<int> salt,
@@ -40,6 +53,8 @@ class CryptoService {
     );
   }
 
+  // Encrypt plain text with AES-GCM using the derived key.
+  // AES-GCM hides the message and also verifies that it has not been modified.
   Future<SecretBox> encrypt({
     required String plaintext,
     required SecretKey secretKey,
@@ -49,6 +64,8 @@ class CryptoService {
     return algorithm.encrypt(utf8.encode(plaintext), secretKey: secretKey);
   }
 
+  // Decrypt a SecretBox back into readable text.
+  // This will fail if the key is wrong or if the message was changed.
   Future<String> decrypt({
     required SecretBox secretBox,
     required SecretKey secretKey,
@@ -63,6 +80,13 @@ class CryptoService {
     return utf8.decode(clearTextBytes);
   }
 
+  // This is the high-level encryption flow for the app.
+  // It does these steps:
+  // 1. create a random salt
+  // 2. derive a key from passphrase + salt + chosen iterations
+  // 3. encrypt the plaintext with AES-GCM
+  // 4. store everything in a MessageEnvelope
+  // 5. return the final encoded message string
   Future<String> encryptMessage({
     required String plaintext,
     required String passphrase,
@@ -87,6 +111,9 @@ class CryptoService {
     return envelope.encode();
   }
 
+  // This is the reverse process.
+  // It reads the message envelope, rebuilds the key from the same passphrase,
+  // and decrypts the ciphertext if everything matches.
   Future<String> decryptMessage({
     required String encodedMessage,
     required String passphrase,

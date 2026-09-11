@@ -1,33 +1,31 @@
 import 'dart:async';
 
-import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 
 import '../crypto/protection_level.dart';
+import '../device_check/device_check_service.dart';
 import '../l10n/app_localizations.dart';
 
-// This screen helps the user test how fast their device is.
-// It measures how long the app's password hashing takes,
-// then recommends the safest protection level that still feels smooth on that phone.
-class DeviceCheckScreen extends StatefulWidget {
+// This screen explains the app's protection settings.
+// It is not the encryption logic itself.
+// Instead, it helps the user understand:
+// - why some security levels are slower,
+// - how the device speed affects the recommendation,
+// - and which level is best for this phone.
+class DeviceCheckScreen extends StatelessWidget {
   const DeviceCheckScreen({super.key});
 
-  @override
-  State<DeviceCheckScreen> createState() => _DeviceCheckScreenState();
-}
+  // A shortcut to the singleton service that performs the device check.
+  DeviceCheckService get _service => DeviceCheckService.instance;
 
-class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
-  // We consider 5 seconds a good maximum delay for a recommended setting.
-  // If a stronger option takes longer than this, it may be too slow for the device.
-  static const int _recommendedMaxMilliseconds = 5000;
+  // Starts the benchmark in the background.
+  // unawaited(...) means: "run this without waiting for it here".
+  void _startCheck() {
+    unawaited(_service.runCheck());
+  }
 
-  // These variables track whether the check is currently running,
-  // and what message/result should be shown on screen.
-  bool _isRunning = false;
-  String _result = '';
-
-  // Convert a protection level enum into a readable string.
-  // Example: ProtectionLevel.balanced -> "Balanced"
+  // Convert a protection level enum into a user-facing label.
+  // For example: Compatibility, Balanced, Stronger.
   String _protectionTitle(AppLocalizations l10n, ProtectionLevel level) {
     switch (level) {
       case ProtectionLevel.compatibility:
@@ -39,265 +37,8 @@ class _DeviceCheckScreenState extends State<DeviceCheckScreen> {
     }
   }
 
-  // This method runs the actual benchmark.
-  // It measures how long each protection setting takes to hash a password on this device.
-  Future<void> _checkDevice() async {
-    // If the check is already running, ignore extra taps.
-    if (_isRunning) {
-      return;
-    }
-
-    final l10n = AppLocalizations.of(context)!;
-
-    // Show a loading message while the benchmark runs.
-    setState(() {
-      _isRunning = true;
-      _result = l10n.checkingDevice;
-    });
-
-    final buffer = StringBuffer();
-    final times = <ProtectionLevel, double>{};
-
-    try {
-      // This creates a PBKDF2 object to confirm that the hashing implementation exists.
-      // PBKDF2 is the system used to make passwords slower to brute-force.
-      final implementationCheck = Pbkdf2(
-        macAlgorithm: Hmac.sha256(),
-        iterations: ProtectionLevel.compatibility.iterations,
-        bits: 256,
-      );
-
-      buffer.writeln(
-        l10n.pbkdf2Implementation(implementationCheck.runtimeType.toString()),
-      );
-      buffer.writeln();
-
-      // Use a fixed passphrase and salt so each run is comparable.
-      final salt = List<int>.generate(16, (index) => index);
-      const passphrase = 'veilmi-device-check';
-
-      // Measure all available protection levels one by one.
-      for (final level in ProtectionLevel.values) {
-        final runTimes = <int>[];
-
-        // Run the hash 3 times and calculate the average.
-        // This helps make the result more stable.
-        for (var run = 0; run < 3; run++) {
-          final pbkdf2 = Pbkdf2(
-            macAlgorithm: Hmac.sha256(),
-            iterations: level.iterations,
-            bits: 256,
-          );
-
-          final stopwatch = Stopwatch()..start();
-
-          // This is the expensive work we are timing.
-          await pbkdf2.deriveKey(
-            secretKey: SecretKey(passphrase.codeUnits),
-            nonce: salt,
-          );
-
-          stopwatch.stop();
-          runTimes.add(stopwatch.elapsedMilliseconds);
-        }
-
-        final averageMilliseconds =
-            runTimes.reduce((a, b) => a + b) / runTimes.length;
-
-        times[level] = averageMilliseconds;
-
-        // Add a message like: "Balanced: 2.3 seconds"
-        buffer.writeln(
-          l10n.protectionTime(
-            _protectionTitle(l10n, level),
-            (averageMilliseconds / 1000).toStringAsFixed(1),
-          ),
-        );
-      }
-
-      // Find which settings are fast enough for this device.
-      final strongerTime = times[ProtectionLevel.stronger] ?? double.infinity;
-      final balancedTime = times[ProtectionLevel.balanced] ?? double.infinity;
-
-      ProtectionLevel recommendation;
-
-      // Choose the strongest level that is still under 5 seconds.
-      if (strongerTime <= _recommendedMaxMilliseconds) {
-        recommendation = ProtectionLevel.stronger;
-      } else if (balancedTime <= _recommendedMaxMilliseconds) {
-        recommendation = ProtectionLevel.balanced;
-      } else {
-        recommendation = ProtectionLevel.compatibility;
-      }
-
-      // Add the recommendation to the result text.
-      buffer.writeln();
-      buffer.writeln(l10n.recommendedForDevice);
-      buffer.writeln(_protectionTitle(l10n, recommendation));
-
-      if (!mounted) {
-        return;
-      }
-
-      // Save the final result to display on the screen.
-      setState(() {
-        _result = buffer.toString().trim();
-      });
-    } catch (error) {
-      // If something fails during the benchmark, display an error instead.
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _result = l10n.deviceCheckFailed;
-      });
-    } finally {
-      // Always stop the loading spinner when the test ends.
-      if (mounted) {
-        setState(() {
-          _isRunning = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    // The screen is a vertical stack of information.
-    // Each section explains a concept, then shows the app's protection options.
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.deviceCheckTitle)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Explain the basic idea: more turns means more work for attackers.
-            Text(
-              l10n.howProtectionWorks,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.lockedDoor),
-            const SizedBox(height: 12),
-            Text(l10n.sharedPassphraseKey),
-            const SizedBox(height: 12),
-            Text(l10n.lockTurns),
-            const SizedBox(height: 12),
-            Text(l10n.moreTurnsHarderGuessing),
-            const SizedBox(height: 12),
-            Text(l10n.moreTurnsMoreWork),
-            const SizedBox(height: 12),
-            Text(l10n.otherPhoneSameWork),
-            const SizedBox(height: 32),
-
-            // Show the three available security levels.
-            Text(
-              l10n.threeProtectionLevels,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            _ProtectionLevelCard(
-              title: l10n.compatibility,
-              turns: ProtectionLevel.compatibility.iterations,
-              turnsLabel: l10n.turns,
-              description: l10n.compatibilityDeviceDescription,
-            ),
-            const SizedBox(height: 12),
-            _ProtectionLevelCard(
-              title: l10n.balanced,
-              turns: ProtectionLevel.balanced.iterations,
-              turnsLabel: l10n.turns,
-              description: l10n.balancedDeviceDescription,
-            ),
-            const SizedBox(height: 12),
-            _ProtectionLevelCard(
-              title: l10n.stronger,
-              turns: ProtectionLevel.stronger.iterations,
-              turnsLabel: l10n.turns,
-              description: l10n.strongerDeviceDescription,
-            ),
-            const SizedBox(height: 32),
-
-            // Explain why the user should run the device benchmark.
-            Text(
-              l10n.whichLevelFits,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            Text(l10n.deviceCheckDescription),
-            const SizedBox(height: 20),
-
-            // This button starts the benchmark.
-            FilledButton.icon(
-              onPressed: _isRunning ? null : _checkDevice,
-              icon: _isRunning
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.speed_outlined),
-              label: Text(_isRunning ? l10n.checking : l10n.checkThisDevice),
-            ),
-
-            // If the result is available, show it under the button.
-            if (_result.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              SelectableText(
-                _result,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// This helper widget makes the protection level cards reusable.
-// Each card contains a title, the number of turns, and a short explanation.
-class _ProtectionLevelCard extends StatelessWidget {
-  const _ProtectionLevelCard({
-    required this.title,
-    required this.turns,
-    required this.turnsLabel,
-    required this.description,
-  });
-
-  final String title;
-  final int turns;
-  final String Function(String) turnsLabel;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              turnsLabel(_formatNumber(turns)),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-            Text(description),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Format a large number with commas for readability.
-  // Example: 1000000 becomes 1,000,000
+  // Format a number like 600000 into 600,000 for display.
+  // This makes large numbers easier to read in the UI.
   String _formatNumber(int value) {
     final text = value.toString();
     final buffer = StringBuffer();
@@ -311,5 +52,276 @@ class _ProtectionLevelCard extends StatelessWidget {
     }
 
     return buffer.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // This gets the translated strings for the current app language.
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      // The screen title shown in the app bar.
+      appBar: AppBar(title: Text(l10n.deviceCheckTitle)),
+
+      // AnimatedBuilder listens to the service state.
+      // When the device check changes state (running, finished, failed), the UI updates.
+      body: AnimatedBuilder(
+        animation: _service,
+        builder: (context, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Intro section: explains the idea of protection levels.
+                Text(
+                  l10n.howProtectionWorks,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 16),
+                Text(l10n.lockedDoor),
+                const SizedBox(height: 12),
+                Text(l10n.sharedPassphraseKey),
+                const SizedBox(height: 12),
+                Text(l10n.lockTurns),
+                const SizedBox(height: 12),
+                Text(l10n.moreTurnsHarderGuessing),
+                const SizedBox(height: 12),
+                Text(l10n.moreTurnsMoreWork),
+                const SizedBox(height: 12),
+                Text(l10n.otherPhoneSameWork),
+                const SizedBox(height: 32),
+
+                // Shows the three available security levels.
+                Text(
+                  l10n.threeProtectionLevels,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 16),
+
+                // Each card shows a level and its iteration count.
+                _ProtectionLevelCard(
+                  title: l10n.compatibility,
+                  turns: ProtectionLevel.compatibility.iterations,
+                  turnsLabel: l10n.turns,
+                  description: l10n.compatibilityDeviceDescription,
+                  formatNumber: _formatNumber,
+                ),
+                const SizedBox(height: 12),
+                _ProtectionLevelCard(
+                  title: l10n.balanced,
+                  turns: ProtectionLevel.balanced.iterations,
+                  turnsLabel: l10n.turns,
+                  description: l10n.balancedDeviceDescription,
+                  formatNumber: _formatNumber,
+                ),
+                const SizedBox(height: 12),
+                _ProtectionLevelCard(
+                  title: l10n.stronger,
+                  turns: ProtectionLevel.stronger.iterations,
+                  turnsLabel: l10n.turns,
+                  description: l10n.strongerDeviceDescription,
+                  formatNumber: _formatNumber,
+                ),
+                const SizedBox(height: 32),
+
+                // Explain to the user when each protection level should be used.
+                Text(
+                  l10n.whichLevelFits,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                Text(l10n.deviceCheckDescription),
+                const SizedBox(height: 20),
+
+                // A warning box telling the user that slower devices may need a lower level.
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.schedule_outlined),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(l10n.deviceCheckWarning)),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // This button triggers the actual benchmark.
+                // If a check is already running, the button is disabled.
+                FilledButton.icon(
+                  onPressed: _service.isRunning ? null : _startCheck,
+                  icon: _service.isRunning
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.speed_outlined),
+                  label: Text(
+                    _service.isRunning ? l10n.checking : l10n.checkThisDevice,
+                  ),
+                ),
+
+                // While the benchmark is running, show a progress bar.
+                if (_service.isRunning) ...[
+                  const SizedBox(height: 24),
+                  LinearProgressIndicator(
+                    value:
+                        _service.completedRuns / DeviceCheckService.totalRuns,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${l10n.checking} '
+                    '${_service.completedRuns}/'
+                    '${DeviceCheckService.totalRuns}',
+                  ),
+                ],
+
+                // If something goes wrong, show an error message.
+                if (_service.hasError) ...[
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.deviceCheckFailed,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+
+                // If the benchmark finished, display the recommendation result.
+                if (_service.hasResult) ...[
+                  const SizedBox(height: 24),
+                  _DeviceCheckResult(
+                    service: _service,
+                    l10n: l10n,
+                    protectionTitle: _protectionTitle,
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// This widget shows the actual benchmark results.
+// It displays how long each protection level took on this device,
+// and then recommends the best option.
+class _DeviceCheckResult extends StatelessWidget {
+  const _DeviceCheckResult({
+    required this.service,
+    required this.l10n,
+    required this.protectionTitle,
+  });
+
+  final DeviceCheckService service;
+  final AppLocalizations l10n;
+
+  // This function turns a ProtectionLevel enum into a proper translated label.
+  final String Function(AppLocalizations, ProtectionLevel) protectionTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final implementation = service.implementation;
+    final recommendation = service.recommendation;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // If the system tells us which PBKDF2 implementation is being used,
+          // show it to the user.
+          if (implementation != null) ...[
+            SelectableText(l10n.pbkdf2Implementation(implementation)),
+            const SizedBox(height: 16),
+          ],
+
+          // Show the time measured for each protection level.
+          for (final level in ProtectionLevel.values) ...[
+            if (service.timeFor(level) != null)
+              Text(
+                l10n.protectionTime(
+                  protectionTitle(l10n, level),
+                  (service.timeFor(level)! / 1000).toStringAsFixed(1),
+                ),
+              ),
+          ],
+
+          // Show the recommended protection level for this device.
+          if (recommendation != null) ...[
+            const SizedBox(height: 20),
+            Text(
+              l10n.recommendedForDevice,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              protectionTitle(l10n, recommendation),
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// A simple card used to display one protection level and its iteration count.
+class _ProtectionLevelCard extends StatelessWidget {
+  const _ProtectionLevelCard({
+    required this.title,
+    required this.turns,
+    required this.turnsLabel,
+    required this.description,
+    required this.formatNumber,
+  });
+
+  final String title;
+  final int turns;
+  final String Function(String) turnsLabel;
+  final String description;
+  final String Function(int) formatNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // The protection level name, like Compatibility or Stronger.
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+
+            // Show the estimated iteration count in a readable format.
+            Text(
+              turnsLabel(formatNumber(turns)),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+
+            // Explain what this level means in plain language.
+            Text(description),
+          ],
+        ),
+      ),
+    );
   }
 }

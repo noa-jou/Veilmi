@@ -238,4 +238,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get couldNotOpenLink => '無法開啟這個連結。';
+
+  @override
+  String get deviceCheckWarning =>
+      '在較舊的手機上，裝置檢查可能需要一分鐘或更久。你可以先離開這個頁面，只要 Veilmi 仍然開著，稍後回來就可以查看結果。';
 }

@@ -103,5 +103,6 @@
   "readDocumentation": "Read the Documentation",
   "supportVeilmi": "Support Veilmi",
   "supportDescription": "Veilmi is free and open source. If you find it useful and would like to support its continued development, you can make a completely optional contribution.",
-  "couldNotOpenLink": "Could not open this link."
+  "couldNotOpenLink": "Could not open this link.",
+  "deviceCheckWarning": "Device Check may take a minute or longer on older phones. You can leave this page and come back later while Veilmi remains open."
 }

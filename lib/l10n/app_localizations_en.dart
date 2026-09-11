@@ -257,4 +257,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couldNotOpenLink => 'Could not open this link.';
+
+  @override
+  String get deviceCheckWarning =>
+      'Device Check may take a minute or longer on older phones. You can leave this page and come back later while Veilmi remains open.';
 }
