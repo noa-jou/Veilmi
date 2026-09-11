@@ -165,6 +165,48 @@ GitHub repository.
 
 ---
 
+## How to report an issue
+
+1. Open this repository on GitHub.
+2. Click **Issues** near the top of the repository.
+3. Click **New issue**.
+4. Give the issue a short, clear title.
+5. Describe what you found.
+6. Click **Submit new issue**.
+
+A useful report can include:
+
+- what you expected to happen;
+- what actually happened;
+- the steps that caused the problem;
+- your phone model and Android/iOS version, if relevant;
+- screenshots or error messages, if available.
+
+For example:
+
+```text
+Title:
+Decrypt button stays disabled after entering a message
+
+Description:
+I expected the Decrypt button to become available after entering
+an encrypted message and passphrase.
+
+Steps:
+1. Open Veilmi.
+2. Switch to Decrypt.
+3. Paste an encrypted message.
+4. Enter the passphrase.
+
+Result:
+The button remains disabled.
+
+Device:
+Android 14
+```
+
+--
+
 ## Support My Work
 
 I enjoy building independent apps and projects that I genuinely care about.
