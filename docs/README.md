@@ -3,49 +3,118 @@
 This folder contains the main developer notes, technical documentation, setup
 guides, and public project information for Veilmi.
 
-The documents are organized to help a beginner understand the project in a
-natural order.
 
-## Development and Technical Documentation
+## 1. Development Environment
 
-1. [android-device-testing.md](android-device-testing.md)
+### [chromebook-flutter-environment.md](chromebook-flutter-environment.md)
 
-   Learn how to connect a real Android phone to Flutter, enable Developer
-   options, turn on USB debugging, and troubleshoot device detection problems.
+A beginner-friendly record of the development environment currently used for
+Veilmi.
 
-2. [chromebook-flutter-environment.md](chromebook-flutter-environment.md)
+It explains how to configure a Chromebook Linux environment so Flutter, Dart,
+Java, the Android SDK, and ADB can be used from the terminal.
 
-   Learn how to configure a Chromebook Linux environment so Flutter, Dart,
-   Java, Android SDK, and ADB can be used from the terminal.
-
-3. [crypto-notes.md](crypto-notes.md)
-
-   A beginner-friendly explanation of how Veilmi encrypts and decrypts
-   messages, including PBKDF2, salt, nonce, AES-GCM, and the message envelope.
-
-4. [crypto-design-and-future.md](crypto-design-and-future.md)
-
-   A higher-level explanation of the cryptographic design choices, current
-   trade-offs, and possible future direction such as Argon2id.
-
-5. [localization.md](localization.md)
-
-   Learn how Veilmi supports English and Traditional Chinese, how the selected
-   language is stored and restored, how runtime language switching works, and
-   how new translated strings can be added.
-
-## Privacy
-
-6. [privacy-policy.md](privacy-policy.md)
-
-   The public Privacy Policy for Veilmi. It explains how messages,
-   passphrases, application preferences, clipboard data, external links, and
-   other information are handled.
-
-   Veilmi performs its encryption and decryption locally and does not require
-   a Veilmi account or developer-operated messaging server.
+This section focuses on the development machine itself rather than on Veilmi's
+application logic.
 
 ---
 
-For a general introduction to the project, see the
-[main Veilmi README](https://github.com/noa-jou/Veilmi).
+## 2. Veilmi Design and Application
+
+### [crypto-notes.md](crypto-notes.md)
+
+A beginner-friendly explanation of how Veilmi currently encrypts and decrypts
+messages.
+
+It covers concepts such as:
+
+- shared passphrases;
+- PBKDF2;
+- salt;
+- nonce;
+- AES-256-GCM;
+- authentication tags;
+- the Veilmi message envelope.
+
+### [crypto-design-and-future.md](crypto-design-and-future.md)
+
+A higher-level explanation of Veilmi's cryptographic design choices.
+
+It records the reasoning behind the current protection levels, important
+security trade-offs, and possible future directions such as Argon2id.
+
+### [localization.md](localization.md)
+
+An explanation of Veilmi's current localization system.
+
+It describes:
+
+- English and Traditional Chinese support;
+- how the selected language is stored;
+- how language switching works at runtime;
+- how Veilmi-specific strings are loaded;
+- how Flutter framework text uses the same locale;
+- how new translations can be added.
+
+---
+
+## 3. Android Development and Release
+
+### [android-device-testing.md](android-device-testing.md)
+
+A practical guide to testing Veilmi on a real Android phone.
+
+It explains how to:
+
+- enable Developer options;
+- enable USB debugging;
+- connect an Android phone to Flutter;
+- use ADB (Android Debug Bridge);
+- run Veilmi on a physical device;
+- troubleshoot device detection problems.
+
+### [android-release-signing.md](android-release-signing.md)
+
+A beginner-friendly explanation of preparing Veilmi for an Android release.
+
+It covers the complete release path, including:
+
+- debug builds and release builds;
+- Android application signing;
+- upload keys;
+- Java keystores (`.jks`);
+- `key.properties`;
+- Gradle;
+- `build.gradle.kts`;
+- Android App Bundles (`.aab`);
+- Google Play App Signing;
+- version numbers;
+- private release files and backups.
+
+It also records the commands and configuration used to create Veilmi's signed
+Android App Bundle for Google Play.
+
+---
+
+## Privacy
+
+### [privacy-policy.md](privacy-policy.md)
+
+The public Privacy Policy for Veilmi.
+
+It explains how Veilmi handles:
+
+- messages and shared passphrases;
+- application preferences;
+- clipboard data;
+- network use;
+- external links;
+- data retention and deletion.
+
+Veilmi performs its encryption and decryption locally and does not require a
+Veilmi account or developer-operated messaging server.
+
+---
+
+For a general introduction, source code, and project overview, visit the
+[Veilmi GitHub repository](https://github.com/noa-jou/Veilmi).
