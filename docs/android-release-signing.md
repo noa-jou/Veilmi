@@ -5,13 +5,16 @@ used by Veilmi.
 
 It explains:
 
-- what a release build is;
-- what an upload key is;
-- what a keystore is;
+- what a debug build and a release build are;
+- why Android apps need digital signing;
+- what an upload key and keystore are;
+- how Veilmi's upload key was created;
 - what `key.properties` does;
-- how Gradle signs a release;
+- what Gradle does;
+- how Gradle uses the signing configuration;
 - what an Android App Bundle (`.aab`) is;
-- which files must remain private.
+- which release files must remain private;
+- what should be backed up for future Veilmi releases.
 
 The goal is not only to record the commands, but also to explain why each step
 exists.
@@ -34,7 +37,7 @@ It includes tools that help developers test and inspect the application.
 
 A Play Store release should instead use a **release build**.
 
-For example:
+For Veilmi, the release bundle is created with:
 
 ```bash
 flutter build appbundle --release
@@ -48,6 +51,7 @@ Development
 Debug build
     ↓
 Test the app
+
 
 Release preparation
     ↓
@@ -66,8 +70,8 @@ Upload to Google Play
 
 Android applications are digitally signed.
 
-The signature helps Android and Google Play determine that future versions of
-an application belong to the same application identity.
+This signature helps Android and Google Play confirm that future versions of an
+app belong to the same app identity.
 
 For Veilmi, the Android application ID is:
 
@@ -79,46 +83,44 @@ Imagine that Veilmi version 1.0 is released today.
 
 Later, version 1.1 is released.
 
-Android needs a way to know:
+Android needs a way to recognize:
 
 ```text
 Veilmi 1.0
      ↓
-and
-     ↓
+same application
+     ↑
 Veilmi 1.1
 ```
 
-belong to the same application.
-
 Digital signing is part of that system.
 
-It is therefore very different from simply putting the developer's name inside
-the app.
+It is different from simply putting the developer's name inside the app.
+
+A digital signature is based on a cryptographic key.
 
 ---
 
-## 3. What Is a Cryptographic Key?
+## 3. What Is a Cryptographic Signing Key?
 
-A signing key is part of a public-key cryptography system.
+A signing key uses public-key cryptography.
 
-Very roughly, it contains:
+Very roughly, there are two sides:
 
 ```text
 Private key
     +
-Public information / certificate
+Public certificate information
 ```
 
-The **private key** must remain private.
+The **private key** is the sensitive part.
 
 It is used to create digital signatures.
 
 The certificate contains public information that can be used to identify and
-verify the signing key.
+verify the key.
 
-When the Veilmi key was created, information such as the following was included
-in its certificate:
+When the Veilmi key was created, certificate information included:
 
 ```text
 Name: Noa Jou
@@ -127,9 +129,9 @@ Location: Taipei
 Country: TW
 ```
 
-This information is not the secret part.
+This certificate information is not the secret.
 
-The private key and its password are the sensitive parts.
+The private key and the passwords protecting it are the important secrets.
 
 ---
 
@@ -149,7 +151,7 @@ The `.jks` extension means:
 Java KeyStore
 ```
 
-A useful mental model is:
+A simple mental model is:
 
 ```text
 veilmi-upload-keystore.jks
@@ -164,11 +166,86 @@ The keystore itself is protected by a password.
 
 It is a binary file, not a normal text file.
 
-Therefore it should not be opened and edited with VS Code.
+Therefore, it should not be opened and edited with VS Code.
 
-To inspect it, use Java's `keytool`.
+---
 
-For example:
+## 5. How the Veilmi Upload Key Was Created
+
+Veilmi's upload keystore was created with Java's `keytool`.
+
+The command was:
+
+```bash
+keytool -genkeypair -v \
+  -keystore ~/veilmi-upload-keystore.jks \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000 \
+  -alias upload
+```
+
+This command can be read piece by piece.
+
+```text
+keytool
+```
+
+uses Java's key-management tool.
+
+```text
+-genkeypair
+```
+
+asks it to create a new public/private key pair.
+
+```text
+-keystore ~/veilmi-upload-keystore.jks
+```
+
+says where the keystore should be created.
+
+The `~` means the current user's home directory.
+
+Therefore the file is outside the Veilmi Git repository.
+
+```text
+-keyalg RSA
+```
+
+selects RSA as the key algorithm.
+
+```text
+-keysize 2048
+```
+
+creates a 2048-bit RSA key.
+
+```text
+-validity 10000
+```
+
+makes the certificate valid for 10,000 days.
+
+```text
+-alias upload
+```
+
+gives this key the name:
+
+```text
+upload
+```
+
+During creation, `keytool` asks for passwords and certificate information.
+
+The passwords must remain private.
+
+---
+
+## 6. How to Check the Keystore
+
+After the key has been created, it can be inspected with:
 
 ```bash
 keytool -list -v \
@@ -176,17 +253,57 @@ keytool -list -v \
   -alias upload
 ```
 
+For Veilmi, this showed information such as:
+
+```text
+Alias name: upload
+Entry type: PrivateKeyEntry
+Subject Public Key Algorithm: 2048-bit RSA key
+```
+
+It also displayed SHA-1 and SHA-256 certificate fingerprints.
+
+Those fingerprints are public identifiers.
+
+They are not the private key.
+
 ---
 
-## 5. Why the Keystore Is Outside the Git Repository
+## 7. What Is the `upload` Alias?
 
-The Veilmi repository is located at:
+The key inside the keystore was given the alias:
+
+```text
+upload
+```
+
+An alias is simply a name used to identify a key inside a keystore.
+
+Conceptually:
+
+```text
+veilmi-upload-keystore.jks
+        │
+        └── key named "upload"
+```
+
+A keystore can contain more than one key.
+
+The alias tells Java and Gradle which key should be used.
+
+The alias itself is not secret.
+
+---
+
+## 8. Why Is the Keystore Outside the Git Repository?
+
+The Veilmi repository is:
 
 ```text
 ~/Veilmi/
 ```
 
-The upload keystore is stored outside it:
+The signing keystore is outside it:
 
 ```text
 ~
@@ -201,20 +318,20 @@ The upload keystore is stored outside it:
 
 This separation is intentional.
 
-The repository can be public.
+Veilmi's source code can be public.
 
 The private signing key must not be public.
 
-The following would be dangerous:
+The dangerous version would be:
 
 ```text
 Veilmi/
 └── veilmi-upload-keystore.jks
 ```
 
-especially if the file were committed to Git.
+especially if that file were accidentally committed to GitHub.
 
-The current Veilmi `.gitignore` also excludes common signing files such as:
+Veilmi's `.gitignore` also excludes common signing files such as:
 
 ```text
 *.jks
@@ -222,52 +339,35 @@ The current Veilmi `.gitignore` also excludes common signing files such as:
 key.properties
 ```
 
-This provides another layer of protection.
-
 ---
 
-## 6. What Is the `upload` Alias?
+## 9. What Does `key.properties` Do?
 
-When the keystore was created, the key was given this alias:
+The keystore contains the actual key.
 
-```text
-upload
-```
-
-The alias is simply a name used to identify a particular key inside a keystore.
-
-Conceptually:
+However, Gradle still needs to know:
 
 ```text
-veilmi-upload-keystore.jks
-        │
-        └── key named "upload"
+Where is the keystore?
+Which key should I use?
+What passwords unlock it?
 ```
 
-A keystore can theoretically contain multiple keys, so the alias tells Java
-which one should be used.
-
-The alias itself is not secret.
-
----
-
-## 7. What Does `key.properties` Do?
-
-Veilmi contains this local configuration file:
+Veilmi uses:
 
 ```text
 android/key.properties
 ```
 
-It contains information needed by Gradle to locate and unlock the upload key.
+for this purpose.
 
-Conceptually, it contains:
+It contains values similar to:
 
 ```properties
 storePassword=...
 keyPassword=...
 keyAlias=upload
-storeFile=...
+storeFile=/path/to/veilmi-upload-keystore.jks
 ```
 
 The important distinction is:
@@ -275,7 +375,8 @@ The important distinction is:
 ```text
 .jks file
     ↓
-actually contains the key
+contains the actual private key
+
 
 key.properties
     ↓
@@ -283,40 +384,165 @@ tells Gradle where the key is
 and how to access it
 ```
 
-`key.properties` does **not** contain the private key itself.
+`key.properties` does not contain the private key itself.
 
-However, it contains passwords and must therefore also remain private.
+However, it contains passwords, so it must also remain private.
 
-It must never be committed to the public GitHub repository.
+It is ignored by Git and must not be committed to the public repository.
 
 ---
 
-## 8. What Does `build.gradle.kts` Do?
+## 10. What Is Gradle?
 
-The Android release configuration is stored in:
+Gradle is the build system used by Android projects.
+
+A simple way to think about it is:
+
+> Gradle is the Android project's build manager.
+
+Most of Veilmi is written using Flutter and Dart.
+
+However, when Veilmi becomes an Android application, Android-specific work still
+has to happen.
+
+For example:
+
+- choosing the Android SDK;
+- setting the application ID;
+- setting the minimum and target Android versions;
+- choosing debug or release mode;
+- loading the signing configuration;
+- packaging Android libraries and resources;
+- creating an APK or AAB.
+
+Gradle coordinates these Android build tasks.
+
+Conceptually:
+
+```text
+Dart / Flutter source code
+          │
+          ▼
+       Flutter
+          │
+          │ asks Android to build the app
+          ▼
+       Gradle
+          │
+          ├── reads Android configuration
+          ├── prepares dependencies
+          ├── configures release signing
+          ├── builds Android components
+          └── packages the application
+          │
+          ▼
+       APK / AAB
+```
+
+When Veilmi runs:
+
+```bash
+flutter build appbundle --release
+```
+
+Flutter starts the process.
+
+For the Android-specific part, Flutter uses Gradle.
+
+This is why the terminal showed:
+
+```text
+Running Gradle task 'bundleRelease'...
+```
+
+`bundleRelease` is the Gradle task used to create the release App Bundle.
+
+### Gradle Is Not Android Studio
+
+These are different things:
+
+```text
+Android Studio
+    = development environment / IDE
+
+Flutter
+    = cross-platform application framework
+
+Android SDK
+    = Android tools and platform files
+
+Gradle
+    = Android build system
+```
+
+This is why Veilmi can be built from the terminal without manually opening
+Android Studio.
+
+### What Does `.kts` Mean?
+
+Veilmi has this file:
 
 ```text
 android/app/build.gradle.kts
 ```
 
-Originally, the Flutter project used the debug signing configuration:
+The `.kts` part means:
+
+```text
+Kotlin Script
+```
+
+Veilmi therefore uses:
+
+```text
+Gradle
++
+Kotlin DSL
+```
+
+Some older Android projects use a file called:
+
+```text
+build.gradle
+```
+
+which often uses Groovy instead.
+
+---
+
+## 11. What Does `build.gradle.kts` Do?
+
+Gradle is the tool that performs the Android build.
+
+`build.gradle.kts` contains instructions telling Gradle how Veilmi should be
+built.
+
+For example, it contains:
+
+```kotlin
+applicationId = "com.veilmi.app"
+```
+
+and Android SDK settings such as:
+
+```kotlin
+minSdk = flutter.minSdkVersion
+targetSdk = flutter.targetSdkVersion
+```
+
+It also contains the release signing configuration.
+
+Originally, the Flutter project used:
 
 ```kotlin
 signingConfig = signingConfigs.getByName("debug")
 ```
 
-That is useful during development, but it is not the signing configuration that
-should be used for a production release.
+That is useful during development.
 
-Veilmi now loads:
+A production release instead needs Veilmi's release signing configuration.
 
-```text
-android/key.properties
-```
-
-and creates a release signing configuration.
-
-Conceptually:
+The new setup works approximately like this:
 
 ```text
 key.properties
@@ -329,16 +555,33 @@ key.properties
       build.gradle.kts
              │
              ▼
+          Gradle
+             │
+             ▼
        release signing
 ```
 
-Gradle can then use the Veilmi upload key when creating the release bundle.
+So:
+
+```text
+key.properties
+```
+
+contains the local secret configuration,
+
+while:
+
+```text
+build.gradle.kts
+```
+
+tells Gradle how to use that configuration.
 
 ---
 
-## 9. The Complete Signing Flow
+## 12. The Complete Signing Flow
 
-The signing process can be visualized like this:
+The whole signing process can now be visualized as:
 
 ```text
 veilmi-upload-keystore.jks
@@ -348,36 +591,52 @@ veilmi-upload-keystore.jks
           ▼
 android/key.properties
           │
-          │ tells Gradle how to find the key
+          │ tells Gradle where the key is
           │
           ▼
 android/app/build.gradle.kts
           │
-          │ configures release signing
+          │ tells Gradle how release signing works
           │
           ▼
-flutter build appbundle --release
+Gradle
+          │
+          │ builds and signs the Android release
           │
           ▼
 app-release.aab
 ```
 
-The important point is that Flutter itself is not storing the secret key inside
-the Dart source code.
+Another way to remember it is:
 
-The key remains outside the application source.
+```text
+Keystore
+   = the key
+
+key.properties
+   = how to find and unlock the key
+
+build.gradle.kts
+   = signing instructions
+
+Gradle
+   = the tool that follows those instructions
+
+AAB
+   = the finished release package
+```
 
 ---
 
-## 10. What Is an `.aab` File?
+## 13. What Is an `.aab` File?
 
-After running:
+Veilmi created its Android release bundle with:
 
 ```bash
 flutter build appbundle --release
 ```
 
-Flutter created:
+The resulting file was:
 
 ```text
 build/app/outputs/bundle/release/app-release.aab
@@ -395,13 +654,12 @@ An AAB is different from an APK.
 
 ### APK
 
-An APK is an Android application package that can be installed directly on an
-Android device.
+An APK can be installed directly on an Android phone.
 
 ```text
 APK
  ↓
-install on phone
+Android phone
 ```
 
 ### AAB
@@ -413,48 +671,42 @@ AAB
  ↓
 Google Play
  ↓
-Google generates appropriate APKs
+Google creates suitable APKs
  ↓
-user's device receives an optimized package
+Android devices
 ```
 
-The AAB can contain resources and code for several kinds of Android devices.
+The App Bundle can contain resources and code for several types of Android
+devices.
 
-Google Play can then generate the package appropriate for each user's device.
+Google Play can then deliver packages appropriate for each user's device.
 
 ---
 
-## 11. Why Was the AAB 51.4 MB?
+## 14. Why Was the AAB 51.4 MB?
 
-The first Veilmi release bundle was built successfully as:
-
-```text
-app-release.aab
-```
-
-with a size of approximately:
+Veilmi's first release bundle was approximately:
 
 ```text
 51.4 MB
 ```
 
-This does not necessarily mean every user will download a 51.4 MB application.
+This does not necessarily mean every user will download a 51.4 MB app.
 
-The App Bundle contains material that Google Play can use to generate optimized
-packages for different devices.
+The bundle can contain resources for different devices.
 
-For example, different devices may require different:
+For example:
 
-- CPU architectures;
-- resources;
-- screen-density assets;
-- native libraries.
+- different CPU architectures;
+- screen-density resources;
+- native libraries;
+- other device-specific resources.
 
-Google Play can deliver only the required parts.
+Google Play can generate optimized packages from the bundle.
 
 ---
 
-## 12. What Was the "Tree-Shaken MaterialIcons" Message?
+## 15. What Was the "Tree-Shaken MaterialIcons" Message?
 
 During the release build, Flutter printed a message similar to:
 
@@ -464,17 +716,16 @@ Font asset "MaterialIcons-Regular.otf" was tree-shaken...
 
 This is normal.
 
-Flutter analyzed which Material icons Veilmi actually uses.
+Flutter checked which Material icons Veilmi actually uses.
 
-Instead of packaging the entire Material Icons font, Flutter removed unused
-icons.
+Instead of packaging the full Material Icons font, it removed unused icons.
 
 Conceptually:
 
 ```text
 Full Material Icons font
         ↓
-Find icons actually used by Veilmi
+Find icons Veilmi actually uses
         ↓
 Remove unused icons
         ↓
@@ -487,11 +738,11 @@ It is not an error.
 
 ---
 
-## 13. Upload Key vs Google Play App Signing Key
+## 16. Upload Key vs Google Play App Signing Key
 
-There are two related keys that should not be confused.
+There are two related keys that are easy to confuse.
 
-### Upload key
+### Upload Key
 
 This is the key created locally for Veilmi:
 
@@ -499,21 +750,20 @@ This is the key created locally for Veilmi:
 veilmi-upload-keystore.jks
 ```
 
-It is used to sign the bundle before uploading it to Google Play.
+Veilmi uses it to sign the AAB before uploading the bundle to Google Play.
 
-Its purpose is essentially to prove:
+Its purpose is roughly:
 
 ```text
-This upload came from someone authorized
-to publish Veilmi.
+This upload came from an authorized Veilmi publisher.
 ```
 
-### App signing key
+### App Signing Key
 
-With Google Play App Signing, Google Play manages the key used to sign the APKs
+With Google Play App Signing, Google manages the key used to sign the packages
 that are ultimately distributed to users.
 
-The simplified flow is:
+The simplified process is:
 
 ```text
 Developer
@@ -525,7 +775,7 @@ app-release.aab
     ▼
 Google Play
     │
-    │ verifies upload
+    │ verifies the upload
     ▼
 Google Play App Signing
     │
@@ -546,79 +796,46 @@ and:
 App signing key
 ```
 
-are related, but they are not necessarily the same key.
+have different jobs.
 
 ---
 
-## 14. Why the Upload Key Still Matters
+## 17. Why the Upload Key Still Matters
 
-Even when Google Play manages the final app signing key, the upload key remains
-important.
-
-It is used when submitting future versions of Veilmi.
+The upload key will also be used when future versions of Veilmi are submitted.
 
 For example:
 
 ```text
-Veilmi 1.0.0
-     ↓
-upload key
-     ↓
+Veilmi 1.0
+    ↓
+authorized upload key
+    ↓
 Google Play
 
-Veilmi 1.1.0
-     ↓
-same authorized upload identity
-     ↓
+
+Veilmi 1.1
+    ↓
+authorized upload key
+    ↓
 Google Play
 ```
 
-The upload keystore should therefore be backed up safely.
+This is why the upload keystore should be backed up safely.
 
 ---
 
-## 15. What Must Be Backed Up?
+## 18. What Is Secret and What Can Be Public?
 
-The most important release materials are:
-
-```text
-veilmi-upload-keystore.jks
-keystore password
-key password
-key alias
-```
-
-For Veilmi, the alias is:
+The easiest rule is:
 
 ```text
-upload
+Public source code
+does not mean
+public private keys
 ```
 
-The `.jks` file should have at least one secure backup outside the development
-computer.
-
-The password should preferably be stored separately in a password manager.
-
-A reasonable model is:
-
-```text
-Chromebook
-    └── working copy of .jks
-
-Secure backup
-    └── backup copy of .jks
-
-Password manager
-    └── keystore password
-```
-
-Do not store all of these secrets together in the public repository.
-
----
-
-## 16. What Can Be Public?
-
-These values do not need to remain secret:
+These values can be public:
 
 ```text
 Application ID
@@ -635,67 +852,91 @@ For example:
 com.veilmi.app
 ```
 
-is public information.
+and:
 
-Certificate fingerprints are also public identifiers.
+```text
+upload
+```
 
-The sensitive items are:
+are not secrets.
+
+These must remain private:
 
 ```text
 private key
-keystore file
+veilmi-upload-keystore.jks
 keystore password
 key password
+android/key.properties
 ```
 
----
-
-## 17. Files That Must Never Be Committed
-
-Do not commit files such as:
-
-```text
-*.jks
-*.keystore
-key.properties
-.env
-```
-
-if they contain secrets.
-
-Before committing release configuration changes, it is useful to run:
+Before pushing release changes to GitHub, run:
 
 ```bash
 git status
 ```
 
-The following should **not** appear as files waiting to be committed:
+The following should not appear as files waiting to be committed:
 
 ```text
 android/key.properties
 veilmi-upload-keystore.jks
 ```
 
-If they appear, stop and fix `.gitignore` before pushing.
+---
+
+## 19. What Must Be Backed Up?
+
+The important release information is:
+
+```text
+veilmi-upload-keystore.jks
+keystore password
+key password
+key alias
+```
+
+For Veilmi, the alias is:
+
+```text
+upload
+```
+
+A reasonable backup arrangement is:
+
+```text
+Development computer
+    └── working copy of .jks
+
+Secure backup
+    └── another copy of .jks
+
+Password manager
+    └── passwords
+```
+
+The signing key should not exist only on one computer.
+
+It should also never be stored in the public Git repository.
 
 ---
 
-## 18. Building a Release Bundle
+## 20. Building a Release Bundle
 
-Once signing is configured, Veilmi can build an Android release bundle with:
-
-```bash
-flutter build appbundle --release
-```
-
-Before building, it is useful to run:
+Before building a release, Veilmi can first run:
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-The complete basic sequence is:
+Then build the Android App Bundle:
+
+```bash
+flutter build appbundle --release
+```
+
+The full basic sequence is:
 
 ```bash
 flutter analyze
@@ -703,17 +944,25 @@ flutter test
 flutter build appbundle --release
 ```
 
-A successful build produces:
+A successful build creates:
 
 ```text
 build/app/outputs/bundle/release/app-release.aab
 ```
 
+The successful Veilmi build showed:
+
+```text
+Built build/app/outputs/bundle/release/app-release.aab
+```
+
+That means the Android release build and signing configuration worked.
+
 ---
 
-## 19. Version Numbers
+## 21. Version Numbers
 
-Veilmi currently uses the Flutter version declaration in:
+Veilmi's version is defined in:
 
 ```text
 pubspec.yaml
@@ -749,7 +998,7 @@ version: 1.0.0+1
          └── versionName
 ```
 
-When a new version is uploaded to Google Play, the version code must increase.
+When a new release is uploaded to Google Play, the version code must increase.
 
 For example:
 
@@ -763,11 +1012,11 @@ or:
 version: 1.1.0+2
 ```
 
-depending on the kind of release.
+depending on the release.
 
 ---
 
-## 20. Veilmi's Current Android Release Configuration
+## 22. Veilmi's Current Android Release Configuration
 
 At the time this document was written, Veilmi uses:
 
@@ -776,6 +1025,7 @@ Application ID: com.veilmi.app
 Version:        1.0.0+1
 Flutter:        3.47.3 stable
 Android SDK:    36
+Upload alias:   upload
 ```
 
 The release bundle was successfully built with:
@@ -792,33 +1042,26 @@ build/app/outputs/bundle/release/app-release.aab
 
 ---
 
-## 21. A Simple Mental Model
+## 23. A Simple Mental Model
 
 The easiest way to remember the whole process is:
 
 ```text
-Source code
-    │
-    ▼
-Flutter builds the app
-    │
-    ▼
-Gradle prepares Android release
-    │
-    ▼
-Upload key signs the release
-    │
-    ▼
+Write Veilmi
+    ↓
+Flutter prepares the app
+    ↓
+Gradle handles the Android build
+    ↓
+Gradle uses the upload key
+    ↓
+Release is signed
+    ↓
 app-release.aab
-    │
-    ▼
+    ↓
 Google Play
-    │
-    ▼
-Google Play signs packages for users
-    │
-    ▼
-Android phones
+    ↓
+Android users
 ```
 
 Or even more simply:
@@ -837,45 +1080,50 @@ Google Play
 Users
 ```
 
----
-
-## 22. Important Security Rule
-
-The source code of Veilmi can be public.
-
-The signing private key cannot.
-
-These are separate ideas:
+A factory analogy can also help:
 
 ```text
-Open-source application
-        ≠
-Public signing key
+Dart source code
+    = design and raw materials
+
+Flutter
+    = cross-platform production system
+
+Gradle
+    = Android factory manager
+
+build.gradle.kts
+    = instructions for the factory manager
+
+key.properties
+    = instructions for finding the release stamp
+
+keystore
+    = protected release stamp
+
+AAB
+    = finished package sent to Google Play
 ```
 
-Publishing Veilmi's source code allows other people to study and verify how the
-application works.
-
-Keeping the upload private key secret prevents unauthorized people from
-pretending to be the authorized Veilmi publisher.
-
 ---
 
-## 23. Release Checklist
+## 24. Release Checklist
 
-Before uploading a new Android release:
+Before uploading a future Veilmi Android release:
 
 ```text
-[ ] Update and review the app
+[ ] Update the app version
 [ ] Run flutter analyze
 [ ] Run flutter test
 [ ] Test important features on a real Android device
-[ ] Update the version number
+[ ] Check git status
 [ ] Confirm key.properties is not tracked by Git
 [ ] Confirm the .jks file is not tracked by Git
-[ ] Build with flutter build appbundle --release
+[ ] Run flutter build appbundle --release
 [ ] Confirm app-release.aab was created
 [ ] Upload the AAB to Google Play
 ```
 
-The private signing materials should never be uploaded to GitHub.
+The most important security rule is:
+
+> Veilmi's source code can be public. Its private signing key must remain private.
