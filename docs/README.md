@@ -6,6 +6,9 @@ guides, and public project information for Veilmi.
 
 ## 1. Development Environment
 
+This section focuses on the development machine itself rather than on Veilmi's
+application logic.
+
 ### [chromebook-flutter-environment.md](chromebook-flutter-environment.md)
 
 A beginner-friendly record of the development environment currently used for
@@ -14,8 +17,15 @@ Veilmi.
 It explains how to configure a Chromebook Linux environment so Flutter, Dart,
 Java, the Android SDK, and ADB can be used from the terminal.
 
-This section focuses on the development machine itself rather than on Veilmi's
-application logic.
+### [github-publication-and-pages.md](github-publication-and-pages.md)
+
+A beginner-friendly guide to preparing Veilmi for public development on GitHub
+and publishing its documentation with GitHub Pages.
+
+It records how to check a repository for secrets and personal information
+before making it public, change the repository visibility, publish the `docs/`
+folder with GitHub Pages, create clean documentation URLs with Jekyll front
+matter and permalinks, and manage Pages deployment notifications.
 
 ---
 

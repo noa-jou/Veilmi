@@ -121,7 +121,7 @@ location.
 
 Developer: Noa Jou
 
-Privacy contact: https://www.linkedin.com/in/noa-jou/
+Privacy contact: [https://www.linkedin.com/in/noa-jou/](https://www.linkedin.com/in/noa-jou/)
 
 Project:
-https://github.com/noa-jou/Veilmi
+[https://github.com/noa-jou/Veilmi](https://github.com/noa-jou/Veilmi)
