@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="assets/app_screenshots/veilmi_icon_small.png"
+       alt="About Veilmi Icon">
+</p>
+
 # Veilmi Documentation
 
 Welcome to the Veilmi documentation.
