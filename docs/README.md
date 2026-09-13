@@ -69,6 +69,15 @@ It covers:
 - creating clean documentation URLs;
 - managing GitHub Pages deployment notifications.
 
+
+
+### [Local Development Files](local-development-files.md)
+
+A short explanation of which Veilmi files belong in Git, which files are
+generated locally by Flutter or the IDE, and which private release files must
+be backed up separately.
+
+
 ---
 
 ## 3. Veilmi Design and Application
