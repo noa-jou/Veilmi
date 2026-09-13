@@ -48,12 +48,11 @@ The most important directories for understanding Veilmi itself are:
 ```text
 lib/      application source code
 test/     automated tests
-assets/   icons and screenshots
+assets/   icons
 docs/     project documentation
 ```
 
-The platform directories such as `android/`, `ios/`, `linux/`, `macos/`,
-`web/`, and `windows/` contain platform-specific Flutter project files.
+The platform directories such as `android/`and `ios/` contain platform-specific Flutter project files.
 
 ---
 
