@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/app_screenshots/veilmi_icon_small.png",
-        width="100",
-        height="100",
-       alt="About Veilmi Icon">
+  <img src="assets/icon/veilmi_icon_small.png"
+       width="100"
+       height="100"
+       alt="Veilmi icon">
 </p>
 
 # Veilmi Documentation
