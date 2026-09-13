@@ -1,40 +1,64 @@
 # Veilmi Documentation
 
-This folder contains the main developer notes, technical documentation, setup
-guides, and public project information for Veilmi.
+Welcome to the Veilmi documentation.
 
-
-## 1. Development Environment
-
-This section focuses on the development machine itself rather than on Veilmi's
-application logic.
-
-### [chromebook-flutter-environment.md](chromebook-flutter-environment.md)
-
-A beginner-friendly record of the development environment currently used for
-Veilmi.
-
-It explains how to configure a Chromebook Linux environment so Flutter, Dart,
-Java, the Android SDK, and ADB can be used from the terminal.
-
-### [github-publication-and-pages.md](github-publication-and-pages.md)
-
-A beginner-friendly guide to preparing Veilmi for public development on GitHub
-and publishing its documentation with GitHub Pages.
-
-It records how to check a repository for secrets and personal information
-before making it public, change the repository visibility, publish the `docs/`
-folder with GitHub Pages, create clean documentation URLs with Jekyll front
-matter and permalinks, and manage Pages deployment notifications.
+This documentation explains how to use Veilmi, how its cryptographic
+design works, and how the application is developed, tested, and prepared
+for release.
 
 ---
 
-## 2. Veilmi Design and Application
+## 1. Using Veilmi
 
-### [crypto-notes.md](crypto-notes.md)
+### [Veilmi Usage Guide](usage-guide.md)
 
-A beginner-friendly explanation of how Veilmi currently encrypts and decrypts
-messages.
+A visual walkthrough of Veilmi's main screens and basic workflow,
+including encryption, decryption, protection levels, and Device Check.
+
+Traditional Chinese version:
+
+[Veilmi 使用指南](usage-guide.zh.md)
+
+---
+
+## 2. Development Environment
+
+This section focuses on the tools and development environment used to
+build and maintain Veilmi.
+
+### [Chromebook Flutter Environment](chromebook-flutter-environment.md)
+
+A beginner-friendly record of the development environment used for
+Veilmi.
+
+It explains how to configure a Chromebook Linux environment so Flutter,
+Dart, Java, the Android SDK, and ADB can be used from the terminal.
+
+### [GitHub Publication and GitHub Pages](github-publication-and-pages.md)
+
+A beginner-friendly guide to preparing Veilmi for public development on
+GitHub and publishing its documentation with GitHub Pages.
+
+It covers:
+
+- checking a repository for secrets and personal information;
+- changing repository visibility;
+- publishing the `docs/` directory with GitHub Pages;
+- using Jekyll front matter and permalinks;
+- creating clean documentation URLs;
+- managing GitHub Pages deployment notifications.
+
+---
+
+## 3. Veilmi Design and Application
+
+This section explains how Veilmi works internally and records important
+design decisions.
+
+### [Cryptography Notes](crypto-notes.md)
+
+A beginner-friendly explanation of how Veilmi currently encrypts and
+decrypts messages.
 
 It covers concepts such as:
 
@@ -46,14 +70,14 @@ It covers concepts such as:
 - authentication tags;
 - the Veilmi message envelope.
 
-### [crypto-design-and-future.md](crypto-design-and-future.md)
+### [Cryptographic Design and Future Direction](crypto-design-and-future.md)
 
 A higher-level explanation of Veilmi's cryptographic design choices.
 
 It records the reasoning behind the current protection levels, important
 security trade-offs, and possible future directions such as Argon2id.
 
-### [localization.md](localization.md)
+### [Localization](localization.md)
 
 An explanation of Veilmi's current localization system.
 
@@ -68,9 +92,12 @@ It describes:
 
 ---
 
-## 3. Android Development and Release
+## 4. Android Development and Release
 
-### [android-device-testing.md](android-device-testing.md)
+This section documents how Veilmi is tested and prepared for release on
+Android.
+
+### [Android Device Testing](android-device-testing.md)
 
 A practical guide to testing Veilmi on a real Android phone.
 
@@ -83,9 +110,10 @@ It explains how to:
 - run Veilmi on a physical device;
 - troubleshoot device detection problems.
 
-### [android-release-signing.md](android-release-signing.md)
+### [Android Release Signing and App Bundle](android-release-signing.md)
 
-A beginner-friendly explanation of preparing Veilmi for an Android release.
+A beginner-friendly explanation of preparing Veilmi for an Android
+release.
 
 It covers the complete release path, including:
 
@@ -101,14 +129,14 @@ It covers the complete release path, including:
 - version numbers;
 - private release files and backups.
 
-It also records the commands and configuration used to create Veilmi's signed
-Android App Bundle for Google Play.
+It also records the commands and configuration used to create Veilmi's
+signed Android App Bundle for Google Play.
 
 ---
 
-## Privacy
+## 5. Privacy
 
-### [privacy-policy.md](privacy-policy.md)
+### [Privacy Policy](privacy-policy.md)
 
 The public Privacy Policy for Veilmi.
 
@@ -121,8 +149,8 @@ It explains how Veilmi handles:
 - external links;
 - data retention and deletion.
 
-Veilmi performs its encryption and decryption locally and does not require a
-Veilmi account or developer-operated messaging server.
+Veilmi performs its encryption and decryption locally and does not require
+a Veilmi account or developer-operated messaging server.
 
 ---
 
