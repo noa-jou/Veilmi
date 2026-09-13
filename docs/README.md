@@ -203,6 +203,10 @@ It explains how Veilmi handles:
 Veilmi performs its encryption and decryption locally and does not require
 a Veilmi account or developer-operated messaging server.
 
+Traditional Chinese version:
+
+[隱私權政策](privacy-policy.zh.md)
+
 ---
 
 For a general introduction, source code, and project overview, visit the

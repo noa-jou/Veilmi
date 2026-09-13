@@ -37,12 +37,12 @@ Veilmi includes documentation for both users and developers.
 If you want to see how the app works before reading the technical details,
 start with the visual usage guide:
 
-- [Veilmi Usage Guide](docs/usage-guide.md)
-- [Veilmi 使用指南](docs/usage-guide.zh.md)
+- [Veilmi Usage Guide](https://noa-jou.github.io/Veilmi/usage-guide.html)
+- [Veilmi 使用指南](https://noa-jou.github.io/Veilmi/usage-guide.zh.html)
 
 For the complete documentation collection, see:
 
-- [Veilmi Documentation](docs/README.md)
+- [Veilmi Documentation](https://noa-jou.github.io/Veilmi/)
 
 The documentation includes information about:
 
