@@ -65,7 +65,7 @@ Veilmi 的安全性並不依賴隱藏原始碼或加密方式。
 - [`docs/crypto-notes.md`](docs/crypto-notes.md) — 以較容易理解的方式介紹目前的加密與解密流程。
 - [`docs/crypto-design-and-future.md`](docs/crypto-design-and-future.md) — 說明目前加密技術的選擇依據、相關標準與安全指引、限制，以及未來可能改善的方向。
 
-其他開發、測試與設計相關文件可以在 [`docs/`](docs/) 資料夾找到。
+其他開發、測試與設計相關文件可以在 [Veilmi Documentation](https://noa-jou.github.io/Veilmi/) 資料夾找到。
 
 ---
 

@@ -21,10 +21,24 @@ Traditional Chinese version:
 
 ---
 
-## 2. Development Environment
+## 2. Project Structure and Development Environment
 
-This section focuses on the tools and development environment used to
-build and maintain Veilmi.
+This section explains how the Veilmi repository is organized and records
+the tools and environment used to build and maintain the project.
+
+### [Project Structure](project-structure.md)
+
+An overview of the Veilmi repository, including:
+
+- the main Dart source code under `lib/`;
+- cryptographic and application services;
+- UI screens;
+- localization files;
+- automated tests;
+- assets and screenshots;
+- documentation;
+- Android and iOS platform directories;
+- important Flutter project files.
 
 ### [Chromebook Flutter Environment](chromebook-flutter-environment.md)
 
@@ -94,8 +108,8 @@ It describes:
 
 ## 4. Android Development and Release
 
-This section documents how Veilmi is tested and prepared for release on
-Android.
+This section documents how Veilmi is tested, prepared, and gradually
+published on Android.
 
 ### [Android Device Testing](android-device-testing.md)
 
@@ -115,7 +129,7 @@ It explains how to:
 A beginner-friendly explanation of preparing Veilmi for an Android
 release.
 
-It covers the complete release path, including:
+It covers the complete release build path, including:
 
 - debug builds and release builds;
 - Android application signing;
@@ -131,6 +145,36 @@ It covers the complete release path, including:
 
 It also records the commands and configuration used to create Veilmi's
 signed Android App Bundle for Google Play.
+
+### [Google Play Screenshot Preparation](google-play-screenshot-preparation.md)
+
+A short practical record of preparing Veilmi screenshots for Google Play.
+
+It explains how the English and Traditional Chinese screenshots were:
+
+- captured from a real Android test device;
+- cropped and resized;
+- checked with a Bash script for the required image dimensions and
+  aspect ratio;
+- reused to create the Veilmi Usage Guide.
+
+### [Google Play Release Process](google-play-release-process.md)
+
+A first-time developer's practical record of preparing Veilmi for
+publication through Google Play Console.
+
+Rather than describing the entire release process in advance, this document
+is updated stage by stage as each part is completed.
+
+It currently covers:
+
+- creating the developer account;
+- developer and project identity;
+- Google Play identity verification;
+- the relationship between the developer identity and the Android
+  Application ID.
+
+Later stages will be added as the Google Play release process continues.
 
 ---
 

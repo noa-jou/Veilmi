@@ -9,7 +9,7 @@ This page provides a visual walkthrough of Veilmi's main screens and core workfl
 Enter the message you want to protect and the shared passphrase.
 
 <p align="center">
-  <img src="../assets/app_screenshots/1_eeb.jpg"
+  <img src="assets/app_screenshots/1_eeb.jpg"
        width="300"
        alt="Veilmi Protect a Message screen">
 </p>
@@ -23,7 +23,7 @@ Veilmi replaces the plaintext with a `VEILMI1:XXXXXX` protected message.
 The result can then be copied and sent through another communication tool.
 
 <p align="center">
-  <img src="../assets/app_screenshots/2_eea.jpg"
+  <img src="assets/app_screenshots/2_eea.jpg"
        width="300"
        alt="Veilmi protected message">
 </p>
@@ -34,7 +34,7 @@ The recipient can paste the `VEILMI1:XXXXXX` protected message into Veilmi's
 **Decrypt** mode and enter the shared passphrase.
 
 <p align="center">
-  <img src="../assets/app_screenshots/3_edb.jpg"
+  <img src="assets/app_screenshots/3_edb.jpg"
        width="300"
        alt="Veilmi Open a Protected Message screen">
 </p>
@@ -47,7 +47,7 @@ If the protected message and passphrase are valid, Veilmi displays the
 original plaintext.
 
 <p align="center">
-  <img src="../assets/app_screenshots/4_eda.jpg"
+  <img src="assets/app_screenshots/4_eda.jpg"
        width="300"
        alt="Veilmi decrypted message">
 </p>
@@ -59,7 +59,7 @@ original plaintext.
 Tap the **gear icon** in the top-right corner to open the Settings page.
 
 <p align="center">
-  <img src="../assets/app_screenshots/5_esl.jpg"
+  <img src="assets/app_screenshots/5_esl.jpg"
        width="300"
        alt="Veilmi Protection Level settings">
 </p>
@@ -78,7 +78,7 @@ and helps you choose a practical balance between protection and performance.
 The benchmark runs locally on the device.
 
 <p align="center">
-  <img src="../assets/app_screenshots/6_epc.jpg"
+  <img src="assets/app_screenshots/6_epc.jpg"
        width="300"
        alt="Veilmi Protection and Device Check screen">
 </p>
@@ -94,7 +94,7 @@ including:
 - project support information
 
 <p align="center">
-  <img src="../assets/app_screenshots/7_eab.jpg"
+  <img src="assets/app_screenshots/7_eab.jpg"
        width="300"
        alt="About Veilmi screen">
 </p>

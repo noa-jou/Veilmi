@@ -236,7 +236,7 @@ void main() {
     final encoded = base64UrlEncode(utf8.encode(jsonEncode(data)));
 
     expect(
-      () => MessageEnvelope.decode('VEIMI1:$encoded'),
+      () => MessageEnvelope.decode('VEILMI1:$encoded'),
       throwsFormatException,
     );
   });
@@ -274,7 +274,7 @@ void main() {
     final encoded = base64UrlEncode(utf8.encode(jsonEncode(data)));
 
     expect(
-      () => MessageEnvelope.decode('VEIMI1:$encoded'),
+      () => MessageEnvelope.decode('VEILMI1:$encoded'),
       throwsFormatException,
     );
   });

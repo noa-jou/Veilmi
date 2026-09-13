@@ -28,6 +28,33 @@ Original message
 
 The communication platform transports the encrypted text, while the plaintext
 is handled locally by Veilmi.
+---
+
+## Documentation
+
+Veilmi includes documentation for both users and developers.
+
+If you want to see how the app works before reading the technical details,
+start with the visual usage guide:
+
+- [Veilmi Usage Guide](docs/usage-guide.md)
+- [Veilmi 使用指南](docs/usage-guide.zh.md)
+
+For the complete documentation collection, see:
+
+- [Veilmi Documentation](docs/README.md)
+
+The documentation includes information about:
+
+- how to use Veilmi;
+- cryptographic design and current implementation;
+- protection levels and future cryptographic direction;
+- localization;
+- Android device testing;
+- Android release signing and App Bundles;
+- the Flutter development environment;
+- GitHub publication and GitHub Pages;
+- the Privacy Policy.
 
 ---
 
@@ -79,8 +106,8 @@ If you are interested in how Veilmi currently works, start here:
   why the current cryptographic technologies were chosen, the standards and
   guidance behind them, their limitations, and possible future improvements.
 
-More development and testing documentation can be found in the
-[`docs/`](docs/) directory.
+More development, testing, release, and project documentation can be found in
+the [Veilmi Documentation](https://noa-jou.github.io/Veilmi/).
 
 ---
 

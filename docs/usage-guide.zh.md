@@ -1,4 +1,4 @@
-# Veilmi 使用說明
+# Veilmi 使用指南
 
 [English](usage-guide.md)
 
@@ -9,7 +9,7 @@
 輸入想要保護的訊息，以及雙方事先約定的共享密碼。
 
 <p align="center">
-  <img src="../assets/app_screenshots/1_ceb.jpg"
+  <img src="assets/app_screenshots/1_ceb.jpg"
        width="300"
        alt="Veilmi 保護訊息畫面">
 </p>
@@ -23,7 +23,7 @@
 完成後，可以複製這段內容，再透過其他通訊工具傳送。
 
 <p align="center">
-  <img src="../assets/app_screenshots/2_cea.jpg"
+  <img src="assets/app_screenshots/2_cea.jpg"
        width="300"
        alt="Veilmi 受保護訊息">
 </p>
@@ -34,7 +34,7 @@
 **解密**模式，並輸入雙方事先約定的共享密碼。
 
 <p align="center">
-  <img src="../assets/app_screenshots/3_cdb.jpg"
+  <img src="assets/app_screenshots/3_cdb.jpg"
        width="300"
        alt="Veilmi 開啟受保護訊息畫面">
 </p>
@@ -46,7 +46,7 @@
 如果受保護訊息與共享密碼有效，Veilmi 就會顯示原始文字。
 
 <p align="center">
-  <img src="../assets/app_screenshots/4_cda.jpg"
+  <img src="assets/app_screenshots/4_cda.jpg"
        width="300"
        alt="Veilmi 解密後的訊息">
 </p>
@@ -58,7 +58,7 @@
 點選右上角的 **齒輪圖示**，進入設定頁面。
 
 <p align="center">
-  <img src="../assets/app_screenshots/5_csl.jpg"
+  <img src="assets/app_screenshots/5_csl.jpg"
        width="300"
        alt="Veilmi 保護等級設定">
 </p>
@@ -75,7 +75,7 @@
 測試會在裝置本機執行。
 
 <p align="center">
-  <img src="../assets/app_screenshots/6_cpc.jpg"
+  <img src="assets/app_screenshots/6_cpc.jpg"
        width="300"
        alt="Veilmi 保護與裝置檢查畫面">
 </p>
@@ -90,7 +90,7 @@
 - 專案支持資訊
 
 <p align="center">
-  <img src="../assets/app_screenshots/7_cab.jpg"
+  <img src="assets/app_screenshots/7_cab.jpg"
        width="300"
        alt="Veilmi 關於頁面">
 </p>
