@@ -2,6 +2,8 @@
 permalink: /privacy-policy/
 ---
 
+[中文](https://noa-jou.github.io/Veilmi/privacy-policy/zh/)
+
 # Veilmi Privacy Policy
 
 **Effective date: September 11, 2026**
