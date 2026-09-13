@@ -30,8 +30,9 @@ Traditional Chinese version:
 
 ## 2. Project Structure and Development Environment
 
-This section explains how the Veilmi repository is organized and records
-the tools and environment used to build and maintain the project.
+This section explains how the Veilmi repository is organized, how the
+development environment is set up, and how the project can be restored or
+maintained over time.
 
 ### [Project Structure](project-structure.md)
 
@@ -49,16 +50,45 @@ An overview of the Veilmi repository, including:
 
 ### [Chromebook Flutter Environment](chromebook-flutter-environment.md)
 
-A beginner-friendly record of the development environment used for
-Veilmi.
+A beginner-friendly record of the development environment used for Veilmi.
 
-It explains how to configure a Chromebook Linux environment so Flutter,
-Dart, Java, the Android SDK, and ADB can be used from the terminal.
+It explains how to configure a Chromebook Linux environment so Flutter, Dart,
+Java, the Android SDK, and ADB can be used from the terminal.
+
+### [Moving Veilmi Development to Another Computer](moving-development-to-another-computer.md)
+
+A practical guide for continuing Veilmi development on another computer.
+
+It explains how to:
+
+- clone the project from GitHub;
+- restore Flutter packages with `flutter pub get`;
+- recreate local IDE and build files;
+- continue development in Debug mode;
+- keep the existing Android release signing configuration;
+- restore the private Android upload keystore when preparing a new release;
+- recreate `android/key.properties`;
+- prepare and build the next signed Android App Bundle.
+
+### [Project Renaming Notes](project-renaming-notes.md)
+
+A short development record of what happened after the project was renamed from
+**Veil** to **Veilmi**.
+
+It records how old local Android Studio and IntelliJ module names remained in
+files such as:
+
+- `*.iml`;
+- `.idea/modules.xml`;
+- `.idea/workspace.xml`.
+
+It also explains how those local names were cleaned up without changing the
+actual Veilmi application identity or Android Application ID.
 
 ### [GitHub Publication and GitHub Pages](github-publication-and-pages.md)
 
-A beginner-friendly guide to preparing Veilmi for public development on
-GitHub and publishing its documentation with GitHub Pages.
+A beginner-friendly guide to preparing Veilmi for public development on GitHub
+and publishing its documentation with GitHub Pages.
 
 It covers:
 
@@ -68,15 +98,6 @@ It covers:
 - using Jekyll front matter and permalinks;
 - creating clean documentation URLs;
 - managing GitHub Pages deployment notifications.
-
-
-
-### [Local Development Files](local-development-files.md)
-
-A short explanation of which Veilmi files belong in Git, which files are
-generated locally by Flutter or the IDE, and which private release files must
-be backed up separately.
-
 
 ---
 
