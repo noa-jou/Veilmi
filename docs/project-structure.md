@@ -17,7 +17,6 @@ At a high level, the Veilmi repository is organized like this:
 Veilmi/
 ├── android/
 ├── assets/
-│   ├── app_screenshots/
 │   └── icon/
 ├── docs/
 ├── ios/
@@ -410,7 +409,6 @@ greater confidence in the implementation
 
 ```text
 assets/
-├── app_screenshots/
 └── icon/
 ```
 
@@ -428,7 +426,7 @@ project material.
 ### Application screenshots
 
 ```text
-assets/app_screenshots/
+docs/assets/app_screenshots/
 ```
 
 This directory contains English and Traditional Chinese screenshots of the
@@ -451,18 +449,13 @@ Veilmi keeps its longer documentation separate from the main README.
 
 ```text
 docs/
+├──assets/
+|   └── app_screenshots/
 ├── README.md
 ├── usage-guide.md
 ├── usage-guide.zh.md
-├── project-structure.md
-├── crypto-notes.md
-├── crypto-design-and-future.md
-├── localization.md
-├── chromebook-flutter-environment.md
-├── github-publication-and-pages.md
-├── android-device-testing.md
-├── android-release-signing.md
-└── privacy-policy.md
+├── ....
+
 ```
 
 The documentation covers several different parts of the project:
@@ -675,7 +668,7 @@ Veilmi
 │     └── Checks that important behavior still works
 │
 ├── assets/
-│     └── Images and screenshots
+│     └── Icons
 │
 ├── docs/
 │     └── Explains how Veilmi works and how it was developed
@@ -688,5 +681,5 @@ Veilmi
 ```
 
 For a general introduction to Veilmi, see the
-[main project README](../README.md).
+[main project README](https://github.com/noa-jou/Veilmi).
 

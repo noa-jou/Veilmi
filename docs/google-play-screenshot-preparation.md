@@ -36,7 +36,7 @@ I also used this Bash script to check that the screenshots stayed within the
 Google Play aspect-ratio limit:
 
 ```bash
-for f in assets/app_screenshots/*.jpg; do
+for f in docs/assets/app_screenshots/*.jpg; do
   dimensions=$(file "$f" | grep -oE '[0-9]+x[0-9]+' | tail -1)
   w=${dimensions%x*}
   h=${dimensions#*x}
