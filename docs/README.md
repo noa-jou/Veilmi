@@ -189,6 +189,10 @@ Later stages will be added as the Google Play release process continues.
 
 ### [Privacy Policy](privacy-policy.md)
 
+Traditional Chinese version: [隱私權政策](privacy-policy.zh.md)
+
+---
+
 The public Privacy Policy for Veilmi.
 
 It explains how Veilmi handles:
@@ -203,9 +207,6 @@ It explains how Veilmi handles:
 Veilmi performs its encryption and decryption locally and does not require
 a Veilmi account or developer-operated messaging server.
 
-Traditional Chinese version:
-
-[隱私權政策](privacy-policy.zh.md)
 
 ---
 

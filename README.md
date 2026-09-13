@@ -38,7 +38,6 @@ If you want to see how the app works before reading the technical details,
 start with the visual usage guide:
 
 - [Veilmi Usage Guide](https://noa-jou.github.io/Veilmi/usage-guide.html)
-- [Veilmi 使用指南](https://noa-jou.github.io/Veilmi/usage-guide.zh.html)
 
 For the complete documentation collection, see:
 
@@ -100,9 +99,9 @@ tested, and improved.
 
 If you are interested in how Veilmi currently works, start here:
 
-- [`docs/crypto-notes.md`](docs/crypto-notes.md) — a beginner-friendly
+- [`docs/crypto-notes.md`](https://noa-jou.github.io/Veilmi/crypto-notes.html) — a beginner-friendly
   explanation of the current encryption and decryption process.
-- [`docs/crypto-design-and-future.md`](docs/crypto-design-and-future.md) —
+- [`docs/crypto-design-and-future.md`](https://noa-jou.github.io/Veilmi/crypto-design-and-future.html) —
   why the current cryptographic technologies were chosen, the standards and
   guidance behind them, their limitations, and possible future improvements.
 
