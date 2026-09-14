@@ -203,15 +203,6 @@ publication through Google Play Console.
 Rather than describing the entire release process in advance, this document
 is updated stage by stage as each part is completed.
 
-It currently covers:
-
-- creating the developer account;
-- developer and project identity;
-- Google Play identity verification;
-- the relationship between the developer identity and the Android
-  Application ID.
-
-Later stages will be added as the Google Play release process continues.
 
 ---
 
