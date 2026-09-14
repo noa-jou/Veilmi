@@ -1,51 +1,64 @@
 # Google Play Release Process
 
-This document records my first experience preparing and publishing Veilmi
-through Google Play Console.
+This document records my first Google Play release journey for **Veilmi**.
 
-It is written for other first-time developers who may be going through the same
-process.
+It is **not** intended to be a field-by-field copy of everything I entered in
+Google Play Console. Google changes the Console over time, and another app may
+need different answers.
 
-The most confusing part for me was not the Android build itself. It was finding
-the correct page in Play Console. Many pages have similar names, and saving a
-change is not the same as submitting it for review.
+Instead, this document focuses on the parts that were confusing, the mistakes I
+made, what blocked the release, and how I worked through those problems.
 
-For that reason, this guide focuses on:
+The main lesson from my first release was that building the Android App Bundle
+was only one part of the job. Most of the difficulty came from understanding how
+Google Play separates app setup, store listings, testing, policy declarations,
+and final submission.
 
-- where each task is located;
-- which page or button to look for;
-- what information belongs there;
-- what to check when Play Console blocks the release.
-
-> **Note:** Google Play Console changes over time, and button names may vary
-> slightly by language. The paths below match the interface I used for this
-> release. Google Help may sometimes use **Main store listing** for the editor
-> that my Play Console showed as **Default store listing**.
+> **Note:** Page names and button labels may change over time or appear
+> differently depending on the Play Console language.
 
 ---
 
-## Quick Flow
+## Release Milestone
 
-```mermaid
-flowchart TD
-    A[Create developer account] --> B[Create app in Play Console]
-    B --> C[Complete app setup]
-    C --> D[Prepare Store Listing]
-    C --> E[Set up Closed testing]
-    D --> F[Add graphics and screenshots]
-    E --> G[Create tester group and choose countries]
-    G --> H[Create release and upload AAB]
-    F --> I[Publishing overview]
-    H --> I
-    I --> J{Any blocking issues?}
-    J -- Yes --> K[View issues and fix them]
-    K --> I
-    J -- No --> L[Send changes for review]
-    L --> M[Google review]
-    M --> N[Share tester opt-in link]
+My first Closed Testing submission reached Google review on **14 September
+2026**.
+
+```text
+Veilmi 1.0.0
+        ↓
+Signed Android App Bundle
+        ↓
+Closed Testing track
+        ↓
+Store Listing and policy setup
+        ↓
+Blocking issues resolved
+        ↓
+Changes sent for review
+        ↓
+Current stage: Google review
 ```
 
-The main Play Console areas used in this guide are:
+This was a **Closed Testing** submission, not a public Production release.
+
+---
+
+## 1. Identity Verification Was Only the Beginning
+
+Before using the release tools, I had to complete the developer-account and
+identity-verification requirements.
+
+I do not record identification numbers, verification documents, passwords, or
+other private account information in this repository.
+
+After the account was verified, I expected the rest of the process to be mostly
+about uploading the app. It was not.
+
+The difficult part was learning how Google Play divides one release across
+several different areas of the Console.
+
+The pages I eventually learned to recognize were:
 
 ```text
 Dashboard
@@ -67,802 +80,324 @@ Publishing overview
 └── View issues / Send changes for review
 ```
 
----
+### Lesson learned
 
-## 1. Developer Account and Identity Verification
-
-Before I could publish Veilmi on Google Play, I first needed to create a
-Google Play Console developer account and complete the required developer
-verification.
-
-For a personal developer account, Google may ask for information such as:
-
-- developer name;
-- legal name and address;
-- contact information;
-- developer email address;
-- linked Google Payments profile;
-- identity verification;
-- phone verification.
-
-The basic flow was:
-
-```text
-Create developer account
-        ↓
-Provide developer information
-        ↓
-Link Google Payments profile
-        ↓
-Submit identity verification
-        ↓
-Complete phone verification
-        ↓
-Continue to Play Console
-```
-
-I intentionally do not record document numbers, identification images, account
-numbers, passwords, or other private verification information in this public
-repository.
-
-For current requirements, see the
-[Google Play Console developer identity verification documentation](https://support.google.com/googleplay/android-developer/answer/10841920).
-
-### Developer and Project Identity
-
-While preparing the developer account and Android release, I also had to decide
-how Veilmi should identify the developer and the application.
-
-For the signing certificate, I used information such as:
-
-```text
-Name:         Noa Jou
-Organization: Veilmi
-Country:      TW
-```
-
-I used **Veilmi** as the organization name because the signing certificate is
-associated with this project. It does not mean that Veilmi is a registered
-company or legal organization.
-
-The Android application uses this Application ID:
-
-```text
-com.veilmi.app
-```
-
-An Android Application ID is a unique technical identifier for the app. It is
-not the same thing as the developer's personal name or the app name shown to
-users.
-
-The structure can be read roughly as:
-
-```text
-com . veilmi . app
- │      │      │
- │      │      └── the application
- │      └── the Veilmi project namespace
- └── conventional reverse-domain-style prefix
-```
-
-I chose a project-based identifier instead of something such as:
-
-```text
-com.noajou.veilmi
-```
-
-because I wanted the technical application identity to belong to **Veilmi**
-rather than to my personal name.
+When Play Console appears to be blocking progress, the problem is not
+necessarily the Android build. The unfinished requirement may be on a completely
+different page.
 
 ---
 
-## 2. Create the App in Play Console
+## 2. Production Was Not the First Destination
 
-From the Play Console home page, go to:
+One of my first important discoveries was that a new personal developer account
+may need to complete Google Play's Closed Testing requirement before Production
+access is available.
 
-```text
-All apps
-    ↓
-Create app
-```
+That changed the release plan.
 
-The **Create app** page asks for basic information such as:
-
-```text
-App name
-Default language
-App or game
-Free or paid
-Contact email
-Declarations
-```
-
-For Veilmi, I used:
-
-```text
-App name:          Veilmi
-Default language:  English (United Kingdom) — en-GB
-App or game:       App
-Free or paid:      Free
-```
-
-The Android package name is already defined in the Flutter project:
-
-```text
-com.veilmi.app
-```
-
-It becomes associated with the Play Console app through the Android build that
-is uploaded later.
-
-After creating the app, Play Console opens the app dashboard.
-
-This dashboard is important because it contains the setup checklist used in
-later sections.
-
----
-
-## 3. Prepare the Store Listing
-
-The normal Google Play store page is under:
-
-```text
-Grow users
-    ↓
-Store presence
-    ↓
-Store listings
-```
-
-On the **Store listings** page, find:
-
-```text
-Default store listing
-```
-
-and click:
-
-```text
-Edit default store listing
-```
-
-Google Help may also refer to this editor as the **Main store listing**.
-
-Do **not** click **Create custom store listing** just because you want to add
-another language. Custom store listings are for targeting special audiences.
-
-### Store Listing text
-
-At the top of the editor, use:
-
-```text
-Select language to edit
-```
-
-For the default listing, I used:
-
-```text
-English (United Kingdom) — en-GB
-```
-
-The main text fields are:
-
-```text
-App name            up to 30 characters
-Short description   up to 80 characters
-Full description    up to 4000 characters
-```
-
-### A small formatting problem
-
-I added paragraph breaks to the full description.
-
-Some Play Console summary pages later displayed it as one large paragraph.
-That did not mean the original formatting had been removed.
-
-To check the real text, return to:
-
-```text
-Grow users
-    ↓
-Store presence
-    ↓
-Store listings
-    ↓
-Edit default store listing
-```
-
-### Adding Traditional Chinese Store Listings
-
-I also added:
-
-```text
-Traditional Chinese (Taiwan) — zh-TW
-Chinese (Hong Kong) — zh-HK
-```
-
-The confusing part was finding the correct language control.
-
-This page was **not** what I needed:
-
-```text
-Translations
-    ↓
-Store listings and products
-    ↓
-Create order
-```
-
-That page is for translation services.
-
-I also did **not** need:
-
-```text
-Create custom store listing
-```
-
-To edit normal localized Store Listings, return to:
-
-```text
-Grow users
-    ↓
-Store presence
-    ↓
-Store listings
-    ↓
-Edit default store listing
-```
-
-Then use the language control at the top of the editor **(the dropdown list)**.
-
-After the languages were added, I could switch between:
-
-```text
-en-GB
-zh-TW
-zh-HK
-```
-
-and edit each language separately.
-
-The Taiwan and Hong Kong versions can share most of the same Traditional
-Chinese text.
-
-### Store Listing contact details
-
-The public support contact is on a different page:
-
-```text
-Grow users
-    ↓
-Store presence
-    ↓
-Store settings
-    ↓
-Store listing contact details
-```
-
-This section contains:
-
-```text
-Email address   — required
-Phone number    — optional
-Website         — optional
-```
-
-This information may be visible to Google Play users, so use contact details
-that are suitable for public support.
-
----
-
-## 4. Add App Icon, Feature Graphic, and Screenshots
-
-The graphic assets are edited in the same Store Listing editor:
-
-```text
-Grow users
-    ↓
-Store presence
-    ↓
-Store listings
-    ↓
-Edit default store listing
-```
-
-Continue past the text fields to the graphic asset sections.
-
-### App icon
-
-For my Play Console submission, the Store Listing required a:
-
-```text
-512 × 512 px
-PNG or JPEG
-maximum size: 1 MB
-```
-
-My original Veilmi artwork was larger, so I created a separate 512 × 512
-version for Google Play.
-
-Click the app icon asset box:
-
-```text
-Add assets
-```
-
-The asset picker can then show existing assets or let you use options such as:
-
-```text
-Upload
-Add from Drive
-```
-
-### Feature graphic
-
-The feature graphic is separate from the app icon.
-
-The required size shown by Play Console was:
-
-```text
-1024 × 500 px
-PNG or JPEG
-```
-
-It is a horizontal promotional image.
-
-### Phone screenshots
-
-In the same Store Listing editor, find and expand:
-
-```text
-Phone assets
-    ↓
-Phone screenshots
-```
-
-I uploaded real screenshots of Veilmi and dragged them into the order I wanted.
-
-My sequence was:
-
-```text
-1. Encrypt before
-2. Encrypt after
-3. Decrypt before
-4. Decrypt after
-5. Protection settings
-6. Protection & Device Check
-7. About Veilmi
-```
-
-**Please drag the photos to the correct positions in order. Although it's not very obvious, you can adjust it.**
-
-Play Console also showed separate asset sections for:
-
-```text
-Tablet
-Chromebook
-Android XR
-```
-
-Those are separate from the phone screenshots.
-
-### Localized screenshots
-
-When editing a translated Store Listing, Play Console may initially show
-graphics inherited from the default language.
-
-To add localized graphics:
-
-```text
-Edit default store listing
-    ↓
-Select language to edit
-    ↓
-Choose zh-TW or zh-HK
-    ↓
-Go to the graphic asset section
-```
-
-**Simply add photos, and they will replace the grayed-out ones. That's how you get started.**
-
-For Veilmi, the Taiwan and Hong Kong Store Listings can use the same
-Traditional Chinese app screenshots because the app uses the same Traditional
-Chinese interface.
-
----
-
-## 5. Add the Privacy Policy
-
-During first-time setup, the easiest place to find this task is:
-
-```text
-Dashboard
-    ↓
-Provide app information and set up your store listing
-    ↓
-Privacy Policy
-```
-
-Open the task and enter a publicly accessible Privacy Policy URL.
-
-For Veilmi:
-
-```text
-https://noa-jou.github.io/Veilmi/privacy-policy/
-```
-
-Save the form and return to the Dashboard checklist.
-
----
-
-## 6. Complete App Content and Data Safety
-
-This was one of the easiest parts to lose track of because Play Console asks for
-several declarations.
-
-For a first release, the simplest place to find the unfinished tasks is:
-
-```text
-Dashboard
-    ↓
-Provide app information and set up your store listing
-```
-
-The checklist may include items such as:
-
-```text
-Privacy Policy
-App access
-Ads
-Content rating
-Target audience
-Data safety
-Government apps
-Financial features
-Health
-```
-
-Open each unfinished item, answer the questions according to what the app
-actually does, save it, and return to the checklist.
-
-Even when something does not apply to the app, the form may still need to be
-opened and completed.
-
-### If the checklist item is already completed
-
-After a declaration has been completed, it may be easier to reopen it from:
-
-```text
-Policy and programs
-    ↓
-App content
-```
-
-This page contains declarations such as App access, Target audience,
-Financial features, and other app-content information.
-
-### Content rating
-
-The first-time setup checklist also links to:
-
-```text
-Content rating
-```
-
-The form asks for a contact email, an application category, and the IARC
-questionnaire.
-
-For Veilmi, I selected:
-
-```text
-All other app types
-```
-
-rather than **Social or communication**, because Veilmi works alongside
-messaging apps but does not provide its own messaging or social network.
-
-Complete the questionnaire and submit it.
-
-### Advertising ID
-
-The Advertising ID declaration appeared later as a blocking issue.
-
-I found it through:
-
-```text
-Publishing overview
-    ↓
-View issues
-    ↓
-Advertising ID declaration incomplete
-    ↓
-Fill in declaration form
-```
-
-Complete the form according to whether the app or any included SDK uses the
-Android Advertising ID, save it, and return to **Publishing overview**.
-
-This declaration is separate from the normal **Ads** declaration.
-
----
-
-## 7. Set Up the Closed Testing Track
-
-For new personal developer accounts, Google Play may require Closed Testing
-before Production access becomes available.
-
-Go to:
-
-```text
-Test and release
-    ↓
-Testing
-    ↓
-Closed testing
-```
-
-Create a new track and give it a name.
-
-For Veilmi, I used:
+Instead of trying to publish Veilmi directly to everyone, I created a Closed
+Testing track:
 
 ```text
 Veilmi Closed Test
 ```
 
-Open the track. The main sections are:
+This made the release path much clearer:
 
 ```text
-Countries / regions
-Testers
-Releases
+Closed Test
+    ↓
+Invite eligible testers
+    ↓
+Complete the required testing period
+    ↓
+Apply for Production access later
 ```
 
-### Countries / regions
+### Lesson learned
 
-Open:
+A disabled or unavailable Production option does not necessarily mean that the
+app has failed review or that the build is broken. It can simply mean that the
+account must complete the testing requirement first.
 
-```text
-Closed testing
-    ↓
-Veilmi Closed Test
-    ↓
-Countries / regions
-```
+---
 
-Choose where the test should be available and save the change.
+## 3. Tester Management Was More Complicated Than Expected
 
-This only controls the Closed Test. It does not publish the app to Production.
+For Closed Testing, Play Console allowed me to manage testers using an email
+list or a Google Group.
 
-### Testers
+I chose a Google Group because I wanted a reusable group that I could share when
+recruiting testers.
 
-Open:
-
-```text
-Closed testing
-    ↓
-Veilmi Closed Test
-    ↓
-Testers
-```
-
-Play Console lets you use an email list or a Google Group.
-
-I used a Google Group:
+I created:
 
 ```text
 Veilmi Testers
 veilmi-testers@googlegroups.com
 ```
 
-### Create the Google Group First
+### The problem
 
-The Google Group must be created separately in Google Groups.
+At first, I tried to enter the planned Google Group address in Play Console
+before the group actually existed.
 
-Go to:
+Play Console could not accept it.
 
-```text
-Google Groups
-    ↓
-Create group
-```
+### The solution
 
-Create the group, choose the membership and privacy settings, and save it.
-
-Then return to:
+The correct order was:
 
 ```text
-Play Console
-    ↓
-Closed testing
-    ↓
-Veilmi Closed Test
-    ↓
-Testers
-    ↓
-Google Groups
-```
-
-Enter the real Google Group email address and save it.
-
-> **Important:** Play Console does not create the Google Group for you.
-
-I first entered the group address before creating the group, so Play Console
-reported that the group did not exist.
-
-The correct order is:
-
-```text
-Create Google Group
+Create the Google Group
+        ↓
+Configure membership and privacy settings
         ↓
 Return to Play Console
         ↓
-Add it under Testers
+Closed testing → Testers
         ↓
-Save
+Add the real Google Group address
 ```
 
-### Feedback and Tester Link
-
-On the **Testers** page, also provide a feedback email or URL.
-
-The Google Group controls who is eligible for the test. The feedback address is
-where testers can contact you.
-
-The tester opt-in link may not appear until the Closed Testing release becomes
-available.
-
-Later, return to:
+I also learned that three things that sound similar are actually different:
 
 ```text
-Closed testing
-    ↓
-Veilmi Closed Test
-    ↓
-Testers
+Google Group membership
+        ≠
+Google Play test opt-in
+        ≠
+Feedback contact
 ```
 
-and copy the tester link.
+The Google Group controls who is eligible for the test. After the release becomes
+available, testers still need to use the Google Play tester opt-in link. The
+feedback address is simply where testers can contact me.
 
-For a Google Group test, testers normally need to:
+### Lesson learned
 
-```text
-Join the Google Group
-        ↓
-Open the tester link
-        ↓
-Opt in to the Closed Test
-```
+Do not assume that Play Console creates or manages an external Google Group for
+you. Create the group first, then connect it to the testing track.
 
 ---
 
-## 8. Upload the Signed Android App Bundle
+## 4. The AAB Uploaded Successfully, but the Release Was Still Blocked
 
-Open the closed-testing track:
+I uploaded the signed Android App Bundle to the Closed Testing release.
 
-```text
-Test and release
-    ↓
-Testing
-    ↓
-Closed testing
-    ↓
-Veilmi Closed Test
-    ↓
-Releases
-```
+Google Play accepted the bundle and correctly detected the app information,
+including the version and supported Android API range.
 
-Click:
+That was an important milestone because it showed that the Android release build
+itself was valid.
 
-```text
-Create new release
-```
+However, I still could not submit the release.
 
-This opens the closed-testing release editor.
+### The problem
 
-Upload the signed Android App Bundle:
+My first instinct was to wonder whether something was wrong with the AAB.
+Instead, the real issue was that Play Console still had unfinished app-setup and
+policy tasks.
 
-```text
-build/app/outputs/bundle/release/app-release.aab
-```
+Some declarations must be completed even when the answer is simply that the
+feature does not apply to the app.
 
-Google Play reads the bundle and displays information such as:
+### The solution
 
-```text
-Version code
-Version name
-Minimum Android version / API
-Target SDK
-```
-
-For this release, the bundle showed:
-
-```text
-Version code: 1
-Version name: 1.0.0
-Minimum API: 24+
-Target SDK: 36
-```
-
-Play Console also generated an internal release name similar to:
-
-```text
-1 (1.0.0)
-```
-
-I kept the generated release name.
-
----
-
-## 9. Add Release Notes and Save the Release
-
-On the same release editor, scroll to:
-
-```text
-Release notes
-```
-
-The release notes can contain more than one language.
-
-For example:
-
-```text
-<en-GB>
-Initial closed testing release of Veilmi.
-
-- Local text encryption and decryption.
-- Selectable protection levels.
-- Device Check.
-- English and Traditional Chinese interface.
-</en-GB>
-
-<zh-TW>
-Veilmi 首次封閉測試版本。
-
-- 本機文字加密與解密。
-- 可選擇不同的保護等級。
-- Device Check。
-- 支援英文與繁體中文介面。
-</zh-TW>
-```
-
-Release-note languages and Store Listing languages are separate settings.
-
-For example:
-
-```text
-2 languages provided
-```
-
-on the release page only means that two release-note languages were added. It
-does not mean that two localized Store Listings already exist.
-
-When the bundle and release notes are ready, click:
-
-```text
-Save
-```
-
-Play Console may then ask whether you want to go to:
+I returned to the app setup checklist and completed the remaining required
+items. When I later found another block, I used:
 
 ```text
 Publishing overview
+        ↓
+View issues
 ```
 
-Going there is safe. It does not automatically publish the app.
+rather than guessing what was wrong.
+
+### Lesson learned
+
+A successfully uploaded AAB does **not** mean the app is ready to submit.
+Android build validation and Google Play policy/setup completion are separate
+stages.
 
 ---
 
-## 10. Submit for Review
+## 5. One Blocking Declaration Appeared Later
 
-Open:
+A particularly confusing example was the **Advertising ID** declaration.
+
+I had already completed the normal advertising-related setup, but Publishing
+overview later reported another unfinished Advertising ID declaration.
+
+### The problem
+
+It was easy to assume that the normal **Ads** declaration and the
+**Advertising ID** declaration were the same thing.
+
+They were not.
+
+### The solution
+
+I followed the issue from:
 
 ```text
 Publishing overview
+        ↓
+View issues
+        ↓
+Advertising ID declaration
 ```
 
-This page collects changes that have been saved but not yet submitted.
+and completed the separate declaration according to what Veilmi actually uses.
 
-Two important beginner rules are:
+### Lesson learned
+
+When the submission button is disabled, **View issues** is more useful than
+randomly revisiting old forms. Play Console may reveal an additional declaration
+only after other parts of the release are ready.
+
+---
+
+## 6. App Classification Required Thinking About What Veilmi Actually Does
+
+Some Play Console questions are not difficult because of the interface. They are
+difficult because the developer has to describe the product accurately.
+
+Veilmi is designed to work alongside communication apps, but Veilmi itself does
+not provide a messaging network, social network, or message-delivery service.
+
+That distinction mattered when answering the content-rating questions.
+
+### Lesson learned
+
+Classify the app based on the functionality the app itself provides, not merely
+on the context in which people may use it.
+
+This is especially important for a security tool such as Veilmi, which can be
+used before sending text through another communication service without being a
+communication service itself.
+
+---
+
+## 7. Store Listing Localization Was Hidden Behind an Unexpected Interface
+
+I wanted the Google Play page to support:
+
+```text
+English (United Kingdom) — en-GB
+Traditional Chinese (Taiwan) — zh-TW
+Chinese (Hong Kong) — zh-HK
+```
+
+The difficult part was not translating the text. It was finding the correct
+place to edit normal localized Store Listings.
+
+### The wrong paths
+
+I initially encountered options related to translation services and custom store
+listings. Neither was what I needed.
+
+A **custom store listing** is not required simply because an app supports another
+language.
+
+### The solution
+
+The normal language versions were managed inside the default/main Store Listing
+editor using its language selector.
+
+Once I found that control, I could switch between the English, Taiwan Chinese,
+and Hong Kong Chinese versions and edit them separately.
+
+The Taiwan and Hong Kong listings could share most of the same Traditional
+Chinese content. There was no need to artificially make them completely
+different.
+
+### Lesson learned
+
+Localization in Play Console is easy to confuse with Google's translation
+service and custom-listing features. They solve different problems.
+
+---
+
+## 8. Localized Screenshots Looked Locked, but They Were Only Inherited
+
+Another confusing moment happened when I opened a Chinese Store Listing.
+
+The English screenshots appeared in a faded or greyed-out state, which made it
+look as though Play Console would not let me replace them.
+
+### The problem
+
+Those images were not broken or locked. They were inherited from the default
+language because I had not yet supplied language-specific graphics.
+
+### The solution
+
+I added the Traditional Chinese screenshots to the localized Store Listing.
+They then replaced the inherited default-language graphics.
+
+For Veilmi, the Taiwan and Hong Kong Store Listings can use the same Traditional
+Chinese screenshots because the app currently uses the same Traditional Chinese
+interface for both.
+
+### Another small UI lesson
+
+The order of screenshots can be changed by dragging them, even though the
+interface does not make this especially obvious.
+
+### Lesson learned
+
+A greyed-out asset can mean **inherited from the default language**, not
+**uneditable**.
+
+---
+
+## 9. Store Assets Sometimes Need Release-Specific Versions
+
+My original Veilmi artwork was not in the exact form required by the Play Store
+listing, so I prepared a separate Play-specific app icon rather than changing
+the original project artwork.
+
+I also used real Veilmi screenshots instead of promotional mockups for the phone
+screenshots.
+
+### Lesson learned
+
+Store assets are distribution assets. They do not all need to be identical to
+the original source artwork, but they should accurately represent the real app
+and satisfy the store's technical requirements.
+
+---
+
+## 10. Release Notes and Store Listing Languages Are Separate
+
+Play Console showed multiple languages in the release-note editor. At first, it
+was easy to read that as confirmation that the Store Listing itself had also been
+localized.
+
+It had not.
+
+### Lesson learned
+
+These are separate systems:
+
+```text
+Release-note languages
+        ≠
+Store Listing languages
+```
+
+A translated release note does not automatically create a translated Store
+Listing.
+
+---
+
+## 11. Saving Is Not Submitting
+
+One of the most important things I learned about Play Console is that saving a
+change does not send it to Google for review.
 
 ```text
 Save
@@ -870,72 +405,58 @@ Save
 Send for review
 ```
 
-and:
+I also accidentally opened **Publishing overview** before I was ready and was
+worried that I had published something.
+
+Nothing was published.
 
 ```text
-Opening Publishing overview
+Open Publishing overview
 ≠
-Publishing the app
+Publish the app
 ```
 
-I accidentally opened Publishing overview before I was ready. Nothing was
-published. I could simply leave the page and continue editing.
+Publishing overview is mainly a staging area that collects saved changes and
+shows whether anything is preventing submission.
 
-### If the Send button is disabled
+### Lesson learned
 
-Look for a red issue box and click:
+Do not treat navigation as publication. The release only moved into review after
+I explicitly used the submission action and confirmed it.
 
-```text
-View issues
-```
+---
 
-Play Console will show what is blocking the submission.
+## 12. The Final Block Was Solved by Following the Error, Not by Guessing
 
-Examples I encountered included incomplete app information and the Advertising
-ID declaration.
+Near the end of the process, Publishing overview showed the release changes but
+the submission action was not yet available.
 
-The issue may contain a direct action such as:
-
-```text
-Fill in declaration form
-```
-
-Fix the problem, save it, and return to:
+Instead of editing the Android project or rebuilding the AAB, I used:
 
 ```text
 Publishing overview
+        ↓
+View issues
+        ↓
+Fix the reported requirement
+        ↓
+Save
+        ↓
+Return to Publishing overview
 ```
 
-Repeat this until there are no blocking issues.
+I repeated that process until there were no blocking issues.
 
-### Send the changes
-
-When everything is ready, the blue submission button becomes available.
-
-In my first submission it said:
+Eventually the submission button became active and showed:
 
 ```text
 Send 15 changes for review
 ```
 
-The number is not important. It simply reflects how many saved changes are
-waiting to be submitted.
+The number itself was not important. It represented the group of saved changes
+that had accumulated across the Closed Test, Store Listing, and app setup.
 
-Click the button.
-
-Play Console then shows a confirmation dialog such as:
-
-```text
-Send 15 changes for review?
-```
-
-Confirm with:
-
-```text
-Send changes for review
-```
-
-After submission, Publishing overview changes from something like:
+After confirming the submission, the page changed from a state equivalent to:
 
 ```text
 Changes not yet submitted
@@ -947,131 +468,121 @@ to:
 Changes in review
 ```
 
-For a Closed Testing release, this sends the closed-test release and related
-changes to Google for review.
+That was the confirmation I was looking for.
 
-It does **not** make the app a public Production release.
+### Lesson learned
+
+The most reliable way through Play Console is:
+
+```text
+Read the blocking issue
+        ↓
+Fix that specific issue
+        ↓
+Return to Publishing overview
+        ↓
+Repeat
+```
+
+This is much safer than changing unrelated parts of the project because the
+submission button happens to be disabled.
 
 ---
 
-## 11. What Happens After Submission
+## 13. What Was Actually Submitted
 
-After the changes are submitted, there is nothing else to press immediately.
+The first submission sent Veilmi's **Closed Testing** release and its related
+changes to Google for review.
 
-To check the review state, return to:
+It did **not** make Veilmi publicly available as a Production app.
+
+That distinction mattered because pressing the final confirmation button felt
+much more dramatic than what was actually happening.
+
+The state after submission was simply:
 
 ```text
-Publishing overview
-```
-
-When the Closed Testing release becomes available, return to:
-
-```text
-Test and release
-    ↓
-Testing
-    ↓
-Closed testing
-    ↓
 Veilmi Closed Test
-    ↓
-Testers
+        ↓
+Changes in review
+        ↓
+Wait for Google
 ```
 
-Copy the tester opt-in link.
+At this point, there was nothing else that needed to be pressed immediately.
 
-For the Google Group flow, a tester needs to:
+---
+
+## 14. What Comes Next
+
+After the Closed Testing release becomes available, the next challenge is not
+another build. It is getting real testers through the complete opt-in flow.
+
+For the Google Group approach, the intended tester journey is:
 
 ```text
-Join the Google Group
+Join Veilmi Testers Google Group
         ↓
 Open the Google Play tester link
         ↓
 Opt in to the Closed Test
         ↓
-Install the app from Google Play
+Install Veilmi from Google Play
         ↓
-Test the app and send feedback
+Test the app
+        ↓
+Send feedback
 ```
 
 For new personal developer accounts covered by Google's testing requirement,
-at least 12 testers must remain opted in continuously for at least 14 days
-before Production access can be requested.
+Production access can only be requested after the required Closed Testing period
+and tester participation have been completed.
 
-After the requirement is met, go to:
-
-```text
-Dashboard
-    ↓
-Apply for production
-```
-
-and complete the Production access application.
+I will continue this document when Veilmi reaches that stage.
 
 ---
 
-## Troubleshooting: Where Should I Look First?
+## Troubleshooting Map I Wish I Had at the Beginning
 
-If I am lost in Play Console, I use this map.
+This is the shortest version of what I learned.
 
-```text
-Missing setup information?
-→ Dashboard
-→ App setup checklist
-```
+| Problem | Where I look first |
+| --- | --- |
+| Play says app setup is incomplete | Dashboard → App setup checklist |
+| I need to reopen a declaration | Policy and programs → App content |
+| I need to edit public store text or graphics | Grow users → Store presence → Store listings |
+| I need to change Closed Test settings | Test and release → Testing → Closed testing |
+| Google Group is rejected | Confirm the group exists first, then return to Closed testing → Testers |
+| Chinese graphics look greyed out | They may be inherited assets; add localized graphics to override them |
+| I uploaded an AAB but still cannot submit | Publishing overview → View issues |
+| I saved everything but nothing is under review | Publishing overview → Send changes for review |
+| I am afraid that opening Publishing overview published the app | It did not; submission requires a separate explicit action |
 
-```text
-Need to reopen a policy declaration?
-→ Policy and programs
-→ App content
-```
+---
 
-```text
-Need to edit the public Store Listing?
-→ Grow users
-→ Store presence
-→ Store listings
-→ Edit default store listing
-```
+## Main Lessons From the First Submission
 
-```text
-Need to change support email or website?
-→ Grow users
-→ Store presence
-→ Store settings
-→ Store listing contact details
-```
+The hardest part of my first Google Play release was not producing the Android
+bundle. It was understanding the release system around it.
 
-```text
-Need to change countries, testers, or the testing release?
-→ Test and release
-→ Testing
-→ Closed testing
-→ Open / Manage the track
-```
+The lessons I want to remember are:
 
-```text
-Google Group is rejected as a tester group?
-→ Open Google Groups
-→ Make sure the group actually exists
-→ Check that your account can access/manage it
-→ Return to Closed testing → Testers
-```
+1. **A valid AAB and a release that is ready for review are different things.**
+2. **Closed Testing may be a required stage, not a failed attempt at Production.**
+3. **External tester groups must exist before Play Console can use them.**
+4. **A Google Group, tester opt-in, and feedback channel are separate concepts.**
+5. **Policy declarations that do not apply may still need to be completed.**
+6. **Ads and Advertising ID are separate declarations.**
+7. **Normal localized Store Listings are not the same as translation services or custom listings.**
+8. **Greyed-out localized graphics may simply be inherited default assets.**
+9. **Release-note languages and Store Listing languages are separate.**
+10. **Saving changes is not the same as submitting them.**
+11. **Publishing overview is the best place to discover what is actually blocking submission.**
+12. **Follow the reported problem instead of changing unrelated build settings.**
 
-```text
-Cannot submit?
-→ Publishing overview
-→ View issues
-```
-
-```text
-Ready to submit?
-→ Publishing overview
-→ Send changes for review
-```
-
-This simple map is much easier to use than trying to remember every Play
-Console page at once.
+The release process became much less intimidating once I stopped treating Play
+Console as one giant form and started treating each block as a separate problem
+to solve.
 
 ---
 
