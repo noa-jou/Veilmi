@@ -62,6 +62,14 @@ Please use the **same Google account** for both Google Groups and Google Play.
    Follow the Google Play link shown after joining the test and install Veilmi
    on your Android device.
 
+   P.S. 
+   
+   If Google Groups says that you cannot join the Veilmi Testers group, try reloading the page first. We have seen this happen before, and simply refreshing the page fixed it. 
+   
+   If Google Play suddenly acts like Veilmi does not exist, don’t panic — give your phone a little break, close the Play Store, and try my link again a little later. 😆 
+   
+   It seems to be a temporary Google Play / Google account permission synchronization or cache issue. If it still doesn’t work after that, just send me a message and I’ll try to help. :)
+
 4. **Please remain opted in for at least 14 days**
 
    Google Play currently requires at least 12 testers to remain continuously

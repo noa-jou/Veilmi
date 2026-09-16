@@ -58,6 +58,15 @@ Veilmi 目前正透過 **Google Play 封閉測試**提供測試版本。
 
    加入測試後，依照頁面提供的 Google Play 連結，在你的 Android 裝置上安裝 Veilmi。
 
+   P.S.
+   如果 Google Groups 顯示你無法加入 Veilmi Testers 群組，先試著重新整理頁面。我們之前遇過同樣的情況，重新整理後就可以正常加入了。
+
+   如果 Google Play 突然顯示找不到 Veilmi，或像這個 App 根本不存在一樣，也不用緊張 😆 請先把 Play Store 完全關掉，放下手機休息一下，過一會兒再重新打開我的測試連結。
+
+   這看起來比較像是 Google Play／Google 帳號權限同步或快取造成的暫時性問題。
+
+   如果這樣還是不行，再傳訊息給我，我會想辦法幫你看看。 :)
+
 4. **請至少保持加入測試 14 天**
 
    Google Play 目前要求至少 12 位測試者，
