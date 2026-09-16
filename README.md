@@ -30,6 +30,69 @@ The communication platform transports the encrypted text, while the plaintext
 is handled locally by Veilmi.
 ---
 
+## Try Veilmi on Android
+
+Veilmi is currently available through a **Google Play closed test**.
+
+If you have an Android device, you are welcome to join the test, try the app,
+and help me improve it before its public release.
+
+### How to join
+
+Please use the **same Google account** for both Google Groups and Google Play.
+
+1. **Join the Veilmi Testers Google Group**
+
+   Sign in to your Google account and open:
+
+   https://groups.google.com/g/veilmi-testers
+
+   Click **Join group**.
+
+2. **Join the Google Play closed test**
+
+   After joining the group, open:
+
+   https://play.google.com/apps/testing/com.veilmi.app
+
+   Choose **Become a tester**.
+
+3. **Install Veilmi**
+
+   Follow the Google Play link shown after joining the test and install Veilmi
+   on your Android device.
+
+4. **Please remain opted in for at least 14 days**
+
+   Google Play currently requires at least 12 testers to remain continuously
+   opted in to the closed test for at least 14 days before I can apply for
+   production access.
+
+### Help me test it
+
+If possible, please actually use Veilmi during the testing period.
+
+For example, you can try:
+
+- encrypting and decrypting different messages;
+- exchanging an encrypted message with another Veilmi user;
+- trying different protection levels;
+- copying encrypted text into another communication app and back into Veilmi;
+- testing long messages, unusual characters, emoji, and multiple languages;
+- checking whether any part of the interface or instructions is confusing.
+
+If you find a bug, unexpected behaviour, unclear wording, interoperability
+problem, or possible security weakness, I would genuinely like to know about it.
+
+You can report problems through the
+[GitHub Issues](https://github.com/noa-jou/Veilmi/issues) page.
+
+Even a small observation can help make Veilmi better.
+
+Thank you for helping me move Veilmi one step closer to a public release.
+
+---
+
 ## Documentation
 
 Veilmi includes documentation for both users and developers.
