@@ -28,76 +28,13 @@ LINE / Messenger / WhatsApp / 電子郵件 / 其他通訊管道
 
 ---
 
-## 在 Android 上試用 Veilmi
+## 試用 Veilmi
 
 Veilmi 目前正透過 **Google Play 封閉測試**提供測試版本。
 
 如果你有 Android 裝置，歡迎加入測試、實際使用 Veilmi，並在正式公開發布之前幫助我改善它。
 
-### 如何加入測試
-
-請在 Google Groups 和 Google Play 使用**同一個 Google 帳號**。
-
-1. **加入 Veilmi Testers Google Group**
-
-   登入你的 Google 帳號後，前往：
-
-   https://groups.google.com/g/veilmi-testers
-
-   然後按下 **加入群組 / Join group**。
-
-2. **加入 Google Play 封閉測試**
-
-   加入群組後，前往：
-
-   https://play.google.com/apps/testing/com.veilmi.app
-
-   選擇 **加入測試 / Become a tester**。
-
-3. **安裝 Veilmi**
-
-   加入測試後，依照頁面提供的 Google Play 連結，在你的 Android 裝置上安裝 Veilmi。
-
-   P.S.
-   如果 Google Groups 顯示你無法加入 Veilmi Testers 群組，先試著重新整理頁面。我們之前遇過同樣的情況，重新整理後就可以正常加入了。
-
-   如果 Google Play 突然顯示找不到 Veilmi，或像這個 App 根本不存在一樣，也不用緊張 😆 請先把 Play Store 完全關掉，放下手機休息一下，過一會兒再重新打開我的測試連結。
-
-   這看起來比較像是 Google Play／Google 帳號權限同步或快取造成的暫時性問題。
-
-   如果這樣還是不行，再傳訊息給我，我會想辦法幫你看看。 :)
-
-4. **請至少保持加入測試 14 天**
-
-   Google Play 目前要求至少 12 位測試者，
-   連續保持加入封閉測試至少 14 天，
-   開發者之後才能申請正式版發布權限。
-
-### 幫助我測試 Veilmi
-
-如果可以的話，希望你在測試期間實際使用 Veilmi。
-
-例如，你可以嘗試：
-
-- 加密和解密不同內容的訊息；
-- 和另一位 Veilmi 使用者交換加密訊息；
-- 嘗試不同的保護等級；
-- 把加密後的文字複製到其他通訊 App，再貼回 Veilmi；
-- 測試長訊息、特殊符號、Emoji，以及不同語言；
-- 留意介面或說明文字是否有任何讓人困惑的地方。
-
-如果你發現 Bug、非預期行為、不清楚的文字、
-相容性問題，或可能的安全性弱點，我都很希望知道。
-
-你可以透過
-[GitHub Issues](https://github.com/noa-jou/Veilmi/issues)
-回報問題。
-
-即使只是一個很小的觀察，也可能幫助 Veilmi 變得更好。
-
-謝謝你願意幫助 Veilmi 再往正式公開發布前進一步。
-
----
+- [加入 Veilmi 封閉測試](https://noa-jou.github.io/Veilmi/closed-testing.zh.html)
 
 ## 文件
 

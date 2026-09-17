@@ -14,6 +14,12 @@ design works, and how the application is developed, tested, and prepared
 for release.
 
 ---
+## 0. Do you want to become a beta tester?
+
+- [Join the Veilmi Closed Test](closed-testing.md)
+- [加入 Veilmi 封閉測試](closed-testing.zh.md)
+
+---
 
 ## 1. Using Veilmi
 
@@ -28,7 +34,29 @@ Traditional Chinese version:
 
 ---
 
-## 2. Project Structure and Development Environment
+## 2. Privacy
+
+### [Privacy Policy](privacy-policy.md)
+
+Traditional Chinese version: [隱私權政策](privacy-policy.zh.md)
+
+The public Privacy Policy for Veilmi.
+
+It explains how Veilmi handles:
+
+- messages and shared passphrases;
+- application preferences;
+- clipboard data;
+- network use;
+- external links;
+- data retention and deletion.
+
+Veilmi performs its encryption and decryption locally and does not require
+a Veilmi account or developer-operated messaging server.
+
+---
+
+## 3. Project Structure and Development Environment
 
 This section explains how the Veilmi repository is organized, how the
 development environment is set up, and how the project can be restored or
@@ -101,7 +129,7 @@ It covers:
 
 ---
 
-## 3. Veilmi Design and Application
+## 4. Veilmi Design and Application
 
 This section explains how Veilmi works internally and records important
 design decisions.
@@ -143,7 +171,7 @@ It describes:
 
 ---
 
-## 4. Android Development and Release
+## 5. Android Development and Release
 
 This section documents how Veilmi is tested, prepared, and gradually
 published on Android.
@@ -202,32 +230,6 @@ publication through Google Play Console.
 
 Rather than describing the entire release process in advance, this document
 is updated stage by stage as each part is completed.
-
-
----
-
-## 5. Privacy
-
-### [Privacy Policy](privacy-policy.md)
-
-Traditional Chinese version: [隱私權政策](privacy-policy.zh.md)
-
----
-
-The public Privacy Policy for Veilmi.
-
-It explains how Veilmi handles:
-
-- messages and shared passphrases;
-- application preferences;
-- clipboard data;
-- network use;
-- external links;
-- data retention and deletion.
-
-Veilmi performs its encryption and decryption locally and does not require
-a Veilmi account or developer-operated messaging server.
-
 
 ---
 

@@ -30,76 +30,14 @@ The communication platform transports the encrypted text, while the plaintext
 is handled locally by Veilmi.
 ---
 
-## Try Veilmi on Android
+## Try Veilmi on your phone
 
 Veilmi is currently available through a **Google Play closed test**.
 
 If you have an Android device, you are welcome to join the test, try the app,
 and help me improve it before its public release.
 
-### How to join
-
-Please use the **same Google account** for both Google Groups and Google Play.
-
-1. **Join the Veilmi Testers Google Group**
-
-   Sign in to your Google account and open:
-
-   https://groups.google.com/g/veilmi-testers
-
-   Click **Join group**.
-
-2. **Join the Google Play closed test**
-
-   After joining the group, open:
-
-   https://play.google.com/apps/testing/com.veilmi.app
-
-   Choose **Become a tester**.
-
-3. **Install Veilmi**
-
-   Follow the Google Play link shown after joining the test and install Veilmi
-   on your Android device.
-
-   P.S. 
-   
-   If Google Groups says that you cannot join the Veilmi Testers group, try reloading the page first. We have seen this happen before, and simply refreshing the page fixed it. 
-   
-   If Google Play suddenly acts like Veilmi does not exist, don’t panic — give your phone a little break, close the Play Store, and try my link again a little later. 😆 
-   
-   It seems to be a temporary Google Play / Google account permission synchronization or cache issue. If it still doesn’t work after that, just send me a message and I’ll try to help. :)
-
-4. **Please remain opted in for at least 14 days**
-
-   Google Play currently requires at least 12 testers to remain continuously
-   opted in to the closed test for at least 14 days before I can apply for
-   production access.
-
-### Help me test it
-
-If possible, please actually use Veilmi during the testing period.
-
-For example, you can try:
-
-- encrypting and decrypting different messages;
-- exchanging an encrypted message with another Veilmi user;
-- trying different protection levels;
-- copying encrypted text into another communication app and back into Veilmi;
-- testing long messages, unusual characters, emoji, and multiple languages;
-- checking whether any part of the interface or instructions is confusing.
-
-If you find a bug, unexpected behaviour, unclear wording, interoperability
-problem, or possible security weakness, I would genuinely like to know about it.
-
-You can report problems through the
-[GitHub Issues](https://github.com/noa-jou/Veilmi/issues) page.
-
-Even a small observation can help make Veilmi better.
-
-Thank you for helping me move Veilmi one step closer to a public release.
-
----
+- [Join the Veilmi Closed Test](https://noa-jou.github.io/Veilmi/closed-testing.html)
 
 ## Documentation
 
