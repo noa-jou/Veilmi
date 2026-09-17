@@ -31,7 +31,7 @@ Veilmi 目前正在進行 **Google Play 封閉測試**。
 
 先登入你平常在 Google Play 使用的 Google 帳號，再前往：
 
-https://groups.google.com/g/veilmi-testers
+[https://groups.google.com/g/veilmi-testers](https://groups.google.com/g/veilmi-testers)
 
 按下：
 
@@ -46,7 +46,7 @@ Veilmi 封閉測試的資格。
 
 加入 Google Group 後，再前往：
 
-https://play.google.com/apps/testing/com.veilmi.app
+[https://play.google.com/apps/testing/com.veilmi.app](https://play.google.com/apps/testing/com.veilmi.app)
 
 按下：
 
@@ -62,7 +62,7 @@ https://play.google.com/apps/testing/com.veilmi.app
 
 如果需要，也可以打開：
 
-https://play.google.com/store/apps/details?id=com.veilmi.app
+[https://play.google.com/store/apps/details?id=com.veilmi.app](https://play.google.com/store/apps/details?id=com.veilmi.app)
 
 再從 Google Play 安裝 Veilmi。
 
@@ -129,7 +129,7 @@ https://play.google.com/store/apps/details?id=com.veilmi.app
 
 如果你想先了解 Veilmi 的使用方法，可以查看：
 
-https://noa-jou.github.io/Veilmi/usage-guide.zh.html
+[https://noa-jou.github.io/Veilmi/usage-guide.zh.html](https://noa-jou.github.io/Veilmi/usage-guide.zh.html)
 
 ---
 
@@ -137,7 +137,7 @@ https://noa-jou.github.io/Veilmi/usage-guide.zh.html
 
 Veilmi 的隱私權政策：
 
-https://noa-jou.github.io/Veilmi/privacy-policy/zh/
+[https://noa-jou.github.io/Veilmi/privacy-policy/zh/](https://noa-jou.github.io/Veilmi/privacy-policy/zh/)
 
 使用 Veilmi 不需要另外申請 Veilmi 帳號。
 
@@ -154,7 +154,7 @@ Veilmi **目前並沒有接受過獨立的專業資安稽核**。
 
 完整原始碼：
 
-https://github.com/noa-jou/Veilmi
+[https://github.com/noa-jou/Veilmi](https://github.com/noa-jou/Veilmi)
 
 ---
 
@@ -169,10 +169,6 @@ https://github.com/noa-jou/Veilmi
 - 相容性問題；
 - 或可能的安全性問題；
 
-都非常歡迎告訴我。
-
-你也可以透過 GitHub Issues 回報：
-
-https://github.com/noa-jou/Veilmi/issues
+非常歡迎你也可以透過 Veilmi Testers Google Group 告訴我。
 
 謝謝你幫助 Veilmi 再往 Google Play 正式公開發布前進一步。

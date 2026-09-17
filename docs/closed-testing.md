@@ -32,7 +32,7 @@ testing access.
 
 Sign in to the Google account you use with Google Play, then open:
 
-https://groups.google.com/g/veilmi-testers
+[https://groups.google.com/g/veilmi-testers](https://groups.google.com/g/veilmi-testers)
 
 Click:
 
@@ -47,7 +47,7 @@ Veilmi Closed Test.
 
 After joining the Google Group, open:
 
-https://play.google.com/apps/testing/com.veilmi.app
+[https://play.google.com/apps/testing/com.veilmi.app](https://play.google.com/apps/testing/com.veilmi.app)
 
 Click:
 
@@ -63,7 +63,7 @@ After joining the test, Google Play should allow you to install Veilmi normally.
 
 If needed, open:
 
-https://play.google.com/store/apps/details?id=com.veilmi.app
+[https://play.google.com/store/apps/details?id=com.veilmi.app](https://play.google.com/store/apps/details?id=com.veilmi.app)
 
 and install Veilmi on your Android device.
 
@@ -134,7 +134,7 @@ to help.
 
 If you want to understand how Veilmi works before testing it, see:
 
-https://noa-jou.github.io/Veilmi/usage-guide.html
+[https://noa-jou.github.io/Veilmi/usage-guide.html](https://noa-jou.github.io/Veilmi/usage-guide.html)
 
 ---
 
@@ -142,7 +142,7 @@ https://noa-jou.github.io/Veilmi/usage-guide.html
 
 You can read the Veilmi Privacy Policy here:
 
-https://noa-jou.github.io/Veilmi/privacy-policy/
+[https://noa-jou.github.io/Veilmi/privacy-policy/](https://noa-jou.github.io/Veilmi/privacy-policy/)
 
 Veilmi does not require you to create a Veilmi account.
 
@@ -159,7 +159,7 @@ Please do not use Veilmi for extremely sensitive information during testing.
 
 The source code is available here:
 
-https://github.com/noa-jou/Veilmi
+[https://github.com/noa-jou/Veilmi](https://github.com/noa-jou/Veilmi)
 
 ---
 
@@ -174,10 +174,6 @@ If you find:
 - an interoperability problem;
 - or a possible security issue;
 
-please tell me.
-
-You can also report issues through GitHub:
-
-https://github.com/noa-jou/Veilmi/issues
+Please tell me in the Veilmi Testers Google Group that you have joined.
 
 Thank you for helping me move Veilmi one step closer to a public Google Play release.
