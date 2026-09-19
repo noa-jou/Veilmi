@@ -102,3 +102,4 @@ Thumbs.db
 linux/flutter/ephemeral/
 windows/flutter/ephemeral/
 web/.*
+android/gradle/gradle-daemon-jvm.properties

@@ -223,9 +223,9 @@ It explains how the English and Traditional Chinese screenshots were:
   aspect ratio;
 - reused to create the Veilmi Usage Guide.
 
-### [Google Play Release Process](google-play-release-process.md)
+### [Google Play Release Log](google-play-release-process.md)
 
-A first-time developer's practical record of preparing Veilmi for
+A first-time developer's record of preparing Veilmi for
 publication through Google Play Console.
 
 Rather than describing the entire release process in advance, this document

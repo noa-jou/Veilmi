@@ -1,399 +1,286 @@
+# Google Play Release Log
 
-# Google Play Release Process
+This is a dated record of my first Google Play release journey for **Veilmi**.
 
-This document records my first Google Play release journey for **Veilmi**.
+It is not a field-by-field Play Console guide. I want this file to help my future
+self remember:
 
-It is **not** intended to be a field-by-field copy of everything I entered in
-Google Play Console. Google changes the Console over time, and another app or
-developer account may have different requirements.
+- where the project had reached;
+- what blocked progress;
+- what I misunderstood;
+- and how I solved each problem.
 
-Instead, this document focuses on the parts that confused me, the mistakes I
-made, what blocked progress, and how I eventually understood the process.
-
-The biggest lesson from my first release was that building a valid Android App
-Bundle was only one part of publishing an Android app.
-
-Much of the difficulty came from understanding how Google Play separates:
-
-- developer-account setup;
-- app setup;
-- testing tracks;
-- tester eligibility;
-- store listings;
-- policy declarations;
-- review;
-- and Production access.
-
-> **Note:** Page names, button labels, and requirements may change over time or
-> appear differently depending on the Play Console language.
+Google Play Console changes over time, so exact page names and buttons may also
+change.
 
 ---
 
-## Release Milestones
+## 2026-09-11 — Preparing Veilmi for Release
 
-My first Veilmi Closed Testing submission was sent to Google for review on
-**14 September 2026**.
+### Progress
 
-By **16 September 2026**, the Closed Testing track was active and I had reached
-the next stage: recruiting testers and running the actual test.
-
-```text
-Developer identity verified
-
-        ↓
-
-Production access unavailable
-
-        ↓
-
-Closed Testing required
-
-        ↓
-
-Closed Test created
-
-        ↓
-
-Tester Google Group created
-
-        ↓
-
-Signed Android App Bundle uploaded
-
-        ↓
-
-Store Listing and policy requirements completed
-
-        ↓
-
-Blocking issues resolved
-
-        ↓
-
-Changes sent for review
-14 September 2026
-
-        ↓
-
-Closed Test became active
-
-        ↓
-
-Tester onboarding process clarified
-
-        ↓
-
-Current stage:
-Recruit at least 12 testers
-and run the Closed Test
-for at least 14 continuous days
-````
-
-This is still a **Closed Testing** release.
-
-Veilmi is **not yet publicly available in Production**.
-
----
-
-## 0. Identity Verification Was Only the Beginning
-
-Before using the release tools, I had to complete the developer-account and
-identity-verification requirements.
-
-I do not record identification numbers, verification documents, passwords, or
-other private account information in this repository.
-
-After the account was verified, I expected the rest of the process to be mostly
-about uploading the app.
-
-It was not.
-
-The difficult part was learning how Google Play divides a release across several
-different areas of Play Console.
-
-The pages I eventually learned to recognize included:
+Before dealing with Google Play, I first made sure Veilmi itself was ready for a
+real Android release.
 
 ```text
-Dashboard
-└── App setup checklist
+flutter analyze
+→ no issues
 
-Policy and programs
-└── App content
-
-Test and release
-└── Testing
-    ├── Internal testing
-    └── Closed testing
-
-Grow users
-└── Store presence
-    ├── Store listings
-    └── Store settings
-
-Publishing overview
-└── View issues / Send changes for review
+flutter test
+→ all 22 tests passed
 ```
 
-### Lesson learned
+I then prepared proper release signing instead of relying on the normal debug
+signing used during development.
 
-When Play Console appears to be blocking progress, the problem is not
-necessarily the Android build.
+The private upload keystore and passwords were kept outside the public GitHub
+repository.
 
-The unfinished requirement may be on a completely different page.
+Finally, I built the release Android App Bundle:
+
+```text
+flutter build appbundle --release
+```
+
+This produced the signed `.aab` file that I would later upload to Google Play.
+
+### What I learned
+
+A project working in Debug mode is not enough.
+
+Before worrying about the Play Console, I wanted to know that the real release
+build could actually be produced successfully.
 
 ---
 
-## 1. I Could Not Go Straight to Production
+## 2026-09-12 to 2026-09-13 — Waiting for Google Verification and Preparing the Public Release
 
-After my developer identity was verified, I initially thought that once the app
-was ready I would be able to prepare a Production release.
+### Progress
 
-That was not the next step for my account.
+I had already submitted the required developer-account and identity information
+to Google.
 
-For newer personal Google Play developer accounts, Google requires a qualifying
-**Closed Test** before the developer can apply for Production access.
+At this point, part of the release process had to wait for Google to finish
+reviewing my developer identity.
 
-For my account, the requirement is:
+```text
+Developer account created
+        ↓
+Identity information submitted
+        ↓
+Waiting for Google review
+        ↓
+Identity verification approved
+        ↓
+Phone verification completed
+```
+
+There was nothing useful to fix in the Android project while the account review
+was still pending.
+
+So instead of repeatedly checking the Console, I used the waiting time to prepare
+the public side of the release.
+
+### What I prepared while waiting
+
+I worked on:
+
+```text
+public documentation
+        +
+Privacy Policy
+        +
+English screenshots
+        +
+Traditional Chinese screenshots
+        +
+Play Store icon
+        +
+a new promotional feature graphic
+```
+
+The documentation explained what Veilmi does, how its cryptography works, and
+what its protection does **not** cover.
+
+For the phone screenshots, I used real Veilmi screens rather than promotional
+mockups.
+
+### Result
+
+By the time the developer verification was complete, both sides were ready:
+
+```text
+Technical side
+→ signed Android release bundle ready
+
+Public side
+→ documentation ready
+→ Privacy Policy ready
+→ screenshots ready
+→ store graphics ready
+```
+
+The next challenge was no longer building Veilmi.
+
+It was understanding Google Play Console.
+
+---
+
+## 2026-09-14 — First Closed Test Submission
+
+### Progress
+
+My developer identity and phone verification were complete, so I could finally
+continue with the actual Play Console release setup.
+
+This was the day when most of the confusing Google Play problems appeared.
+
+---
+
+### Problem: I could not go straight to Production
+
+I originally expected that once the app was ready, I could publish it.
+
+Instead, my account required a **Closed Test** before I could later apply for
+Production access.
+
+The requirement was:
 
 ```text
 At least 12 testers
-
         +
-
-Continuously opted in
+continuously opted in
 for at least 14 days
-
-        ↓
-
-Apply for Production access
 ```
 
-This means completing the Closed Test does not automatically publish Veilmi to
-Production.
+### Solution
 
-It allows me to **apply for Production access**. Google then asks additional
-questions about the app, the testing process, and its readiness for Production.
+I stopped trying to reach Production immediately and created a Closed Testing
+track for Veilmi.
 
-### Lesson learned
-
-Not being able to use Production did not mean anything was wrong with Veilmi.
+This did not mean anything was wrong with the app.
 
 Closed Testing was simply the next required stage.
 
 ---
 
-## 2. I Created the Closed Test and Needed a Real Tester Group
+### Problem: Play Console would not accept my tester group
 
-Once I understood that Closed Testing was the next stage, I created a Closed
-Testing track for Veilmi.
+I wanted to use a Google Group for testers.
 
-I decided to use a **Google Group** to control who could access the test.
-
-At first, I tried to enter a group-style email address into Play Console before
-I had actually created the Google Group.
+At first, I entered a group-style email address before the Google Group actually
+existed.
 
 Play Console rejected it.
+
+### Solution
 
 The correct order was:
 
 ```text
 Create the Google Group
-
         ↓
-
-Configure the group
-
+Configure it
         ↓
-
-Add the Google Group address
-to the Closed Test in Play Console
+Return to Play Console
+        ↓
+Add it to the Closed Test
 ```
 
-My tester group is:
-
-```text
-veilmi-testers@googlegroups.com
-```
-
-### Lesson learned
-
-The Google Group is a real external group.
-
-Typing a group-shaped email address into Play Console does not create the group.
+Play Console does not create the Google Group automatically.
 
 ---
 
-## 3. The AAB Uploaded Successfully, but the Release Was Still Blocked
+### Problem: The AAB uploaded successfully, but submission was still blocked
 
-I built and uploaded the signed Veilmi Android App Bundle.
+Google Play accepted the signed Android App Bundle.
 
-Google Play accepted the AAB and recognized the release correctly.
+For a moment, I thought the hard part was over.
 
-For a moment, I thought that meant the difficult part was over.
+It was not.
 
-It did not.
+Other app-information and policy requirements were still incomplete.
 
-The release still could not be submitted.
+One example was the **Advertising ID declaration**, which appeared later as a
+separate blocker.
 
-The problem was not the Android App Bundle.
+### Solution
 
-Google Play was waiting for other required app setup and policy information to
-be completed elsewhere in Play Console.
-
-### Lesson learned
-
-A successful AAB upload only means that the Android build itself has been
-accepted.
-
-It does not mean that the entire Google Play submission is ready.
-
----
-
-## 4. Some Requirements Only Became Obvious When They Blocked Submission
-
-Google Play requires several app-information and policy declarations.
-
-Even when a particular feature does not apply to the app, the relevant
-declaration may still need to be opened and completed.
-
-One confusing example was the **Advertising ID** declaration.
-
-I had already completed the normal advertising-related questions, but
-Advertising ID later appeared as a separate blocking requirement.
-
-The most useful place to look was:
+Instead of changing the Android project, I learned to follow the problem shown by
+Play Console:
 
 ```text
+Cannot submit?
+        ↓
 Publishing overview
-
         ↓
-
 View issues
+        ↓
+Fix the exact blocker
 ```
 
-Instead of guessing what might be wrong, I learned to follow the blocking issue
-reported by Play Console.
+A successful AAB upload only means the build itself was accepted.
 
-I also had to think carefully about how to describe Veilmi.
-
-Veilmi works alongside messaging apps, but it does not provide its own messaging
-service or social network.
-
-### Lesson learned
-
-When Play Console shows a blocker, follow the issue it identifies before
-changing the Android project.
-
-The problem may be a declaration or store setting rather than code.
+It does not mean the whole Google Play submission is ready.
 
 ---
 
-## 5. Adding Multiple Store Listing Languages Was More Confusing Than Translating Them
+### Problem: Store Listing languages and images were confusing
 
-I wanted the Veilmi Store Listing to support:
+I wanted the Store Listing to support:
 
 ```text
-English (United Kingdom)
-
+English (UK)
 Traditional Chinese (Taiwan)
-
 Chinese (Hong Kong)
 ```
 
-The difficult part was not translating the text.
+The translation itself was easy.
 
-It was finding the correct place to add ordinary language versions of the Store
-Listing.
+The confusing part was finding the normal language selector instead of ending up
+in translation services or custom store listings.
 
-At one point, I ended up looking at translation services and custom store
-listings, neither of which was what I needed.
+The Chinese Store Listings also showed the English screenshots in a faded state,
+which initially looked as though they could not be changed.
 
-The normal language versions were managed from the main Store Listing through
-its language options.
+### Solution
+
+I used the normal Store Listing language selector.
 
 The Taiwan and Hong Kong listings could share most of the same Traditional
-Chinese text.
+Chinese wording.
 
-There was no reason to make the two translations artificially different where
-the same wording worked naturally for both.
+The faded screenshots were simply inherited from the default English listing.
+Uploading the Chinese screenshots replaced them.
 
-### Lesson learned
-
-**Store Listing languages**, **translation services**, and **custom store
-listings** are different features.
+I also discovered that screenshot order could be changed by dragging the images.
 
 ---
 
-## 6. Store Listing Images Can Be Localized Too
+### Problem: I was afraid that saving changes might publish the app
 
-The Store Listing needed its own graphics.
-
-I prepared a Play Store version of the Veilmi icon and another promotional image
-for the listing.
-
-For the phone screenshots, I used real screenshots of Veilmi so that the store
-page would show what the app actually looks like.
-
-When I opened the Chinese Store Listings, the English screenshots initially
-appeared faded.
-
-At first, I thought the images could not be changed.
-
-They were simply being inherited from the default language.
-
-After I uploaded the Chinese screenshots, the inherited images were replaced by
-the localized versions.
-
-I also discovered that screenshots can be reordered simply by dragging them.
-
-### Lesson learned
-
-A faded Store Listing image may simply be inherited from the default language.
-
-Uploading a localized version replaces the inherited asset.
-
-And screenshot order can be changed by dragging the images.
-
----
-
-## 7. Saving Changes Was Not the Same as Sending Them to Google
-
-This caused me unnecessary worry during my first release.
+These actions were not the same:
 
 ```text
 Save
-
 ≠
-
 Send for review
 ```
 
-I was initially nervous that saving something or opening
-**Publishing overview** might accidentally publish Veilmi.
+and:
 
-It did not.
+```text
+Open Publishing overview
+≠
+Publish to Production
+```
 
-Publishing overview simply collected the changes I had saved and showed which
-issues were still blocking submission.
+### Solution
 
-Once all the blocking issues were cleared, the option to send the changes for
-review became available.
+I learned that Publishing overview is mainly where saved changes are collected,
+blocking problems are shown, and the final review submission is made.
 
-### Lesson learned
-
-I could safely save my work and inspect Publishing overview without accidentally
-publishing Veilmi.
-
-Saving a change and submitting a change are different actions.
-
----
-
-## 8. I Finally Sent the Closed Test for Review
-
-Once everything was ready, Publishing overview showed **15 changes** waiting to
-be submitted.
-
-I sent them for review and confirmed the submission.
+Once the blockers were cleared, I sent **15 changes** for review.
 
 The status changed to:
 
@@ -401,425 +288,200 @@ The status changed to:
 Changes in review
 ```
 
-That was the confirmation that Veilmi 1.0.0 and its Closed Testing setup had
-entered Google's review process.
+### Result
 
-This was still **not** a public Production release.
+Veilmi 1.0.0 had officially entered Google's review process for **Closed
+Testing**.
 
-It only meant that the Closed Test and its related store and policy changes were
-being reviewed.
-
-### Lesson learned
-
-The final review button felt dramatic, but it did not publish Veilmi to
-everyone.
-
-It moved the Closed Test to the next stage.
+It was still not a public Production release.
 
 ---
 
-## 9. The Closed Test Became Active
+## 2026-09-16 — Closed Test Became Active
 
-After Google's review, the Veilmi Closed Testing track became active.
+### Progress
 
-At that point, I was no longer waiting for Google to review the initial Closed
-Test setup.
+Google finished the initial review and the Veilmi Closed Test became active.
 
-The next task was to get real people into the test.
-
-I initially thought this part would be simple:
+The release had moved from:
 
 ```text
-Send somebody a link
-
-        ↓
-
-They install the app
+Prepare the Closed Test
 ```
 
-It turned out that tester access had its own structure that I still needed to
-understand.
-
-This led to several more mistakes.
-
----
-
-## 10. I Wondered Whether Internal Testing Had to Come First
-
-After the Closed Test became active, I noticed the **Internal Testing** section
-in Play Console and started wondering whether I had skipped an important step.
-
-I briefly thought I might need to complete Internal Testing before Closed
-Testing could properly begin.
-
-I did not.
-
-Internal Testing and Closed Testing are different testing tracks.
-
-Internal Testing is useful for quickly distributing builds to a small group of
-trusted testers, but it is optional.
-
-For my release journey, the qualifying track is Closed Testing.
+to:
 
 ```text
-Internal Testing
-Optional for this process
-
-        vs.
-
-Closed Testing
-Required for my Production-access path
+Find real testers
+and run the test
 ```
-
-### Lesson learned
-
-Seeing an unfinished Internal Testing section did not mean my Closed Test was
-incomplete.
-
-I did not need to go backwards and complete Internal Testing first.
 
 ---
 
-## 11. Google Group Membership and Google Play Test Participation Are Different
+### Problem: I wondered whether Internal Testing had to come first
+
+Seeing the unfinished Internal Testing section made me worry that I had skipped
+a required step.
+
+### Solution
+
+I learned that Internal Testing and Closed Testing are separate tracks.
+
+Internal Testing can be useful, but it was not required before my Closed Test.
+
+I did not need to go backwards.
+
+---
+
+### Problem: Google Group membership was not the same as joining the test
 
 This was probably the most important tester-access concept I had to understand.
 
-At first, I treated membership in the Veilmi Testers Google Group as if it meant
-the user had already joined the Google Play test.
+A person could join the Veilmi Testers Google Group and still not be an opted-in
+Google Play tester.
 
-That is not how the process works.
+### Solution
 
-There are two separate stages:
+I separated the onboarding flow into two stages:
 
 ```text
-Stage 1
-
-Join the Veilmi Testers Google Group
-
+Join Google Group
         ↓
-
-The Google account becomes eligible
-to access the Closed Test
-
-
-Stage 2
-
-Open the Google Play testing opt-in page
-
+Become eligible for the test
         ↓
-
-Choose to become a tester
-
+Open Google Play opt-in page
         ↓
-
-The account actually joins
-the Veilmi Closed Test
+Choose "Become a tester"
+        ↓
+Actually join the Closed Test
 ```
 
-The Google Group answers:
-
-> **Who is allowed to join this test?**
-
-The Google Play opt-in process answers:
-
-> **Has this person actually joined the test?**
-
-A person can therefore be a member of the tester group without yet being an
-opted-in Google Play tester.
-
-### Lesson learned
-
-**Eligible tester** and **opted-in tester** are not the same thing.
-
-This distinction matters because the Production-access requirement is based on
-testers who are actually opted into the Closed Test.
+The same Google account should be used for both steps.
 
 ---
 
-## 12. I Opened the Tester Group So People Could Join Themselves
+### Problem: There were too many related links
 
-Originally, I assumed that I would need to collect every tester's Google account
-email address and manually add each person to the group.
+Several Google URLs looked similar but had different jobs.
 
-That would have made public recruitment unnecessarily awkward.
+### Solution
 
-It would also have meant asking strangers on LinkedIn to send me their Google
-account information privately.
-
-Instead, I changed the Veilmi Testers Google Group settings so that people on
-the web can join the group themselves.
-
-The group page is:
-
-```text
-https://groups.google.com/g/veilmi-testers
-```
-
-A tester still needs to sign in with a Google account.
-
-They can then open the group and choose **Join group**.
-
-Making the group open does not mean anonymous users automatically become
-members.
-
-It means people with Google accounts can add themselves without waiting for me
-to manually enter each account.
-
-### Lesson learned
-
-Self-service group membership made public tester recruitment much simpler.
-
-I no longer needed to collect individual tester email addresses manually.
-
----
-
-## 13. I Confused Three Different Links
-
-Another source of confusion was that several Google URLs were involved in the
-testing process, and they looked related.
-
-They had very different purposes.
-
-### Google Group
-
-```text
-https://groups.google.com/g/veilmi-testers
-```
-
-This is where a tester becomes a member of the Veilmi Testers Google Group.
-
-Group membership makes the Google account eligible for the Closed Test.
-
-### Google Play testing opt-in page
-
-```text
-https://play.google.com/apps/testing/com.veilmi.app
-```
-
-This is the important page for actually joining the Veilmi Closed Test.
-
-After becoming eligible through the Google Group, the tester opens this page and
-chooses **Become a tester**.
-
-### Google Play Store page
-
-```text
-https://play.google.com/store/apps/details?id=com.veilmi.app
-```
-
-This is Veilmi's normal Google Play Store URL.
-
-Once the user's account has access to the test, this page can be used to view or
-install the app.
-
-### Lesson learned
-
-The three URLs perform three separate jobs:
+I reduced them to three purposes:
 
 ```text
 Google Group
-→ eligibility
+→ become eligible
 
-/apps/testing/
-→ opt into the test
+Google Play /apps/testing/ page
+→ opt into the Closed Test
 
-/store/apps/details
-→ view or install the app
+Google Play Store page
+→ view or install Veilmi
 ```
 
-The `/apps/testing/` URL is the important opt-in link for joining the test.
+That made the process much easier to explain to testers.
 
 ---
 
-## 14. The Complete Tester Onboarding Flow Finally Made Sense
+### Problem: Manually collecting tester email addresses was awkward
 
-After making several mistakes and testing the process again, I finally understood
-the full onboarding flow.
+I did not want to ask strangers to send me their Google account email just so I
+could add them one by one.
 
-A new Veilmi tester should:
+### Solution
+
+I changed the Veilmi Testers Google Group so people could join it themselves.
+
+I also added simple tester instructions to the Veilmi README.
+
+### Result
+
+At this point, the technical Closed Testing setup was basically finished.
+
+The remaining problem was no longer Google Play Console.
+
+It was finding enough real people who genuinely wanted to test Veilmi.
+
+---
+
+## 2026-09-19 — Pausing Tester Recruitment
+
+### Progress
+
+The Veilmi Closed Test is still active and available.
+
+The app, Play Console setup, tester group, and onboarding instructions are all
+ready.
+
+However, I have **not found 12 genuine testers** who are willing to join the
+Closed Test and remain opted in for the required period.
+
+### Decision
+
+I do not want to chase people simply to fill a number.
+
+There is no project deadline forcing me to complete this stage immediately, so I
+am leaving the Closed Test where it is and moving on to other work for now.
 
 ```text
-1. Sign in to the Google account
-   used with Google Play
-
+Veilmi Closed Test
         ↓
-
-2. Open the Veilmi Testers Google Group
-
-https://groups.google.com/g/veilmi-testers
-
+Still available
         ↓
-
-3. Choose "Join group"
-
+Not enough real testers yet
         ↓
-
-4. Open the Veilmi Google Play
-   Closed Test opt-in page
-
-https://play.google.com/apps/testing/com.veilmi.app
-
+Pause recruitment
         ↓
-
-5. Choose "Become a tester"
-
+Work on other things
         ↓
-
-6. Install Veilmi from Google Play
-
-        ↓
-
-7. Remain opted in
-   for at least 14 continuous days
+Return when I am ready
 ```
 
-The same Google account should be used for the Google Group membership and the
-Google Play test.
+This is not a cancelled release.
 
-I added these instructions to the main Veilmi README so that future testers do
-not need to discover the same process by trial and error.
-
-### Lesson learned
-
-Tester onboarding is part of the release experience too.
-
-If the process confused me as the developer, it could easily confuse someone
-who is only volunteering a few minutes of their time to help.
-
-The instructions therefore need to be simple and explicit.
+I can continue from this point later instead of starting again.
 
 ---
 
-## 15. The Real Closed Test Begins Here
-
-Getting the Closed Testing track active was not the end of the testing process.
-
-It was the beginning of the real test.
-
-For my account, I need at least **12 testers** to remain continuously opted into
-the Closed Test for at least **14 days** before I can apply for Production
-access.
-
-I do not want those 14 days to be only a countdown.
-
-I would also like testers to actually use Veilmi and help me find problems that
-I did not notice while developing it myself.
-
-I added testing suggestions to the Veilmi README.
-
-For example, testers can try:
-
-* encrypting and decrypting different messages;
-* exchanging an encrypted message with another Veilmi user;
-* trying different protection levels;
-* copying encrypted text into another communication app and back into Veilmi;
-* testing long messages;
-* testing unusual characters;
-* testing emoji;
-* testing different languages;
-* looking for confusing interface text or instructions;
-* reporting unexpected behaviour;
-* and reporting possible security problems.
-
-Problems can be reported through the Veilmi GitHub Issues page:
-
-```text
-https://github.com/noa-jou/Veilmi/issues
-```
-
-Even a small observation can be useful.
-
-### Lesson learned
-
-The 14-day requirement should not only be treated as an administrative hurdle.
-
-It is also an opportunity to let real people use Veilmi, collect feedback, fix
-problems, and improve the app before a public release.
-
----
-
-## Current Status
-
-As of **16 September 2026**:
+## Current Status — 2026-09-19
 
 ```text
 Veilmi 1.0.0
-
         ↓
-
-Closed Test active
-
+Release build completed
         ↓
-
-Veilmi Testers Google Group
-open for testers to join
-
+Developer verification completed
         ↓
-
-Recruit at least 12 testers
-
+Closed Test approved and active
         ↓
-
-Each tester:
-
-Join Google Group
-
+Tester onboarding understood
         ↓
-
-Opt into Google Play Closed Test
-
+12 qualifying testers not yet reached
         ↓
-
-Install Veilmi
-
-        ↓
-
-Use and test the app
-
-        ↓
-
-Remain continuously opted in
-for at least 14 days
-
-        ↓
-
-Collect feedback
-and fix problems
-
-        ↓
-
-Apply for Production access
-
-        ↓
-
-Future goal:
-
-Public Google Play release
+Release work paused for now
 ```
 
-The first Google Play release journey is therefore no longer waiting for the
-initial Closed Test review.
+Veilmi is **not yet publicly available in Production**.
 
-It has moved into the **real Closed Testing stage**.
+The next Google Play milestone remains:
 
-Getting the Closed Test approved was not the end of the release process.
+```text
+12 testers
+        ↓
+remain opted in for at least 14 continuous days
+        ↓
+apply for Production access
+```
 
-**It was the beginning of the real testing process.**
-
-I will continue updating this document as Veilmi moves toward Production.
+For now, I am intentionally leaving that milestone for later and focusing on
+other work.
 
 ---
 
 ## Useful Official Google Play Documentation
 
-* [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152)
-
-* [Set up an open, closed, or internal test](https://support.google.com/googleplay/android-developer/answer/9845334)
-
-* [Testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465)
-
-* [Control when app changes are reviewed and published](https://support.google.com/googleplay/android-developer/answer/9859654)
-
-* [Create a group and choose Google Groups settings](https://support.google.com/groups/answer/2464926)
-
-
+- [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152)
+- [Set up an open, closed, or internal test](https://support.google.com/googleplay/android-developer/answer/9845334)
+- [Testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465)
+- [Control when app changes are reviewed and published](https://support.google.com/googleplay/android-developer/answer/9859654)
+- [Create a group and choose Google Groups settings](https://support.google.com/groups/answer/2464926)

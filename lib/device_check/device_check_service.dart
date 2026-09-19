@@ -7,8 +7,11 @@ import '../crypto/protection_level.dart';
 // PBKDF2 is the password-to-key process used in the app.
 //
 // The goal is simple:
-// - if a security level is too slow on this device,
-// - the app can recommend a lower level so the app still feels usable.
+// - measure how long each protection level takes on this device;
+// - recommend the strongest level that should still feel practical.
+//
+// Benchmark results can naturally vary because phone temperature,
+// CPU load, power-saving mode, and background activity may affect timing.
 class DeviceCheckService extends ChangeNotifier {
   // Private constructor so this can be used as a singleton.
   DeviceCheckService._();
@@ -16,7 +19,8 @@ class DeviceCheckService extends ChangeNotifier {
   // There is only one shared device-check service for the app.
   static final DeviceCheckService instance = DeviceCheckService._();
 
-  // If a level takes longer than this, we treat it as too slow for a good user experience.
+  // If a level takes longer than this, we treat it as too slow
+  // for a good user experience.
   static const int recommendedMaxMilliseconds = 5000;
 
   // State flags for the running benchmark.
@@ -24,23 +28,25 @@ class DeviceCheckService extends ChangeNotifier {
   bool _hasError = false;
 
   // Stores the PBKDF2 implementation name detected at runtime.
-  // Example: the library may report the actual implementation type.
   String? _implementation;
 
-  // Stores the time each protection level took on this device.
+  // Stores the final measured time for each protection level.
   final Map<ProtectionLevel, double> _times = {};
 
-  // This is the final recommendation: the best level for this device.
+  // The final recommendation for this device.
   ProtectionLevel? _recommendation;
 
-  // Tracks how many benchmark runs have finished so far.
+  // Tracks how many measured benchmark runs have finished.
   int _completedRuns = 0;
 
-  // There are 9 total runs:
-  // 3 levels x 3 timing checks each = 9
+  // There are 9 measured runs:
+  // 3 protection levels x 3 rounds.
+  //
+  // The warm-up run is not counted.
   static const int totalRuns = 9;
 
-  // If a run is already in progress, we reuse the same task instead of starting a new one.
+  // If a run is already in progress, reuse the same task
+  // instead of starting another benchmark.
   Future<void>? _runningTask;
 
   bool get isRunning => _isRunning;
@@ -49,11 +55,11 @@ class DeviceCheckService extends ChangeNotifier {
   ProtectionLevel? get recommendation => _recommendation;
   int get completedRuns => _completedRuns;
 
-  // The benchmark is considered complete only when:
-  // - it is no longer running,
-  // - no error occurred,
-  // - a recommendation exists,
-  // - and at least one timing result is available.
+  // The benchmark is complete only when:
+  // - it is no longer running;
+  // - no error occurred;
+  // - a recommendation exists;
+  // - timing results are available.
   bool get hasResult =>
       !_isRunning && !_hasError && _recommendation != null && _times.isNotEmpty;
 
@@ -69,8 +75,39 @@ class DeviceCheckService extends ChangeNotifier {
     }
 
     _runningTask = _runCheck();
-
     return _runningTask!;
+  }
+
+  // Run one PBKDF2 operation and return its duration in milliseconds.
+  Future<double> _measureLevel({
+    required ProtectionLevel level,
+    required SecretKey secretKey,
+    required List<int> salt,
+  }) async {
+    final pbkdf2 = Pbkdf2(
+      macAlgorithm: Hmac.sha256(),
+      iterations: level.iterations,
+      bits: 256,
+    );
+
+    final stopwatch = Stopwatch()..start();
+
+    await pbkdf2.deriveKey(secretKey: secretKey, nonce: salt);
+
+    stopwatch.stop();
+
+    // Keep sub-millisecond precision instead of rounding immediately
+    // to a whole millisecond.
+    return stopwatch.elapsedMicroseconds / 1000.0;
+  }
+
+  // Return the median value from three timing samples.
+  //
+  // Using the median makes one unusually slow or fast measurement
+  // less likely to distort the final Device Check result.
+  double _medianOfThree(List<double> values) {
+    final sorted = List<double>.from(values)..sort();
+    return sorted[1];
   }
 
   // This is the actual benchmark logic.
@@ -86,8 +123,8 @@ class DeviceCheckService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Create a PBKDF2 instance with a low iteration count first.
-      // This is mainly used to check which implementation the library is using.
+      // Create a PBKDF2 instance so we can record which implementation
+      // the cryptography package is using on this device.
       final implementationCheck = Pbkdf2(
         macAlgorithm: Hmac.sha256(),
         iterations: ProtectionLevel.compatibility.iterations,
@@ -96,54 +133,106 @@ class DeviceCheckService extends ChangeNotifier {
 
       _implementation = implementationCheck.runtimeType.toString();
 
-      // A fixed salt is used for each timing test.
-      // The value is not secret for this benchmark; it is just a constant input.
+      // A fixed salt is fine for this benchmark because this is not
+      // encrypting real user data.
       final salt = List<int>.generate(16, (index) => index);
 
-      // A simple passphrase string used for the benchmark only.
+      // A fixed passphrase used only for Device Check.
       const passphrase = 'veilmi-device-check';
 
-      // Test each protection level one by one.
-      for (final level in ProtectionLevel.values) {
-        final runTimes = <int>[];
+      // Prepare the SecretKey before timing begins.
+      final secretKey = SecretKey(passphrase.codeUnits);
 
-        // Run the timer 3 times and average the result.
-        for (var run = 0; run < 3; run++) {
-          final pbkdf2 = Pbkdf2(
-            macAlgorithm: Hmac.sha256(),
-            iterations: level.iterations,
-            bits: 256,
+      // ------------------------------------------------------------
+      // Warm-up
+      // ------------------------------------------------------------
+      //
+      // The first cryptographic operation can behave differently because
+      // the runtime, library, or CPU may still be warming up.
+      //
+      // Run one small PBKDF2 operation first and do not count it.
+      await _measureLevel(
+        level: ProtectionLevel.compatibility,
+        secretKey: secretKey,
+        salt: salt,
+      );
+
+      // Store all three measured samples for every protection level.
+      final samples = <ProtectionLevel, List<double>>{
+        ProtectionLevel.compatibility: <double>[],
+        ProtectionLevel.balanced: <double>[],
+        ProtectionLevel.stronger: <double>[],
+      };
+
+      // ------------------------------------------------------------
+      // Measured rounds
+      // ------------------------------------------------------------
+      //
+      // Change the order in every round so no protection level is always
+      // tested first or always tested last.
+      //
+      // Round 1:
+      // Compatibility -> Balanced -> Stronger
+      //
+      // Round 2:
+      // Balanced -> Stronger -> Compatibility
+      //
+      // Round 3:
+      // Stronger -> Compatibility -> Balanced
+      final rounds = <List<ProtectionLevel>>[
+        [
+          ProtectionLevel.compatibility,
+          ProtectionLevel.balanced,
+          ProtectionLevel.stronger,
+        ],
+        [
+          ProtectionLevel.balanced,
+          ProtectionLevel.stronger,
+          ProtectionLevel.compatibility,
+        ],
+        [
+          ProtectionLevel.stronger,
+          ProtectionLevel.compatibility,
+          ProtectionLevel.balanced,
+        ],
+      ];
+
+      for (final round in rounds) {
+        for (final level in round) {
+          final milliseconds = await _measureLevel(
+            level: level,
+            secretKey: secretKey,
+            salt: salt,
           );
 
-          final stopwatch = Stopwatch()..start();
-
-          // This is the actual expensive work.
-          // PBKDF2 derives a key from the passphrase and salt.
-          await pbkdf2.deriveKey(
-            secretKey: SecretKey(passphrase.codeUnits),
-            nonce: salt,
-          );
-
-          stopwatch.stop();
-
-          // Store how long this one run took.
-          runTimes.add(stopwatch.elapsedMilliseconds);
+          samples[level]!.add(milliseconds);
 
           _completedRuns++;
           notifyListeners();
         }
-
-        // Average the three measurements to reduce random noise.
-        final averageMilliseconds =
-            runTimes.reduce((a, b) => a + b) / runTimes.length;
-
-        _times[level] = averageMilliseconds;
-        notifyListeners();
       }
 
-      // Choose the best protection level for this device.
-      // We prefer the strongest option that is still under 5 seconds.
+      // ------------------------------------------------------------
+      // Final timing results
+      // ------------------------------------------------------------
+      //
+      // Each level now has three measurements.
+      // Use the median rather than the average so one unusual run
+      // has less influence on the displayed result.
+      for (final level in ProtectionLevel.values) {
+        final levelSamples = samples[level]!;
+
+        _times[level] = _medianOfThree(levelSamples);
+      }
+
+      // ------------------------------------------------------------
+      // Recommendation
+      // ------------------------------------------------------------
+      //
+      // Prefer the strongest protection level that remains within
+      // Veilmi's 5-second usability guideline.
       final strongerTime = _times[ProtectionLevel.stronger] ?? double.infinity;
+
       final balancedTime = _times[ProtectionLevel.balanced] ?? double.infinity;
 
       if (strongerTime <= recommendedMaxMilliseconds) {
@@ -153,9 +242,14 @@ class DeviceCheckService extends ChangeNotifier {
       } else {
         _recommendation = ProtectionLevel.compatibility;
       }
+
+      notifyListeners();
     } catch (error) {
-      // If anything fails during the benchmark, mark it as an error.
       _hasError = true;
+
+      if (kDebugMode) {
+        debugPrint('Device Check failed: $error');
+      }
     } finally {
       _isRunning = false;
       _runningTask = null;
