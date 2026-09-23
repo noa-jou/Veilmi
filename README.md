@@ -148,7 +148,7 @@ I have around four years of professional software-engineering experience.
 About six years before starting Veilmi, I also studied some basic programming
 and mobile-development courses at **LCCNET (聯成電腦)**. During those courses,
 I was guided through building my first small Android app using **Java and
-Android Studio**.
+Android Studio**. It is called [Color_Match](https://github.com/noa-jou/Color_Match/)
 
 That was a small beginning, and I did not come into Veilmi already knowing
 Flutter or modern cross-platform mobile development.
