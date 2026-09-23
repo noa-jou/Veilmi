@@ -12,6 +12,23 @@ docs/crypto-notes.md
 
 ---
 
+## 0. Secret Strength
+
+A weak Veilmi passphrase could potentially be vulnerable to offline guessing if an attacker obtains the ciphertext.
+
+Veilmi may eventually provide an optional locally generated passphrase such as:
+
+```text
+lantern-river-orbit-coffee-58
+```
+
+The passphrase would be generated locally.
+
+Veilmi would not store it, just providing options for lazy users.
+
+
+---
+
 ## 1. Current Cryptographic Choices
 
 Veilmi1 uses established cryptographic algorithms rather than designing its
