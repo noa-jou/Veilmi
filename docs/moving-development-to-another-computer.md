@@ -1,22 +1,44 @@
 # Moving Veilmi Development to Another Computer
 
-This document is a practical reminder for continuing Veilmi development on another computer.
+This document is a practical recovery guide for continuing Veilmi development on another computer.
 
-For example, if Veilmi 1.0.0 has already been released and I want to develop Veilmi 1.0.1 on a new computer, I can follow these steps.
+It is written for my future self as an engineer. The Debian setup is intentionally command-line first, avoids unnecessary GUI dependencies, and avoids hard-coding tool versions whenever possible.
 
 The most important thing to remember is:
 
-> **GitHub stores the Veilmi project, but not the whole development environment.**
+> **GitHub stores the Veilmi project, not the whole development environment.**
 
-Cloning the repository gives me the source code. A new computer still needs the software required to edit, run, test, and build a Flutter Android project.
+A fresh computer still needs Git, VS Code, Java, Flutter, the Android command-line tools, and the Android SDK.
 
-Veilmi currently focuses on **Android development**. I do **not** need to set up Flutter Linux desktop development just because the development computer runs Linux.
+Veilmi currently focuses on Android development. I do **not** need the Flutter Linux desktop toolchain just because the development computer runs Linux.
 
 ---
 
-# 1. What a New Computer Needs
+## 1. Before You Start
 
-For normal Veilmi Android development, I need:
+### You need to know: Build, Run, and Test Are Different
+
+These commands have different requirements:
+
+```text
+flutter analyze
+flutter test
+→ no Android runtime target required
+
+flutter build apk --debug
+flutter build appbundle --release
+→ no Android runtime target required
+
+flutter run
+→ requires a runtime target
+→ physical Android device OR Android emulator
+```
+
+---
+
+### What a New Computer Needs
+
+For normal Veilmi Android development:
 
 ```text
 Operating system
@@ -25,12 +47,14 @@ Git
         ↓
 VS Code
         ↓
+Debian default JDK
+        ↓
 Flutter SDK
         ↓
 Dart
 (included with Flutter)
         ↓
-Android Studio
+Google Android CLI
         ↓
 Android SDK + Platform Tools + ADB
         ↓
@@ -39,92 +63,324 @@ Veilmi source code
 Flutter packages
 ```
 
-The main tools are:
-
-| Tool | Why I need it |
-|---|---|
-| Git | Clone Veilmi and manage source-code changes |
-| VS Code | My main editor for Veilmi |
-| Flutter SDK | Run, analyze, test, and build Veilmi |
-| Dart | The language used by Flutter; included with Flutter |
-| Android Studio | Install and manage the Android SDK and Android tools |
-| Android SDK | Build the Android version of Veilmi |
-| Platform Tools / ADB | Connect physical Android test devices |
-
-Android Studio and VS Code have different jobs in my setup:
+For the tested Debian workflow:
 
 ```text
 VS Code
-→ write and edit Veilmi
+→ main editor
 
-Android Studio
-→ provide/manage Android SDK, SDK Manager, emulator tools, and Android tooling
+Flutter
+→ Dart + Flutter tooling
+
+Google Android CLI
+→ Android SDK management
+
+ADB
+→ Android device communication
 ```
 
-I do not need to use Android Studio as my main code editor.
+Android Studio is **not required** for this command-line setup.
 
 ---
 
-# 2. Different Operating Systems
+### Other Operating Systems
 
-The Veilmi source code is the same, but the development tools are installed differently depending on the computer.
+The Veilmi source code is the same on every computer, but the installation commands differ.
 
-## Windows
+#### Windows
 
-For Android development, install:
+Install the same categories of tools:
 
 ```text
 Git
 VS Code
-Flutter SDK
-Android Studio + Android SDK
+Java
+Flutter
+Android development tools / Android SDK
 ```
 
-Windows may also require the Android phone manufacturer's USB driver before ADB can see a physical device.
+Windows may also require a phone manufacturer's USB driver when using a physical Android device.
 
-## macOS
+#### macOS
 
-For Android development, install:
+Install:
 
 ```text
 Git
 VS Code
-Flutter SDK
-Android Studio + Android SDK
+Java
+Flutter
+Android development tools / Android SDK
 ```
 
-If I later want to build Veilmi for iOS, the Mac also needs Xcode and the iOS development tools.
+If I later build Veilmi for iOS, the Mac also needs Xcode and the iOS development tools.
 
-## Linux
+#### Linux / Chromebook Linux
 
-For Android development, install:
+The Debian x86_64 workflow below is the tested path.
 
-```text
-Git and Flutter prerequisites
-VS Code
-Flutter SDK
-Android Studio + Android SDK
-```
+On a Chromebook, enable the Linux development environment first. Then run the Debian commands inside Linux.
 
-The Debian example below shows this setup.
-
-## Chromebook
-
-Enable the ChromeOS Linux development environment first.
-
-After that, most Flutter work happens inside the Linux environment.
-
-ChromeOS has some Android Studio-specific installation and USB-device behaviour, so I may need the separate Chromebook environment notes if I am using a Chromebook.
+ChromeOS may display Crostini notices about containerless environments or virtualization. Those notices are not, by themselves, Veilmi build failures.
 
 ---
 
-# 3. What I Do NOT Need
+## 2. (This is for my own example) Prepare the Debian x86_64 Environment
 
-Veilmi currently targets Android.
+### Check the Machine Architecture
 
-I do **not** need to install the Linux desktop Flutter toolchain just because I am developing from Debian.
+The following workflow was rebuilt and tested from a fresh Debian environment.
 
-For example, I do not need these packages merely to develop Veilmi for Android:
+Check the architecture:
+
+```bash
+uname -m
+```
+
+These commands assume:
+
+```text
+x86_64
+```
+
+If the result is different, do not reuse the x64-specific download URLs blindly.
+
+---
+
+### Reserve Enough Disk Space Before Starting
+
+The Veilmi Git repository itself is small. The tested clone was only around 10 MB.
+
+The development environment is much larger.
+
+During one tested rebuild, the environment already contained approximately:
+
+```text
+Flutter SDK        ~2.3 GB
+Gradle cache       ~1.6 GB
+Android SDK        ~1.4 GB
+Pub cache          ~0.6 GB
+VS Code + JDK      additional space
+NDK                additional multi-GB space during installation/extraction
+```
+
+A first Android build may download more Gradle artifacts, SDK components, and an NDK.
+
+Practical recommendation:
+
+```text
+Allocate at least about 20 GB to the Linux environment.
+Try to keep around 10–12 GB free before the first Android build.
+```
+
+This is a practical Veilmi setup recommendation, not an official Flutter storage requirement.
+
+Check the current space:
+
+```bash
+df -h "$HOME"
+```
+
+---
+
+### Install the Basic Debian Packages
+
+Update the package index:
+
+```bash
+sudo apt-get update
+```
+
+Install the basic tools:
+
+```bash
+sudo apt-get install -y \
+  ca-certificates \
+  curl \
+  git \
+  unzip \
+  xz-utils \
+  zip \
+  libglu1-mesa \
+  python3 \
+  default-jdk
+```
+
+Check them:
+
+```bash
+git --version
+curl --version
+python3 --version
+java -version
+javac -version
+```
+
+---
+
+### Install the Latest Stable VS Code
+
+Download the latest stable x64 Debian package directly to the home directory:
+
+```bash
+curl -fL \
+  "https://update.code.visualstudio.com/latest/linux-deb-x64/stable" \
+  -o "$HOME/vscode.deb"
+```
+
+Install it:
+
+```bash
+sudo apt-get install -y "$HOME/vscode.deb"
+```
+
+Remove the installer:
+
+```bash
+rm -f "$HOME/vscode.deb"
+```
+
+Check VS Code:
+
+```bash
+code --version
+```
+
+Install the Flutter extension:
+
+```bash
+code --install-extension Dart-Code.flutter
+```
+
+The Flutter extension also installs the Dart extension.
+
+---
+
+### Download the Latest Stable Flutter SDK
+
+Do not hard-code a Flutter version.
+
+Read the current stable Linux archive from Flutter's release metadata:
+
+```bash
+FLUTTER_URL="$(
+  curl -fsSL \
+    "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json" |
+  python3 -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+stable_hash = data["current_release"]["stable"]
+
+release = next(
+    item
+    for item in data["releases"]
+    if item["hash"] == stable_hash
+)
+
+print(data["base_url"] + "/" + release["archive"])
+'
+)"
+```
+
+Check the URL:
+
+```bash
+echo "$FLUTTER_URL"
+```
+
+Download it:
+
+```bash
+curl -fL "$FLUTTER_URL" -o "$HOME/flutter.tar.xz"
+```
+
+Create the development-tools directory:
+
+```bash
+mkdir -p "$HOME/develop"
+```
+
+Extract Flutter:
+
+```bash
+tar -xf "$HOME/flutter.tar.xz" -C "$HOME/develop"
+```
+
+Remove the archive:
+
+```bash
+rm -f "$HOME/flutter.tar.xz"
+```
+
+Flutter should now exist at:
+
+```text
+$HOME/develop/flutter
+```
+
+---
+
+### Add Flutter to PATH
+
+Add Flutter permanently to Bash without duplicating the line:
+
+```bash
+grep -qxF \
+  'export PATH="$HOME/develop/flutter/bin:$PATH"' \
+  "$HOME/.bashrc" ||
+echo 'export PATH="$HOME/develop/flutter/bin:$PATH"' >> "$HOME/.bashrc"
+```
+
+Reload the Bash configuration:
+
+```bash
+source "$HOME/.bashrc"
+```
+
+Check Flutter and Dart:
+
+```bash
+flutter --version
+dart --version
+```
+
+Dart comes with Flutter and does not need a separate installation.
+
+---
+
+### Disable Unused Flutter Targets
+
+This Debian environment is intended for **Veilmi Android development**.
+
+Flutter supports several target platforms. Because this computer runs Linux,
+Flutter may also try to treat Linux desktop as a runnable target. That can be
+confusing when Veilmi is only being developed for Android.
+
+Disable Linux desktop:
+
+```bash
+flutter config --no-enable-linux-desktop
+```
+
+Disable Flutter Web:
+
+```bash
+flutter config --no-enable-web
+```
+
+Reloading VS Code after changing Flutter configuration is a good idea if it is
+already open.
+
+These commands do **not** delete the `linux/` or `web/` folders from the
+repository. They only stop this Flutter installation from treating those
+platforms as normal runtime targets.
+
+#### Why I Do Not Install the Linux Desktop Toolchain
+
+If Flutter tries to build Veilmi as a Linux desktop application, it may ask for
+tools such as:
 
 ```text
 clang
@@ -134,447 +390,245 @@ pkg-config
 libgtk-3-dev
 ```
 
-Those belong to Flutter **Linux desktop** development.
-
-`flutter doctor` may therefore show something such as:
+These tools are for building a native **Linux desktop** Flutter application:
 
 ```text
-[✗] Linux toolchain - develop for Linux desktop
+clang
+→ C / C++ compiler used by native Linux builds
+
+cmake
+→ generates the native build configuration
+
+ninja-build
+→ executes the generated native build steps
+
+pkg-config
+→ helps the build system locate installed native libraries
+
+libgtk-3-dev
+→ development files for the GTK Linux desktop interface
 ```
 
-That is not a problem for Veilmi Android development.
+They are not required merely because the development computer itself runs
+Debian.
 
-Likewise:
+Veilmi's Android build uses the Android / Gradle toolchain instead.
+
+This distinction matters because, when no Android runtime target was connected,
+an earlier:
+
+```bash
+flutter run
+```
+
+attempted to launch the Linux desktop version and started asking for CMake and
+other Linux desktop dependencies.
+
+That did **not** mean Veilmi's Android environment was missing those tools.
+
+Disabling the unused targets makes the intention clearer:
 
 ```text
-Chrome / web           → not required
-Linux desktop          → not required
-Windows desktop        → not required
-macOS desktop          → not required
-iOS / Xcode            → only required when I work on the iOS release
-```
-
-For the current Veilmi Android workflow, the important parts are:
-
-```text
-Flutter               ✓
-Android toolchain     ✓
-Android device        ✓
-```
-
-> Note: Android Studio's **Android SDK Manager** may offer Android-specific tools such as CMake or NDK. Those are different from setting up Flutter Linux desktop development.
-
----
-
-# Example: Setting Up Veilmi on a New Debian Computer
-
-The following example assumes I have a new Debian-based computer with no Veilmi development environment yet.
-
-If something is already installed, I can skip that step.
-
----
-
-## 4. Install Basic Linux Tools
-
-Update the package list:
-
-```bash
-sudo apt update
-```
-
-Install Flutter's basic Linux prerequisites:
-
-```bash
-sudo apt install -y curl git unzip xz-utils zip libglu1-mesa
-```
-
-Check Git:
-
-```bash
-git --version
-```
-
-Do not assume Flutter can be installed with:
-
-```bash
-sudo apt install flutter
-```
-
-On a normal Debian installation, this may return:
-
-```text
-Unable to locate package flutter
-```
-
-That does not mean Veilmi is broken.
-
-Flutter is installed separately.
-
----
-
-## 5. Install VS Code
-
-VS Code is my main editor for Veilmi.
-
-### Debian method
-
-Go to the official VS Code download page and download the Debian/Ubuntu `.deb` package.
-
-After the file has downloaded, open a terminal in the folder containing it.
-
-For example:
-
-```bash
-cd ~/Downloads
-```
-
-Install the package:
-
-```bash
-sudo apt install ./code_*.deb
-```
-
-After installation, check:
-
-```bash
-code --version
-```
-
-Start VS Code with:
-
-```bash
-code
-```
-
-Later, from the Veilmi project folder, I can open the project directly with:
-
-```bash
-code .
-```
-
-The official VS Code `.deb` package can also configure Microsoft's package repository so VS Code can receive future updates through the package manager.
-
----
-
-## 6. Install the Flutter SDK
-
-I keep the Flutter SDK inside:
-
-```text
-~/develop/flutter
-```
-
-Create the development folder:
-
-```bash
-mkdir -p ~/develop
-```
-
-Install the stable Flutter SDK:
-
-```bash
-git clone https://github.com/flutter/flutter.git -b stable ~/develop/flutter
-```
-
-Add Flutter to the Bash PATH:
-
-```bash
-echo 'export PATH="$HOME/develop/flutter/bin:$PATH"' >> ~/.bashrc
-```
-
-Reload the shell:
-
-```bash
-source ~/.bashrc
-```
-
-Check Flutter:
-
-```bash
-flutter --version
-```
-
-Check Dart:
-
-```bash
-dart --version
-```
-
-Dart comes with Flutter, so I do not need a separate Dart installation.
-
-If `flutter` still says:
-
-```text
-command not found
-```
-
-close and reopen the terminal, then check again:
-
-```bash
-flutter --version
-```
-
----
-
-## 7. Install the Flutter Extension in VS Code
-
-Open VS Code.
-
-Go to:
-
-```text
-Extensions
-→ search for "Flutter"
-→ install Flutter
-```
-
-Installing the Flutter extension also installs the Dart extension.
-
-After that, restart VS Code.
-
-I can check the Flutter environment from VS Code with:
-
-```text
-View
-→ Command Palette
-→ Flutter: Run Flutter Doctor
-```
-
-or simply use the terminal:
-
-```bash
-flutter doctor -v
-```
-
----
-
-## 8. Install Android Studio
-
-Flutter alone is not enough to build Veilmi for Android.
-
-I also need the Android SDK and Android Platform Tools.
-
-Android Studio is the easiest place to install and manage them.
-
-### On Debian / normal Linux
-
-Go to the official Android Studio download page and download the current stable Linux `.tar.gz` package.
-
-The filename changes with each Android Studio release, so I should use the current file from the official site rather than copying an old version number from this guide.
-
-After downloading it:
-
-```bash
-cd ~/Downloads
-```
-
-Extract the archive.
-
-For example:
-
-```bash
-tar -xzf android-studio-*-linux.tar.gz
-```
-
-Move Android Studio to `/opt`:
-
-```bash
-sudo mv android-studio /opt/
-```
-
-Launch it:
-
-```bash
-/opt/android-studio/bin/studio
-```
-
-The first time Android Studio starts:
-
-```text
-Start Android Studio
+This Debian machine
         ↓
-Choose whether to import old settings
+develops Veilmi
         ↓
-Run the Setup Wizard
-        ↓
-Allow it to install Android SDK components
+for Android
 ```
 
-Android Studio includes its own Java runtime, so I should not install a random separate JDK just because Veilmi uses Android.
-
-After setup, `flutter doctor -v` will tell me which Java runtime Flutter is actually using and whether there is a real Java problem.
-
-### Optional launcher
-
-Inside Android Studio I can use:
-
-```text
-Tools
-→ Create Desktop Entry
-```
-
-to add Android Studio to the Linux applications menu.
+If I intentionally decide to support Veilmi as a Linux desktop or web
+application in the future, I can enable those targets again and install their
+separate development requirements at that time.
 
 ---
 
-## 9. Install the Android SDK and Tools
+### Install Google's Android CLI
 
-Installing Android Studio itself is not enough.
-
-I must also check the Android SDK.
-
-Open Android Studio.
-
-From the welcome screen:
-
-```text
-More Actions
-→ SDK Manager
-```
-
-If a project is already open:
-
-```text
-Tools
-→ SDK Manager
-```
-
-### SDK Platforms
-
-Open:
-
-```text
-SDK Platforms
-```
-
-Install the Android SDK platform required by the project.
-
-Veilmi currently targets Android API 36, so API 36 should be available.
-
-### SDK Tools
-
-Open:
-
-```text
-SDK Tools
-```
-
-Check that the Android development tools are installed.
-
-The important ones include:
-
-```text
-Android SDK Build-Tools
-Android SDK Command-line Tools
-Android SDK Platform-Tools
-Android Emulator
-```
-
-Current Flutter Android setup documentation may also recommend Android SDK components such as:
-
-```text
-CMake
-NDK (Side by side)
-```
-
-These are Android SDK components. They are not the same thing as installing the Linux desktop Flutter toolchain.
-
-Click:
-
-```text
-Apply
-→ OK
-```
-
-and let Android Studio install the selected components.
-
----
-
-## 10. Accept Android SDK Licences
-
-After the Android SDK is installed, return to the terminal and run:
+Create the APT keyring directory:
 
 ```bash
-flutter doctor --android-licenses
+sudo mkdir -p /etc/apt/keyrings
 ```
 
-Read and accept the required Android licences.
-
-Then run:
+Add Google's signing key:
 
 ```bash
-flutter doctor -v
+curl -fsSL \
+  "https://dl.google.com/linux/linux_signing_key.pub" |
+sudo tee /etc/apt/keyrings/google.asc >/dev/null
 ```
 
-The important result is:
+Add the Android CLI repository:
 
-```text
-[✓] Android toolchain
+```bash
+echo \
+  "deb [arch=amd64 signed-by=/etc/apt/keyrings/google.asc] http://dl.google.com/android/cli/latest/debian/ stable main" |
+sudo tee /etc/apt/sources.list.d/android-cli.list >/dev/null
 ```
 
-If `flutter doctor` still reports an Android problem, fix the item listed under **Android toolchain** before continuing.
+Update APT:
 
-I do not need to fix unrelated Linux desktop or Chrome/web warnings.
+```bash
+sudo apt-get update
+```
+
+Install Android CLI:
+
+```bash
+sudo apt-get install -y android-cli
+```
+
+Check it:
+
+```bash
+android -V
+```
+
+On first use, Android CLI may download and unpack its embedded installation and display its Terms of Service.
 
 ---
 
-## 11. Check the Android SDK and ADB
+### Create the Android SDK Directory
 
-On a normal Linux installation, Android Studio commonly places the SDK under:
+Create:
+
+```bash
+mkdir -p "$HOME/Android/Sdk"
+```
+
+Tell Android CLI to use it:
+
+```bash
+printf '%s\n' \
+  "--sdk=$HOME/Android/Sdk" \
+  > "$HOME/.androidrc"
+```
+
+Check the result:
+
+```bash
+android info sdk
+```
+
+It should point to:
 
 ```text
 $HOME/Android/Sdk
 ```
 
-Check what Flutter detected:
+---
+
+### Install the Version-Free Android Base Tools
+
+Install the Android components whose package names are intentionally stable:
 
 ```bash
-flutter doctor -v
+android sdk install \
+  cmdline-tools/latest \
+  platform-tools
 ```
 
-The output should show the Android SDK path.
+Do **not** copy an old Android platform, Build Tools, or NDK version number from another machine.
 
-Platform Tools contain `adb`.
+The current Flutter / Gradle build can request the versions it actually needs.
 
-If this works:
+---
+
+### Add Android Tools to PATH
+
+Add the SDK location:
+
+```bash
+grep -qxF \
+  'export ANDROID_HOME="$HOME/Android/Sdk"' \
+  "$HOME/.bashrc" ||
+echo 'export ANDROID_HOME="$HOME/Android/Sdk"' >> "$HOME/.bashrc"
+```
+
+Add Platform Tools:
+
+```bash
+grep -qxF \
+  'export PATH="$ANDROID_HOME/platform-tools:$PATH"' \
+  "$HOME/.bashrc" ||
+echo 'export PATH="$ANDROID_HOME/platform-tools:$PATH"' >> "$HOME/.bashrc"
+```
+
+Reload the Bash configuration:
+
+```bash
+source "$HOME/.bashrc"
+```
+
+Check ADB:
 
 ```bash
 adb version
 ```
 
-then ADB is already on the PATH.
+---
 
-If `adb` is not found, I can still check it directly with:
+### Quick Environment Check
+
+Run this before restoring and building Veilmi:
 
 ```bash
-$HOME/Android/Sdk/platform-tools/adb version
+git --version
+code --version
+java -version
+javac -version
+flutter --version
+dart --version
+android -V
+adb version
+flutter doctor -v
 ```
 
-and later decide whether I want to add Platform Tools to the PATH.
+At this stage, `flutter doctor -v` is a diagnostic check.
+
+The Android toolchain might not yet be completely green if a project-specific Android platform, Build Tools package, or NDK has not been installed. The first Veilmi Android build can request those components.
+
+A physical Android device is not required here.
+
+#### Android Licences
+
+With newer Android CLI versions:
+
+```bash
+flutter doctor --android-licenses
+```
+
+may report:
+
+```text
+The --licenses option is no longer needed.
+```
+
+If `flutter doctor -v` already reports that the Android licences are accepted, do nothing.
+
+Only use the licence command when the installed tooling says licence acceptance is still required.
 
 ---
 
-# Restore the Veilmi Project
+## Restore the Veilmi Project
 
-## 12. Clone Veilmi
+### Clone Veilmi
 
-After Git, VS Code, Flutter, and the Android development tools are ready:
+If Veilmi has not already been cloned:
 
 ```bash
-cd ~
+cd "$HOME"
 git clone https://github.com/noa-jou/Veilmi.git
-cd Veilmi
+cd "$HOME/Veilmi"
 ```
 
-If I already cloned Veilmi **before** installing Flutter, I do not need to clone it again.
-
-I can simply return to:
+If the repository was cloned earlier, do not clone it again:
 
 ```bash
-cd ~/Veilmi
+cd "$HOME/Veilmi"
 ```
 
-The Git repository restores important project files such as:
+A fresh clone restores files such as:
 
 ```text
 lib/
@@ -584,83 +638,67 @@ ios/
 assets/
 docs/
 pubspec.yaml
-pubspec.lock
+analysis_options.yaml
 ```
 
-Some machine-specific files will be missing. That is normal.
+#### `pubspec.lock`
+
+In the current Veilmi repository, `pubspec.lock` is not restored from GitHub.
+
+It is created locally when dependencies are resolved.
 
 ---
 
-## 13. Restore Flutter Packages
+### Restore Flutter Packages
 
-From the Veilmi project root:
+From the project root:
 
 ```bash
+cd "$HOME/Veilmi"
 flutter pub get
 ```
 
-Flutter reads:
-
-```text
-pubspec.yaml
-pubspec.lock
-```
-
-and restores the packages needed by Veilmi.
-
-It also recreates local Flutter files such as:
+This creates / restores local dependency metadata such as:
 
 ```text
 .dart_tool/
+.flutter-plugins-dependencies
+pubspec.lock
 ```
 
-I do not need to copy `.dart_tool/` from the old computer.
+There is no need to copy `.dart_tool/` from the old computer.
+
+If Flutter reports that newer package versions exist but are incompatible with the current dependency constraints, that does not mean `flutter pub get` failed.
+
+Do not automatically perform a major dependency upgrade merely because newer versions exist.
 
 ---
 
-## 14. Open Veilmi in VS Code
-
-From:
+### Open Veilmi in VS Code
 
 ```bash
-cd ~/Veilmi
-```
-
-run:
-
-```bash
+cd "$HOME/Veilmi"
 code .
 ```
 
-VS Code should open the project root.
-
-The project root is the folder containing:
+VS Code should recognize the project because the project root contains:
 
 ```text
 pubspec.yaml
 ```
 
-This matters because the Flutter extension recognizes the project from that file.
-
----
-
-## 15. Local IDE Files May Be Recreated
-
-Some IDE files are local machine metadata, for example:
+Some local IDE metadata may be recreated on the new computer:
 
 ```text
 .idea/
-veilmi.iml
-android/veilmi_android.iml
+*.iml
 ```
 
-Android Studio or IntelliJ may recreate them.
-
-They do not need to be copied manually from the old computer.
+These do not need to be copied manually from the old computer.
 
 ---
 
-## 16. Check Veilmi Before Editing Anything
+### Verify Veilmi Before Any Android Build
 
 Run:
 
@@ -674,38 +712,168 @@ Then:
 flutter test
 ```
 
-If both succeed, the cloned project and its dependencies are working.
+Both should succeed before I begin relying on Android build results.
+
+If I later change source code before a Release build, repeat these checks.
 
 ---
 
-# Run Veilmi on a Real Android Phone
+## Build Veilmi for Android
 
-## 17. Enable Android Developer Options
+### First Debug APK Build — Let Gradle Request the Required Android Components
 
-On the Android test phone:
+Run:
 
-```text
-Settings
-→ About phone
-→ tap Build number / OS version repeatedly
-→ Developer options enabled
+```bash
+cd "$HOME/Veilmi"
+flutter build apk --debug
 ```
 
-The exact wording depends on the phone manufacturer.
+Modern Android Gradle tooling can automatically download missing SDK components required by the project when the relevant licences are already accepted.
 
-Then enable:
+The important rule is:
+
+> **Automatic installation means the version required by the current project / Flutter / Android Gradle Plugin — not simply the newest package in the Android repository.**
+
+For Veilmi, the Android Gradle configuration uses Flutter-provided values such as the current Flutter compile SDK / NDK requirements, so a first build may download exactly the component version requested by that toolchain.
+
+If the build succeeds, no manual package installation is needed.
+
+A successful Debug APK normally appears at:
 
 ```text
-USB debugging
+build/app/outputs/flutter-apk/app-debug.apk
 ```
 
 ---
 
-## 18. Connect the Phone
+### If Automatic Android Component Installation Fails
 
-Connect the phone with a USB cable that supports data.
+Only use this section when the Debug build reports that a required Android component could not be installed or could not be found.
 
-When the phone asks whether to allow USB debugging from this computer, allow it.
+First inspect the packages that the current repository actually exposes.
+
+Android platforms:
+
+```bash
+android sdk list --all "platforms*"
+```
+
+Build Tools:
+
+```bash
+android sdk list --all "build-tools*"
+```
+
+NDK:
+
+```bash
+android sdk list --all "ndk*"
+```
+
+Package names can include patch suffixes.
+
+Do not assume that an API family has one unsuffixed package name.
+
+#### Install the Exact Platform / Build Tools Package
+
+Copy the exact package path shown by the build error or current Android package list:
+
+```bash
+REQUIRED_PLATFORM='<copy-exact-platform-package-path>'
+REQUIRED_BUILD_TOOLS='<copy-exact-build-tools-package-path>'
+```
+
+Install them:
+
+```bash
+android sdk install \
+  "$REQUIRED_PLATFORM" \
+  "$REQUIRED_BUILD_TOOLS"
+```
+
+#### Install the Exact NDK Required by the Build
+
+If the build reports an exact NDK version:
+
+```bash
+REQUIRED_NDK='<copy-exact-ndk-version-reported-by-the-build>'
+```
+
+Confirm that it exists:
+
+```bash
+android sdk list --all "ndk*" | grep "$REQUIRED_NDK"
+```
+
+Install it:
+
+```bash
+android sdk install "ndk/$REQUIRED_NDK"
+```
+
+Retry the build:
+
+```bash
+cd "$HOME/Veilmi"
+flutter build apk --debug
+```
+
+Do not automatically install the numerically newest Android platform or NDK merely because it exists.
+
+---
+
+### Warnings Seen During a Successful Debug Build
+
+Read this section immediately after the first Debug APK build.
+
+A build can succeed even when Flutter / Gradle prints warnings.
+
+Do not automatically change the Veilmi project merely because a warning appears.
+
+#### `sdkmanager` Deprecation Warning
+
+Flutter may explain that the old SDK Manager CLI is deprecated and the newer Android CLI will be used instead.
+
+This is not a build failure.
+
+#### `cryptography_flutter` Kotlin Gradle Plugin Warning
+
+A tested Debug APK build printed a future compatibility warning for:
+
+```text
+cryptography_flutter
+```
+
+The APK still built successfully.
+
+Treat this as an upstream dependency warning to review when updating Flutter or the plugin.
+
+Do not rewrite the Gradle project solely because the current build prints this warning.
+
+#### SDK XML Version Warning
+
+A tested build also printed an SDK XML compatibility warning.
+
+The APK still built successfully.
+
+If the build ends with:
+
+```text
+✓ Built ...
+```
+
+the build itself succeeded. Investigate the warning separately.
+
+---
+
+## Run Veilmi on an Android Device
+
+### Detect the Device
+
+Running is separate from building.
+
+Enable USB debugging on the Android phone and connect it.
 
 Check ADB:
 
@@ -713,174 +881,156 @@ Check ADB:
 adb devices
 ```
 
-If `adb` is not on the PATH:
-
-```bash
-$HOME/Android/Sdk/platform-tools/adb devices
-```
-
-A working connection should show a device rather than an empty list.
-
-Then check Flutter:
+Then let Flutter list its runtime targets:
 
 ```bash
 flutter devices
 ```
 
-The Android phone should appear.
+Flutter prints a device ID for every detected target.
 
----
+Example shape:
 
-## 19. If ADB Cannot See the Phone
+```text
+Android Phone • DEVICE_ID • android-arm64 • Android ...
+```
+
+### Run on That Exact Device
+
+Use the ID shown by `flutter devices`:
+
+```bash
+flutter run -d DEVICE_ID
+```
+
+For example:
+
+```text
+My Android Phone • ABC123XYZ • android-arm64 • Android ...
+```
+
+means:
+
+```bash
+flutter run -d ABC123XYZ
+```
+
+This avoids accidentally selecting the wrong target.
+
+### If the Device Is Unauthorized
 
 Restart ADB:
 
 ```bash
-$HOME/Android/Sdk/platform-tools/adb kill-server
-$HOME/Android/Sdk/platform-tools/adb start-server
-$HOME/Android/Sdk/platform-tools/adb devices
+adb kill-server
+adb start-server
+adb devices
 ```
 
-Also check:
+Unlock the phone and accept the USB debugging authorization prompt.
+
+Then check again:
+
+```bash
+flutter devices
+```
+
+On ChromeOS, the USB device may also need to be shared with the Linux environment.
+
+### If no Android target is connected, a Debug APK can still be built with:
+
+```bash
+flutter build apk --debug
+```
+
+---
+
+## Restore Release Signing and Build a Google Play AAB
+
+This section is for creating a signed Google Play Release build on the new computer.
+
+Normal Debug development should work without:
 
 ```text
-USB debugging is enabled
-the phone is unlocked
-the USB cable supports data
-the phone accepted the computer's debugging key
-the USB connection is not charge-only
+$HOME/veilmi-upload-keystore.jks
+android/key.properties
 ```
 
-On Linux, `lsusb` can also help confirm whether the computer can see the USB device at all:
+### Keep Veilmi's Release Signing Configuration
 
-```bash
-lsusb
-```
-
----
-
-## 20. Continue Development in Debug Mode
-
-Run:
-
-```bash
-flutter run
-```
-
-`flutter run` uses Debug mode by default.
-
-I can also use:
-
-```bash
-flutter run --debug
-```
-
-There is no need to convert Veilmi from Release mode back into Debug mode.
-
-Running:
-
-```bash
-flutter build appbundle --release
-```
-
-only creates a Release build.
-
-It does not permanently change the project into Release mode.
-
----
-
-## 21. Important: Do Not Change Release Signing Back to Debug
-
-Veilmi's Android release signing configuration is stored in:
+The Android Release signing configuration is stored in:
 
 ```text
 android/app/build.gradle.kts
 ```
 
-During the original release preparation, the release build was changed from debug signing to a real release signing configuration.
-
-I should **not** change it back to:
+Do **not** change Release signing back to:
 
 ```kotlin
 signingConfig = signingConfigs.getByName("debug")
 ```
 
-just because I am developing in Debug mode.
-
-These are separate:
+Debug and Release builds are separate:
 
 ```text
-flutter run
-        ↓
-Debug development
-```
+flutter build apk --debug
+→ Debug signing / development
 
-and:
-
-```text
 flutter build appbundle --release
-        ↓
-Release build using Veilmi's release signing configuration
+→ Veilmi Release signing
 ```
 
-When moving Veilmi to another computer, keep `android/app/build.gradle.kts` as stored in Git.
+The current project configuration should allow Debug builds without the private signing files and use the private signing configuration only for Release builds.
 
----
+### Restore the Upload Keystore
 
-# When I Am Ready to Release a New Version
+The Veilmi upload keystore is private and is not stored in GitHub.
 
-The next sections are only needed when I want to create another signed Android App Bundle for Google Play.
-
-Normal Debug development does not require the upload keystore.
-
----
-
-## 22. Restore the Android Upload Keystore
-
-The Veilmi Android upload keystore is private and is not stored in GitHub.
-
-I keep it outside the project directory at:
-
-```text
-$HOME/veilmi-upload-keystore.jks
-```
-
-On the new computer, restore it from my secure private backup.
-
-The layout should look like:
-
-```text
-Home directory
-├── veilmi-upload-keystore.jks
-│
-└── Veilmi/
-    ├── android/
-    ├── lib/
-    ├── test/
-    └── ...
-```
-
-Check the home directory with:
+Restore it from the secure private backup:
 
 ```bash
-echo "$HOME"
+cp \
+  "/path/to/private-backup/veilmi-upload-keystore.jks" \
+  "$HOME/veilmi-upload-keystore.jks"
 ```
 
-The keystore must never be committed to the public Git repository.
+Restrict permissions:
 
----
+```bash
+chmod 600 "$HOME/veilmi-upload-keystore.jks"
+```
 
-## 23. Restore `android/key.properties`
+Check the file:
 
-This file is private and is not stored in GitHub:
+```bash
+ls -l "$HOME/veilmi-upload-keystore.jks"
+```
+
+Optionally verify the expected alias:
+
+```bash
+keytool -list \
+  -keystore "$HOME/veilmi-upload-keystore.jks" \
+  -alias upload
+```
+
+`keytool` will ask for the keystore password.
+
+### Restore `android/key.properties`
+
+Move to Veilmi:
+
+```bash
+cd "$HOME/Veilmi"
+```
+
+Create or restore:
 
 ```text
 android/key.properties
 ```
 
-Before creating a Release build, recreate or restore it.
-
-Its structure is similar to:
+Its structure is:
 
 ```properties
 storePassword=PRIVATE_PASSWORD
@@ -889,176 +1039,159 @@ keyAlias=upload
 storeFile=/absolute/path/to/veilmi-upload-keystore.jks
 ```
 
-The real passwords must remain private.
+Open it in VS Code:
 
-`storeFile` must point to the upload keystore on the new computer.
-
----
-
-## 24. Update the Version
-
-Before releasing a new version, update:
-
-```text
-pubspec.yaml
+```bash
+code android/key.properties
 ```
 
-For example:
+Use the real private passwords.
+
+For `storeFile`, use the real absolute path on the new computer.
+
+Check it with:
+
+```bash
+echo "$HOME/veilmi-upload-keystore.jks"
+```
+
+The value in `storeFile` should point to that file.
+
+This is how the repository's Gradle configuration finds the restored upload keystore:
+
+```text
+android/app/build.gradle.kts
+        ↓
+reads android/key.properties
+        ↓
+key.properties contains storeFile
+        ↓
+storeFile points to veilmi-upload-keystore.jks
+```
+
+Restrict permissions:
+
+```bash
+chmod 600 android/key.properties
+```
+
+Confirm that Git ignores it:
+
+```bash
+git check-ignore -v android/key.properties
+```
+
+Also check:
+
+```bash
+git status --short
+```
+
+The private signing file must never be committed.
+
+### Check the App Version
+
+Show the current version:
+
+```bash
+grep '^version:' pubspec.yaml
+```
+
+Edit if necessary:
+
+```bash
+code pubspec.yaml
+```
+
+The format is:
 
 ```yaml
-version: 1.0.1+2
+version: <version-name>+<build-number>
 ```
 
-Here:
+For a new Google Play upload, the build number must be higher than the previous uploaded build number.
 
-```text
-1.0.1
-```
+### Re-run Verification If Anything Changed
 
-is the application version.
-
-```text
-2
-```
-
-is the build number.
-
-The build number must be higher than the one used by the previous Google Play upload.
-
----
-
-## 25. Build the New Release
-
-Before building:
+If source code or release configuration changed after the earlier verification step:
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-Then:
+### Build the Signed AAB
 
 ```bash
 flutter build appbundle --release
 ```
 
-The AAB should normally appear at:
+A successful AAB should normally appear at:
 
 ```text
 build/app/outputs/bundle/release/app-release.aab
 ```
 
----
-
-# Quick Checklist
-
-## Completely New Debian Computer
-
-```text
-1. Install basic packages
-2. Install VS Code
-3. Install Flutter
-4. Add Flutter to PATH
-5. Install VS Code Flutter extension
-6. Install Android Studio
-7. Install Android SDK + Platform Tools
-8. Accept Android licences
-9. Run flutter doctor -v
-10. Clone Veilmi
-11. flutter pub get
-12. flutter analyze
-13. flutter test
-14. Connect Android phone
-15. flutter devices
-16. flutter run
-```
-
-## Veilmi Was Already Cloned Too Early
-
-If I did this first:
+Check it:
 
 ```bash
-git clone https://github.com/noa-jou/Veilmi.git
-```
-
-and later discovered:
-
-```text
-flutter: command not found
-```
-
-I do not need to clone Veilmi again.
-
-I only need to install the missing development environment, then return to:
-
-```bash
-cd ~/Veilmi
-flutter pub get
-flutter analyze
-flutter test
-flutter run
-```
-
-## Ready for a New Google Play Release
-
-```text
-Restore upload keystore
-        ↓
-Restore android/key.properties
-        ↓
-Update pubspec.yaml version
-        ↓
-flutter analyze
-        ↓
-flutter test
-        ↓
-flutter build appbundle --release
-        ↓
-New signed AAB
+ls -lh build/app/outputs/bundle/release/app-release.aab
 ```
 
 ---
 
-# What Is Restored From Where?
+## What Is Restored From Where?
 
 ```text
 GitHub
 → Veilmi source code
 → project configuration
-→ pubspec.yaml
-→ pubspec.lock
 → Android/iOS project files
+→ assets
 → documentation
+→ pubspec.yaml
 ```
 
 ```text
 flutter pub get
 → Flutter/Dart packages
-→ local package metadata such as .dart_tool/
+→ .dart_tool/
+→ .flutter-plugins-dependencies
+→ local pubspec.lock for the current Veilmi repository
 ```
 
 ```text
-VS Code / Android Studio
-→ local editor and IDE metadata
+VS Code
+→ editor environment
+→ Flutter extension
+→ Dart extension
+```
+
+```text
+Android CLI
+→ Android SDK components
+→ Platform Tools / ADB
+→ project-required platform / Build Tools / NDK packages
 ```
 
 ```text
 Private backup
 → veilmi-upload-keystore.jks
-→ signing passwords
 → android/key.properties
+→ signing passwords
 ```
 
-The Android upload keystore is the most important private release file that I must keep in a separate secure backup.
+The upload keystore and signing information must remain outside the public repository.
 
 ---
 
-# Official Setup References
+## Official References
 
-Because Flutter, Android Studio, and VS Code change over time, use the official installation pages when an old screenshot or menu name no longer matches:
+Because Flutter, Android tooling, and VS Code evolve, use current official documentation when command behaviour changes:
 
 - Flutter installation: https://docs.flutter.dev/install
 - Flutter Android setup: https://docs.flutter.dev/platform-integration/android/setup
 - Flutter in VS Code: https://docs.flutter.dev/tools/vs-code
 - VS Code on Linux: https://code.visualstudio.com/docs/setup/linux
-- Android Studio installation: https://developer.android.com/studio/install
+- Android command-line tools: https://developer.android.com/tools
+- Android SDK packages: https://developer.android.com/tools
