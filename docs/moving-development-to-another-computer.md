@@ -444,49 +444,35 @@ separate development requirements at that time.
 
 ### Install Google's Android CLI
 
-Create the APT keyring directory:
+For this Debian x86_64 setup, install Android CLI directly with Google's
+official user-local installer.
 
-```bash
-sudo mkdir -p /etc/apt/keyrings
-```
-
-Add Google's signing key:
+This avoids configuring an APT repository, signing key, and keyring manually.
 
 ```bash
 curl -fsSL \
-  "https://dl.google.com/linux/linux_signing_key.pub" |
-sudo tee /etc/apt/keyrings/google.asc >/dev/null
+  "https://dl.google.com/android/cli/latest/linux_x86_64/install.sh" | bash
 ```
 
-Add the Android CLI repository:
+Reload the Bash environment:
 
 ```bash
-echo \
-  "deb [arch=amd64 signed-by=/etc/apt/keyrings/google.asc] http://dl.google.com/android/cli/latest/debian/ stable main" |
-sudo tee /etc/apt/sources.list.d/android-cli.list >/dev/null
+source "$HOME/.bashrc"
 ```
-
-Update APT:
-
-```bash
-sudo apt-get update
-```
-
-Install Android CLI:
-
-```bash
-sudo apt-get install -y android-cli
-```
-
-Check it:
+Check the installation:
 
 ```bash
 android -V
 ```
 
-On first use, Android CLI may download and unpack its embedded installation and display its Terms of Service.
+The installer uses the current Android CLI release, so no version number needs
+to be hard-coded in this guide.
 
----
+On first use, Android CLI may download and unpack additional runtime files and
+display its Terms of Service.
+
+If android -V works, continue to the Android SDK setup.
+
 
 ### Create the Android SDK Directory
 
@@ -639,7 +625,7 @@ Only use the licence command when the installed tooling says licence acceptance 
 
 ---
 
-## Restore the Veilmi Project
+## 3. Restore the Veilmi Project
 
 ### Clone Veilmi
 
@@ -741,7 +727,7 @@ If I later change source code before a Release build, repeat these checks.
 
 ---
 
-## Build Veilmi for Android
+## 4. Build Veilmi for Android
 
 ### First Debug APK Build — Let Gradle Request the Required Android Components
 
@@ -894,7 +880,7 @@ A warning does not automatically require action. If the app builds and behaves n
 
 ---
 
-## 3. Run Veilmi on an Android Device
+## 5. Run Veilmi on an Android Device
 
 ### Detect the Device
 
@@ -969,7 +955,7 @@ On ChromeOS, the USB device may also need to be shared with the Linux environmen
 
 ---
 
-## Restore Release Signing and Build a Google Play AAB
+## 6. Restore Release Signing and Build a Google Play AAB
 
 Please check [android-release-signing.md](android-release-signing.md) for more detail if need.
 
@@ -1186,7 +1172,7 @@ ls -lh build/app/outputs/bundle/release/app-release.aab
 
 ---
 
-## What Is Restored From Where?
+## 7. What Is Restored From Where?
 
 ```text
 GitHub
@@ -1231,7 +1217,7 @@ The upload keystore and signing information must remain outside the public repos
 
 ---
 
-## Official References
+## 8. Official References
 
 Because Flutter, Android tooling, and VS Code evolve, use current official documentation when command behaviour changes:
 

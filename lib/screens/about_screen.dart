@@ -46,7 +46,13 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final textTheme = Theme.of(context).textTheme;
+    final pageBackgroundColor = Colors.amber.shade100;
+    const pageForegroundColor = Colors.black87;
+
+    final textTheme = Theme.of(context).textTheme.apply(
+      bodyColor: pageForegroundColor,
+      displayColor: pageForegroundColor,
+    );
 
     // This screen is like an information page for the app.
     // It tells the user where to find:
@@ -55,7 +61,12 @@ class AboutScreen extends StatelessWidget {
     // - the privacy policy
     // - support options
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.aboutVeilmi)),
+      backgroundColor: pageBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: pageBackgroundColor,
+        foregroundColor: pageForegroundColor,
+        title: Text(l10n.aboutVeilmi),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -96,7 +107,11 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.docsDescription),
           const SizedBox(height: 20),
 
-          OutlinedButton.icon(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.amber.shade600,
+              foregroundColor: Colors.white
+            ),
             onPressed: () => _openUrl(context, _githubUrl),
             icon: const Icon(Icons.code),
             label: Text(l10n.viewOnGitHub),
@@ -104,7 +119,12 @@ class AboutScreen extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          OutlinedButton.icon(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.amber.shade600,
+              foregroundColor: Colors.white,
+
+            ),
             onPressed: () => _openUrl(context, _docsUrl),
             icon: const Icon(Icons.menu_book_outlined),
             label: Text(l10n.readDocumentation),
@@ -121,7 +141,11 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.privacyDescription),
           const SizedBox(height: 20),
 
-          OutlinedButton.icon(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.amber.shade600,
+              foregroundColor: Colors.white
+            ),
             onPressed: () => _openUrl(context, _privacyPolicyUrl),
             icon: const Icon(Icons.privacy_tip_outlined),
             label: Text(l10n.privacyPolicy),
@@ -138,7 +162,12 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.supportDescription),
           const SizedBox(height: 20),
 
-          FilledButton.icon(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.amber.shade600,
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.white),
+            ),
             onPressed: () => _openUrl(context, _supportUrl),
             icon: const Icon(Icons.favorite_outline),
             label: Text(l10n.supportVeilmi),

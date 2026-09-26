@@ -111,7 +111,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // This row opens the device benchmark screen.
           ListTile(
-            contentPadding: EdgeInsets.zero,
+            tileColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+            textColor: Colors.black87,
+            iconColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
             leading: const Icon(Icons.security_outlined),
             title: Text(l10n.protectionDeviceCheck),
             subtitle: Text(l10n.protectionDeviceCheckDescription),
@@ -131,7 +142,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // This row opens the About screen.
           ListTile(
-            contentPadding: EdgeInsets.zero,
+            tileColor: Colors.amber.shade100,
+            textColor: Colors.black87,
+            iconColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.aboutVeilmi),
             trailing: const Icon(Icons.chevron_right),
