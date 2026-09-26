@@ -607,7 +607,6 @@ It is also normal to see:
 when no Android device is connected.
 
 Do not install Android Studio just because `flutter doctor` suggests it. This setup intentionally uses the Android CLI instead.
-```
 
 It is good enough when:
 
@@ -671,12 +670,6 @@ pubspec.yaml
 analysis_options.yaml
 ```
 
-#### `pubspec.lock`
-
-In the current Veilmi repository, `pubspec.lock` is not restored from GitHub.
-
-It is created locally when dependencies are resolved.
-
 ---
 
 ### Restore Flutter Packages
@@ -696,7 +689,7 @@ This creates / restores local dependency metadata such as:
 pubspec.lock
 ```
 
-There is no need to copy `.dart_tool/` from the old computer.
+There is no need to copy `.dart_tool/` or `pubspec.lock` from the old computer.
 
 If Flutter reports that newer package versions exist but are incompatible with the current dependency constraints, that does not mean `flutter pub get` failed.
 
