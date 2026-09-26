@@ -584,11 +584,41 @@ adb version
 flutter doctor -v
 ```
 
-At this stage, `flutter doctor -v` is a diagnostic check.
+At this stage, `flutter doctor -v` is mainly a diagnostic check.
 
-The Android toolchain might not yet be completely green if a project-specific Android platform, Build Tools package, or NDK has not been installed. The first Veilmi Android build can request those components.
+It is normal for the Android section to show warnings such as:
 
-A physical Android device is not required here.
+```text
+[!] Android toolchain - develop for Android devices
+✗ No valid Android SDK platforms found
+```
+
+if only the base Android CLI and Platform Tools have been installed so far.
+
+That does not mean this setup is unusable. The first Android build can request and install the SDK platform, Build Tools, and NDK versions required by the current Veilmi / Flutter toolchain.
+
+It is also normal to see:
+
+```text
+[!] Connected device
+! No devices available
+```
+
+when no Android device is connected.
+
+Do not install Android Studio just because `flutter doctor` suggests it. This setup intentionally uses the Android CLI instead.
+```
+
+It is good enough when:
+
+```text
+Flutter ✓
+Android SDK path detected ✓
+ANDROID_HOME detected ✓
+No Android platform installed yet ⚠
+No device connected ⚠
+```
+
 
 #### Android Licences
 
@@ -728,8 +758,7 @@ Run:
 cd "$HOME/Veilmi"
 flutter build apk --debug
 ```
-
-Modern Android Gradle tooling can automatically download missing SDK components required by the project when the relevant licences are already accepted.
+It would take a few minutes because, modern Android Gradle tooling can automatically download missing SDK components required by the project when the relevant licences are already accepted.
 
 The important rule is:
 
@@ -747,7 +776,7 @@ build/app/outputs/flutter-apk/app-debug.apk
 
 ---
 
-### If Automatic Android Component Installation Fails
+#### If Automatic Android Component Installation Fails
 
 Only use this section when the Debug build reports that a required Android component could not be installed or could not be found.
 
@@ -775,7 +804,7 @@ Package names can include patch suffixes.
 
 Do not assume that an API family has one unsuffixed package name.
 
-#### Install the Exact Platform / Build Tools Package
+##### Install the Exact Platform / Build Tools Package
 
 Copy the exact package path shown by the build error or current Android package list:
 
@@ -792,7 +821,7 @@ android sdk install \
   "$REQUIRED_BUILD_TOOLS"
 ```
 
-#### Install the Exact NDK Required by the Build
+##### Install the Exact NDK Required by the Build
 
 If the build reports an exact NDK version:
 
@@ -862,14 +891,21 @@ If the build ends with:
 ```text
 ✓ Built ...
 ```
+The build itself succeeded, check the result by:
 
-the build itself succeeded. Investigate the warning separately.
+```
+ls build/app/outputs/flutter-apk/app-debug.apk
+```
+
+A warning does not automatically require action. If the app builds and behaves normally, it can usually be left alone unless it later causes a real compatibility or build problem.
 
 ---
 
-## Run Veilmi on an Android Device
+## 3. Run Veilmi on an Android Device
 
 ### Detect the Device
+
+For detail, please go to: [android-device-testing.md](android-device-testing.md)
 
 Running is separate from building.
 
@@ -937,15 +973,12 @@ flutter devices
 
 On ChromeOS, the USB device may also need to be shared with the Linux environment.
 
-### If no Android target is connected, a Debug APK can still be built with:
-
-```bash
-flutter build apk --debug
-```
 
 ---
 
 ## Restore Release Signing and Build a Google Play AAB
+
+Please check [android-release-signing.md](android-release-signing.md) for more detail if need.
 
 This section is for creating a signed Google Play Release build on the new computer.
 
@@ -1080,12 +1113,17 @@ Confirm that Git ignores it:
 ```bash
 git check-ignore -v android/key.properties
 ```
+A result like this would be expected:
+```
+.gitignore:12:android/key.properties	android/key.properties
+```
 
 Also check:
 
 ```bash
 git status --short
 ```
+It should show nothing changed because of the key.properties file added.
 
 The private signing file must never be committed.
 
@@ -1109,7 +1147,7 @@ The format is:
 version: <version-name>+<build-number>
 ```
 
-For a new Google Play upload, the build number must be higher than the previous uploaded build number.
+For a new Google Play upload, the build number must be higher (+1) than the previous uploaded build number.
 
 ### Re-run Verification If Anything Changed
 
@@ -1126,11 +1164,26 @@ flutter test
 flutter build appbundle --release
 ```
 
-A successful AAB should normally appear at:
+A Release build may take several minutes, especially on the first build:
 
 ```text
-build/app/outputs/bundle/release/app-release.aab
+Running Gradle task 'bundleRelease'...
 ```
+
+
+Warnings such as the existing `cryptography_flutter` Kotlin Gradle Plugin
+warning may also appear during a Release build.
+
+They do not necessarily mean the build failed.
+
+A successful Release build ends with output similar to:
+
+```text
+✓ Built build/app/outputs/bundle/release/app-release.aab
+```
+
+Flutter may also report that font assets were tree-shaken. This is normal build
+optimization information and does not require action.
 
 Check it:
 
