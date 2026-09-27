@@ -650,7 +650,9 @@ It is also normal to see:
 ! No devices available
 ```
 
-when no Android device is connected.
+when no Android device is connected. 
+
+But if it is already connected, you should able to see it is green.
 
 Do not install Android Studio just because `flutter doctor` suggests it. This setup intentionally uses the Android CLI instead.
 
@@ -945,22 +947,56 @@ A warning does not automatically require action. If the app builds and behaves n
 After the Debug APK has built successfully, physical-device setup and
 troubleshooting are a separate step.
 
-See:
-
-[Android Physical Device Testing](android-device-testing.md)
-
 The important distinction is:
 
 ```text
+1.
 flutter build apk --debug
 → verifies that Veilmi can build locally
 
+2.
 adb devices
 → verifies that Linux can communicate with the phone
 
+3.
 flutter devices
 → verifies that Flutter can use the phone as a runtime target
 ```
+
+If 1 is successed, and the following show the same phone is already connected.
+
+```bash
+adb devices
+```
+result:
+
+List of devices attached\
+ DEVICE_ID        device
+
+```bash
+flutter devices
+```
+result:
+
+Found 1 connected device:\
+  XXXXX (mobile) •  DEVICE_ID • android-arm64 • Android 11 (API 30)
+
+Then, you are ready to :
+```bash
+flutter run -d DEVICE_ID
+```
+
+if not, try to check your phone again and:
+```bash
+adb kill-server
+adb start-server
+adb devices
+```
+
+For more detail, see:
+
+[Android Physical Device Testing](android-device-testing.md)
+
 
 A successful APK build does not automatically mean that Linux USB permissions
 for a physical phone are configured.
