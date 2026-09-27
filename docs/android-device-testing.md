@@ -1,79 +1,249 @@
-
 # Android Physical Device Testing
 
-This guide explains how to prepare a physical Android phone for Veilmi
-development, enable Developer options and USB debugging, connect the phone to
-the development environment, and troubleshoot common ADB connection problems.
+This guide explains how to run and test Veilmi on a physical Android phone
+after the local Android build environment is already working.
 
-The examples in this guide assume Veilmi is being developed with Flutter on a
-Linux environment.
+The expected starting point is:
 
----
+```bash
+flutter build apk --debug
+```
 
-## 1. Why Developer Mode Is Required
+finishing successfully.
 
-Android phones normally do not allow development tools to directly install and
-debug applications.
-
-To run Veilmi from Flutter on a physical phone, the development computer needs
-to communicate with the device through Android Debug Bridge (ADB).
-
-The connection works roughly like this:
+For example:
 
 ```text
-Flutter
-   ↓
-Android SDK
-   ↓
-ADB (Android Debug Bridge)
-   ↓
-USB connection
-   ↓
-Android phone
-````
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+```
 
-Before ADB can communicate with the phone, Android Developer options and USB
-debugging must be enabled.
+A successful Debug APK build means the local Flutter / Dart / Java / Gradle /
+Android SDK build environment is working.
+
+Physical-device testing is a separate layer:
+
+```text
+Veilmi builds locally
+        ↓
+Linux USB permissions
+        ↓
+ADB can access the phone
+        ↓
+Android authorizes the computer
+        ↓
+Flutter detects the phone
+        ↓
+flutter run
+```
+
+If the APK already builds successfully but the phone cannot be used, do not
+immediately change:
+
+```text
+Veilmi source code
+Gradle
+Kotlin
+Flutter
+Android SDK versions
+```
+
+First diagnose the physical-device connection.
 
 ---
 
-## 2. Enable Developer Options
+## Prepare the Linux Computer
 
-Open the phone's Settings app and go to:
+This setup is normally needed once on a new Debian / Chromebook Linux
+development environment.
+
+### Install Debian's Android USB Rules
+
+Install:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y android-sdk-platform-tools-common
+```
+
+This installs Debian's Android USB / udev support.
+
+Check that the packaged rule exists:
+
+```bash
+ls -l /lib/udev/rules.d/51-android.rules
+```
+
+A normal result should point to:
+
+```text
+/lib/udev/rules.d/51-android.rules
+```
+
+Do **not** manually create or download:
+
+```text
+/etc/udev/rules.d/51-android.rules
+```
+
+Debian already provides the Android udev rules through
+`android-sdk-platform-tools-common`.
+
+A manually created file under `/etc/udev/rules.d/` may override Debian's
+packaged rule.
+
+---
+
+### Make Sure the `plugdev` Group Exists
+
+Check:
+
+```bash
+getent group plugdev
+```
+
+A result may look similar to:
+
+```text
+plugdev:x:46:
+```
+
+or:
+
+```text
+plugdev:x:46:USERNAME
+```
+
+If the command produces no output at all, create the group:
+
+```bash
+sudo groupadd plugdev
+```
+
+---
+
+### Add the Current User to `plugdev`
+
+Add the current Linux user:
+
+```bash
+sudo usermod -aG plugdev "$USER"
+```
+
+Check the saved system membership:
+
+```bash
+getent group plugdev
+```
+
+The current username should now appear.
+
+For example:
+
+```text
+plugdev:x:46:USERNAME
+```
+
+There is an important difference between these two commands:
+
+```bash
+getent group plugdev
+```
+
+checks the saved system group membership.
+
+```bash
+groups
+```
+
+shows the groups that are active in the current shell.
+
+Check the current shell:
+
+```bash
+groups
+```
+
+If `plugdev` is missing even though `getent group plugdev` already lists the
+username, activate the new group membership:
+
+```bash
+newgrp plugdev
+```
+
+Then check again:
+
+```bash
+groups
+```
+
+The result should now include:
+
+```text
+plugdev
+```
+
+`newgrp plugdev` starts a shell with that group active.
+
+When finished with that shell, `exit` returns to the previous shell.
+
+---
+
+### Reload the udev Rules
+
+Reload the installed rules:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+If the Android phone was already connected, unplug it after this step.
+
+The computer-side preparation is now complete.
+
+---
+
+## Prepare the Android Phone
+
+The phone also needs to allow development access.
+
+### Enable Developer Options
+
+On the Android phone, open:
+
+```text
+Settings
+```
+
+A common path is:
 
 ```text
 About phone
+→ Build number
 ```
 
-Find:
+Tap:
 
 ```text
 Build number
 ```
 
-and tap it seven times.
+seven times.
 
 The phone may ask for the screen-lock PIN, password, or pattern.
 
-After Developer options are enabled, Android usually displays a message similar
+After Developer options are enabled, Android normally shows a message similar
 to:
 
 ```text
 You are now a developer!
 ```
 
-Return to Settings and search for:
-
-```text
-Developer options
-```
-
-The exact menu location may vary depending on the Android manufacturer and
-version.
+The exact menu names may vary depending on the Android manufacturer and version.
 
 ---
 
-## 3. Enable USB Debugging
+### Enable USB Debugging
 
 Open:
 
@@ -89,38 +259,35 @@ USB debugging
 
 and enable it.
 
-Android may display a warning explaining that USB debugging allows the phone to
-communicate with development computers.
-
-Confirm the warning.
+Confirm Android's warning.
 
 USB debugging allows ADB to:
 
-* detect the Android phone;
-* install Veilmi debug builds;
-* launch the application;
-* display development logs;
-* communicate with Flutter development tools.
+```text
+detect the phone
+install Veilmi debug builds
+launch Veilmi
+read development logs
+communicate with Flutter
+```
 
-Only enable USB debugging for development and only authorize computers that you
-trust.
+Only authorize computers that are trusted.
 
 ---
 
-## 4. Connect the Phone by USB
+## Connect the Phone
 
-Connect the Android phone to the Chromebook or development computer using a USB
-cable.
+Use a USB cable that supports **data transfer**.
 
-The cable must support data transfer.
+A charging-only cable cannot be used for ADB.
 
-Some USB cables support charging only and cannot be used for ADB.
+Connect the phone to the Chromebook or development computer.
 
-After connecting the phone:
+Then:
 
 1. Unlock the phone.
-2. Open the Android USB notification.
-3. Select a data-transfer mode.
+2. Keep the phone unlocked while establishing the connection.
+3. If Android displays a USB notification, select a data-transfer mode.
 
 Common options include:
 
@@ -134,22 +301,131 @@ or:
 Transferring files / Android Auto
 ```
 
-Avoid leaving the phone in charging-only mode if ADB cannot detect it.
+Do not leave the phone in charging-only mode if ADB cannot detect it.
 
 ---
 
-## 5. Authorize the Development Computer
+### ChromeOS USB Access
 
-The first time an Android device connects to a development computer through
-ADB, Android normally displays a dialog similar to:
+On a Chromebook, ChromeOS may ask whether the USB device should be made
+available to Linux.
+
+Allow the Android phone to be shared with the Linux development environment.
+
+If ChromeOS does not pass the USB device to Linux, ADB inside Linux cannot use
+the phone.
+
+---
+
+## Check the USB Connection at the Linux Level
+
+Run:
+
+```bash
+lsusb
+```
+
+If Linux can see the phone, it should appear somewhere in the USB device list.
+
+The exact vendor and product IDs depend on the phone.
+
+### If the Phone Appears in `lsusb`
+
+This means:
+
+```text
+physical USB connection
+        ✓
+Linux can see the USB device
+        ✓
+```
+
+Continue to ADB.
+
+### If the Phone Does Not Appear in `lsusb`
+
+Check:
+
+```text
+USB cable
+USB port
+ChromeOS USB sharing
+Android USB mode
+phone lock state
+```
+
+Changing Veilmi source code will not fix this type of problem.
+
+---
+
+## Check ADB
+
+Run:
+
+```bash
+adb devices
+```
+
+A fully working connection looks similar to:
+
+```text
+List of devices attached
+DEVICE_ID    device
+```
+
+Use a placeholder such as:
+
+```text
+DEVICE_ID
+```
+
+in public documentation instead of publishing a personal phone serial number.
+
+The result from `adb devices` is diagnostic information.
+
+The important states are:
+
+| ADB result | Meaning | Next action |
+| --- | --- | --- |
+| `DEVICE_ID    device` | Linux permission and Android authorization are working | Continue to `flutter devices` |
+| `DEVICE_ID    unauthorized` | Linux can access the phone, but Android has not authorized this computer | Approve the USB debugging prompt on the phone |
+| `DEVICE_ID    no permissions` | Linux sees the phone, but the current Linux user cannot access it | Check `plugdev` and udev rules |
+| Nothing below `List of devices attached` | ADB cannot currently see the phone | Check USB, ChromeOS sharing, USB debugging, and ADB |
+
+Do not treat all four results as the same problem.
+
+---
+
+## If ADB Reports `unauthorized`
+
+Example:
+
+```text
+DEVICE_ID    unauthorized
+```
+
+This means:
+
+```text
+Linux can see the phone
+        ✓
+ADB can reach the phone
+        ✓
+Android authorization
+        ✗
+```
+
+Unlock the phone.
+
+Android should display:
 
 ```text
 Allow USB debugging?
 ```
 
-The dialog may also show the RSA fingerprint of the development computer.
+The dialog may also display the RSA fingerprint of the development computer.
 
-If this is your own trusted development machine, you may select:
+For your own trusted development computer, you may select:
 
 ```text
 Always allow from this computer
@@ -161,136 +437,288 @@ and then tap:
 Allow
 ```
 
-If the phone does not authorize the computer, ADB may report the device as:
+Check again:
+
+```bash
+adb devices
+```
+
+The expected result is:
+
+```text
+DEVICE_ID    device
+```
+
+---
+
+### If the Authorization Dialog Does Not Appear
+
+Disconnect and reconnect the USB cable.
+
+Keep the phone unlocked.
+
+If necessary, open Android Developer options and use:
+
+```text
+Revoke USB debugging authorizations
+```
+
+Then reconnect the phone.
+
+Android should ask again:
+
+```text
+Allow USB debugging?
+```
+
+Authorize only a trusted computer.
+
+---
+
+## If ADB Reports `no permissions`
+
+Example:
+
+```text
+DEVICE_ID    no permissions
+```
+
+This is a **Linux USB permission problem**.
+
+It is different from:
 
 ```text
 unauthorized
 ```
 
+`unauthorized` means Android has not trusted the computer.
+
+`no permissions` means Linux can see the phone, but the current Linux user
+cannot access the USB device correctly.
+
 ---
 
-## 6. Check the ADB Connection
-
-In the current Veilmi development environment, ADB is located at:
-
-```text
-~/Android/Sdk/platform-tools/adb
-```
+### Check the Active Groups
 
 Run:
 
 ```bash
-~/Android/Sdk/platform-tools/adb devices
+groups
 ```
 
-A successful connection looks similar to:
+The output should include:
 
 ```text
-List of devices attached
-DEVICE_ID    device
+plugdev
 ```
 
-The exact device ID is different for each phone.
+If it does not, check the saved group membership:
 
-For project documentation, use a placeholder such as:
-
-```text
-DEVICE_ID
+```bash
+getent group plugdev
 ```
 
-instead of publishing a personal device serial number.
+If the username appears in `getent group plugdev` but not in `groups`, activate
+the membership:
+
+```bash
+newgrp plugdev
+```
+
+Check again:
+
+```bash
+groups
+```
 
 ---
 
-## 7. Understand ADB Device States
+### Check the Debian Android Rules
 
-ADB can report several different states.
+Make sure the package is installed:
 
-### Connected
+```bash
+sudo apt-get install -y android-sdk-platform-tools-common
+```
+
+Check:
+
+```bash
+ls -l /lib/udev/rules.d/51-android.rules
+```
+
+The packaged Android rule should exist there.
+
+Reload the rules:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Now unplug the Android phone and reconnect it.
+
+---
+
+### Restart ADB
+
+Run:
+
+```bash
+adb kill-server
+adb start-server
+adb devices
+```
+
+A successful result should eventually become:
 
 ```text
 DEVICE_ID    device
 ```
 
-This means:
-
-* the USB connection is working;
-* USB debugging is enabled;
-* authorization succeeded;
-* ADB can communicate with the phone.
-
-### Unauthorized
+or possibly:
 
 ```text
 DEVICE_ID    unauthorized
 ```
 
-This means the development computer can see the phone, but Android has not
-authorized the ADB connection.
+If it becomes `unauthorized`, approve the debugging prompt on the phone.
 
-To fix it:
-
-1. Unlock the phone.
-2. Look for the "Allow USB debugging?" dialog.
-3. Approve the connection.
-
-If the dialog does not appear, disconnect and reconnect the USB cable.
-
-### No device listed
+Do not change Flutter, Gradle, Kotlin, Android SDK versions, or Veilmi source
+code to solve:
 
 ```text
-List of devices attached
+no permissions
 ```
-
-with nothing underneath means ADB cannot currently see the phone.
-
-Possible causes include:
-
-* the USB cable is disconnected;
-* the cable supports charging only;
-* USB debugging is disabled;
-* the phone is locked;
-* the USB mode changed;
-* the USB connection to Linux was lost;
-* the ADB server stopped responding.
 
 ---
 
-## 8. Restart ADB (Android Debug Bridge)
+## Check for an Accidental Local udev Override
 
-If the phone previously worked but suddenly disappears, restart the ADB server.
+Normally, this file should not be manually created:
 
-Run:
+```text
+/etc/udev/rules.d/51-android.rules
+```
+
+If `no permissions` continues even though Debian's packaged rules are installed,
+check whether a local override exists:
 
 ```bash
-~/Android/Sdk/platform-tools/adb kill-server
-~/Android/Sdk/platform-tools/adb start-server
-~/Android/Sdk/platform-tools/adb devices
+ls -l /etc/udev/rules.d/51-android.rules 2>/dev/null
 ```
 
-A successful restart may look like:
+If the file exists, inspect it:
+
+```bash
+head -n 10 /etc/udev/rules.d/51-android.rules
+```
+
+Do not blindly delete a legitimate custom rule.
+
+However, if the file is clearly an accidental or invalid download, for example:
 
 ```text
-* daemon not running; starting now at tcp:5037
-* daemon started successfully
-List of devices attached
-DEVICE_ID    device
+404: Not Found
 ```
 
-This is a useful first troubleshooting step before changing Flutter or Android
-project settings.
+remove it:
+
+```bash
+sudo rm -f /etc/udev/rules.d/51-android.rules
+```
+
+Then reload the valid Debian rules:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Unplug and reconnect the phone.
+
+Restart ADB:
+
+```bash
+adb kill-server
+adb start-server
+adb devices
+```
 
 ---
 
-## 9. Check Whether Flutter Can See the Device
+## If `adb devices` Shows Nothing
 
-Once ADB reports:
+Example:
+
+```text
+List of devices attached
+```
+
+with nothing underneath.
+
+This means ADB cannot currently see an Android debugging device.
+
+Check in this order:
+
+```text
+USB cable supports data
+        ↓
+phone is unlocked
+        ↓
+Developer options enabled
+        ↓
+USB debugging enabled
+        ↓
+USB mode allows data
+        ↓
+ChromeOS shares USB device with Linux
+        ↓
+lsusb
+        ↓
+ADB
+```
+
+Restart ADB:
+
+```bash
+adb kill-server
+adb start-server
+adb devices
+```
+
+If:
+
+```bash
+lsusb
+```
+
+shows the phone but:
+
+```bash
+adb devices
+```
+
+remains empty, the physical USB connection exists and the problem is higher in
+the Android debugging / ADB layer.
+
+---
+
+## Check Whether Flutter Can See the Phone
+
+Do not move to Flutter until:
+
+```bash
+adb devices
+```
+
+shows:
 
 ```text
 DEVICE_ID    device
 ```
 
-run:
+Then run:
 
 ```bash
 flutter devices
@@ -301,247 +729,160 @@ Flutter should list the Android phone.
 Example:
 
 ```text
-Android Phone • DEVICE_ID • android-arm64 • Android 11
+Android Phone • DEVICE_ID • android-arm64 • Android ...
 ```
 
-If ADB can see the phone but Flutter cannot, then investigate the Flutter or
+If ADB reports:
+
+```text
+device
+```
+
+but Flutter still does not list the phone, then investigate the Flutter /
 Android SDK configuration.
 
-If ADB cannot see the phone, fix the USB or ADB connection first.
+If ADB does not report `device`, fix the ADB connection first.
 
 ---
 
-## 10. Run Veilmi on the Android Device
+## Run Veilmi on the Phone
 
-Once the device appears in Flutter, run:
-
-```bash
-flutter run -d DEVICE_ID
-```
-
-Replace `DEVICE_ID` with the identifier shown by:
+Use the device ID shown by:
 
 ```bash
 flutter devices
 ```
 
-or:
+Run:
 
 ```bash
-~/Android/Sdk/platform-tools/adb devices
+flutter run -d DEVICE_ID
 ```
 
-Flutter will then:
+For example, if Flutter prints:
 
 ```text
-Compile Veilmi
-    ↓
-Build the Android debug APK
-    ↓
-Install the APK through ADB
-    ↓
-Launch Veilmi on the phone
+Android Phone • ABC123XYZ • android-arm64 • Android ...
 ```
+
+run:
+
+```bash
+flutter run -d ABC123XYZ
+```
+
+Using the exact device ID avoids accidentally selecting another runtime target.
 
 ---
 
-## 11. Recommended Testing Workflow
+## Normal Physical-Device Testing Workflow
 
-A normal physical-device testing session can follow this sequence:
+After the computer and phone have already been prepared, a normal development
+session is much shorter.
+
+Run:
 
 ```bash
 flutter analyze
 flutter test
-~/Android/Sdk/platform-tools/adb devices
+adb devices
 flutter devices
 flutter run -d DEVICE_ID
 ```
 
-This gives the following workflow:
+The flow is:
 
 ```text
 Static analysis
-      ↓
+        ↓
 Automated tests
-      ↓
+        ↓
 ADB connection
-      ↓
+        ↓
 Flutter device detection
-      ↓
+        ↓
 Physical-device test
 ```
 
+The Debian udev and `plugdev` setup normally does not need to be repeated every
+time.
+
 ---
 
-## 12. If Flutter Cannot Find the Device
+## Troubleshooting Decision Tree
 
-Flutter may display an error such as:
+Use this order:
 
 ```text
-No supported devices found with name or id matching 'DEVICE_ID'.
-```
-
-Do not immediately assume there is a problem with Veilmi.
-
-First check ADB:
-
-```bash
-~/Android/Sdk/platform-tools/adb devices
-```
-
-If the device list is empty, restart ADB:
-
-```bash
-~/Android/Sdk/platform-tools/adb kill-server
-~/Android/Sdk/platform-tools/adb start-server
-~/Android/Sdk/platform-tools/adb devices
-```
-
-Then check Flutter again:
-
-```bash
+flutter build apk --debug
+        ↓
+build succeeds
+        ↓
+connect Android phone
+        ↓
+lsusb
+        ↓
+adb devices
+        ↓
+ ┌─────────────────────┬──────────────────────┬────────────────────────┬─────────────────────┐
+ │ device              │ unauthorized         │ no permissions         │ nothing listed      │
+ │                     │                      │                        │                     │
+ │ continue            │ approve phone RSA    │ plugdev / udev rules   │ USB / ChromeOS /    │
+ │                     │ prompt               │                        │ debugging / ADB     │
+ └─────────────────────┴──────────────────────┴────────────────────────┴─────────────────────┘
+        ↓
 flutter devices
-```
-
-If the phone appears again, retry:
-
-```bash
+        ↓
 flutter run -d DEVICE_ID
 ```
 
----
-
-## 13. Check the USB Connection at the Linux Level
-
-If ADB still cannot see the phone, run:
-
-```bash
-lsusb
-```
-
-This helps determine whether Linux can see the USB device at all.
-
-### Phone appears in `lsusb`
+The key distinction is:
 
 ```text
-Linux
-  ✓ sees phone
+flutter build apk --debug
+→ Can this computer build Veilmi?
 
-ADB
-  ✗ does not see phone
+adb devices
+→ Can Linux communicate with the Android phone?
+
+flutter devices
+→ Can Flutter use the phone as a runtime target?
+
+flutter run
+→ Can Veilmi be installed and launched on that target?
 ```
 
-The physical USB connection exists.
-
-Investigate:
-
-* USB debugging;
-* ADB authorization;
-* Android USB mode;
-* the ADB server.
-
-### Phone does not appear in `lsusb`
-
-```text
-Linux
-  ✗ does not see phone
-
-ADB
-  ✗ cannot see phone
-```
-
-Investigate:
-
-* USB cable;
-* USB port;
-* ChromeOS USB access;
-* Android USB connection mode.
-
-Changing Veilmi application code will not fix this type of problem.
+These are separate checks.
 
 ---
 
-## 14. Re-authorize USB Debugging
+## What Not to Change First
 
-If ADB repeatedly reports:
-
-```text
-unauthorized
-```
-
-Developer options usually contain an option similar to:
+If the Debug APK already builds successfully but the physical device is not
+working, do not immediately modify:
 
 ```text
-Revoke USB debugging authorizations
+Gradle versions
+Kotlin versions
+Android SDK versions
+Flutter configuration
+Veilmi source code
 ```
 
-Revoke the existing authorization and reconnect the phone.
-
-Android should then display:
-
-```text
-Allow USB debugging?
-```
-
-again.
-
-Only authorize trusted development computers.
+A USB permission or authorization problem exists outside the Veilmi application
+itself.
 
 ---
 
-## 15. Security Considerations
+## Security Considerations
 
-USB debugging gives a trusted development computer significant access to the
-Android phone.
+USB debugging gives an authorized development computer significant access to
+the Android phone.
 
 During development:
 
-* only authorize computers you trust;
-* do not approve unknown RSA fingerprints;
-* revoke old USB debugging authorizations when necessary;
-* disable USB debugging when it is no longer needed.
+- only authorize computers you trust;
+- do not approve unknown RSA fingerprints;
+- revoke old USB debugging authorizations when appropriate;
+- disable USB debugging when it is no longer needed.
 
-Veilmi encryption secrets have never been placed in source code or committed to Git.
-
-This includes:
-
-* shared passphrases;
-* derived encryption keys;
-* signing secrets;
-* API secrets.
-
----
-
-## 16. Troubleshooting Order
-
-If Veilmi previously worked on the same Android phone but Flutter suddenly stops
-detecting it, check the connection in this order:
-
-```text
-USB cable
-   ↓
-Android USB mode
-   ↓
-Developer options
-   ↓
-USB debugging
-   ↓
-ADB authorization
-   ↓
-adb devices
-   ↓
-flutter devices
-   ↓
-Flutter / Android project configuration
-```
-
-Do not immediately modify:
-
-* Gradle versions;
-* Kotlin versions;
-* Android SDK versions;
-* Flutter configuration;
-* Veilmi application code.
-
-A temporary USB or ADB disconnect can produce a Flutter device-not-found error
-even when the application itself is working correctly.

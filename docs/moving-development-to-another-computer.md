@@ -551,6 +551,66 @@ Check ADB:
 ```bash
 adb version
 ```
+---
+
+### Prepare Debian USB Permissions for Physical Android Testing
+
+This section is needed when Veilmi will be run on a physical Android phone
+through USB.
+
+Installing ADB is not enough by itself. Debian must also provide the Android
+USB permission rules, and the current Linux user must belong to the `plugdev`
+group.
+
+Install Debian's packaged Android USB rules:
+
+```bash
+sudo apt-get install -y android-sdk-platform-tools-common
+```
+
+This package installs the maintained Android udev rules for Debian.
+Check that the packaged rule exists:
+
+```bash
+ls -l /lib/udev/rules.d/51-android.rules
+```
+
+Check whether the plugdev group exists:
+```bash
+getent group plugdev
+```
+
+If the command produces no output, create the group:
+```bash
+sudo groupadd plugdev
+```
+Add the current Linux user to plugdev:
+```bash
+sudo usermod -aG plugdev "$USER"
+```
+Check the saved group membership:
+```bash
+getent group plugdev
+```
+The current username should appear in the result.
+The existing shell may not immediately receive the new group membership.
+Activate it for the current terminal session:
+```bash
+newgrp plugdev
+```
+Then verify:
+```bash
+groups
+```
+plugdev should now appear in the active group list.
+Reload the installed udev rules:
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+If a phone was already connected, unplug it and reconnect it after these
+changes.
+
 
 ---
 
@@ -880,78 +940,30 @@ A warning does not automatically require action. If the app builds and behaves n
 
 ---
 
-## 5. Run Veilmi on an Android Device
+## 5. Run Veilmi on a Physical Android Device
 
-### Detect the Device
+After the Debug APK has built successfully, physical-device setup and
+troubleshooting are a separate step.
 
-For detail, please go to: [android-device-testing.md](android-device-testing.md)
+See:
 
-Running is separate from building.
+[Android Physical Device Testing](android-device-testing.md)
 
-Enable USB debugging on the Android phone and connect it.
-
-Check ADB:
-
-```bash
-adb devices
-```
-
-Then let Flutter list its runtime targets:
-
-```bash
-flutter devices
-```
-
-Flutter prints a device ID for every detected target.
-
-Example shape:
+The important distinction is:
 
 ```text
-Android Phone • DEVICE_ID • android-arm64 • Android ...
-```
+flutter build apk --debug
+→ verifies that Veilmi can build locally
 
-### Run on That Exact Device
-
-Use the ID shown by `flutter devices`:
-
-```bash
-flutter run -d DEVICE_ID
-```
-
-For example:
-
-```text
-My Android Phone • ABC123XYZ • android-arm64 • Android ...
-```
-
-means:
-
-```bash
-flutter run -d ABC123XYZ
-```
-
-This avoids accidentally selecting the wrong target.
-
-### If the Device Is Unauthorized
-
-Restart ADB:
-
-```bash
-adb kill-server
-adb start-server
 adb devices
-```
+→ verifies that Linux can communicate with the phone
 
-Unlock the phone and accept the USB debugging authorization prompt.
-
-Then check again:
-
-```bash
 flutter devices
+→ verifies that Flutter can use the phone as a runtime target
 ```
 
-On ChromeOS, the USB device may also need to be shared with the Linux environment.
-
+A successful APK build does not automatically mean that Linux USB permissions
+for a physical phone are configured.
 
 ---
 
