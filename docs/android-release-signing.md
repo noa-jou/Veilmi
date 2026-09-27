@@ -1022,7 +1022,7 @@ At the time this document was written, Veilmi uses:
 
 ```text
 Application ID: com.veilmi.app
-Version:        1.0.0+1
+Version:        1.0.0+2
 Flutter:        3.47.3 stable
 Android SDK:    36
 Upload alias:   upload

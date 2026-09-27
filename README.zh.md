@@ -30,9 +30,7 @@ LINE / Messenger / WhatsApp / 電子郵件 / 其他通訊管道
 
 ## 試用 Veilmi
 
-https://github.com/user-attachments/assets/ffd22a38-1dc2-4e74-a2f4-a7b1c2c5a105
-
-（本影片中的 使用者介面 略有升級，但功能保持不變）
+https://github.com/user-attachments/assets/98a489c2-8bd3-4d07-ac01-e3a76e488b65
 
 Veilmi 目前正透過 **Google Play 封閉測試**提供測試版本。
 

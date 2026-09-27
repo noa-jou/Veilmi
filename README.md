@@ -32,9 +32,7 @@ is handled locally by Veilmi.
 
 ## Try Veilmi on your phone
 
-https://github.com/user-attachments/assets/ffd22a38-1dc2-4e74-a2f4-a7b1c2c5a105
-
-(The UI has been a little upgraded in this video, but the functions are the same.)
+https://github.com/user-attachments/assets/98a489c2-8bd3-4d07-ac01-e3a76e488b65
 
 Veilmi is currently available through a **Google Play closed test**.
 
