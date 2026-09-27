@@ -1014,6 +1014,100 @@ version: 1.1.0+2
 
 depending on the release.
 
+### Development Log — Understanding Flutter Version Numbers
+
+**Date:** 2026-09-28  
+**Target Release:** v1.0.1
+
+#### Problem
+
+While preparing Veilmi v1.0.1 for Google Play Closed Testing, I updated the version in `pubspec.yaml` to:
+
+```yaml
+version: 1.0.0+2
+```
+
+I initially thought that increasing `+1` to `+2` would make this the next application version.
+
+After building and uploading the new AAB, however, Google Play still identified the application version as `1.0.0`.
+
+##### Explanation
+
+In Flutter, the two parts of the version number have different purposes:
+
+```yaml
+version: 1.0.1+2
+```
+
+This does **not** mean:
+
+```text
+1.0.1 + 2 = 1.0.3
+```
+
+Instead, the `+` separates two independent values:
+
+- `1.0.1` is the **version name** (`versionName` on Android).
+  This is the application version intended for users.
+
+- `2` is the **build number** (`versionCode` on Android).
+  This is an internal integer used to distinguish one build from another.
+  Google Play requires a newer uploaded build to have a higher version code.
+
+Therefore:
+
+| Flutter version | Version name | Build / Version code |
+|---|---|---:|
+| `1.0.0+1` | 1.0.0 | 1 |
+| `1.0.1+2` | 1.0.1 | 2 |
+| `1.0.2+3` | 1.0.2 | 3 |
+
+#### Solution
+
+For the Veilmi v1.0.1 release, I changed:
+
+```yaml
+version: 1.0.0+2
+```
+
+to:
+
+```yaml
+version: 1.0.1+2
+```
+
+Then I rebuilt the Android App Bundle:
+
+```bash
+flutter clean
+flutter pub get
+flutter build appbundle --release
+```
+
+The new AAB is generated at:
+
+```text
+build/app/outputs/bundle/release/app-release.aab
+```
+
+#### What I Learned
+
+The version name and build number should be treated separately.
+
+The **version name** communicates the software release, while the **build number** uniquely identifies a particular build of the application.
+
+For future Veilmi releases, I can use a sequence such as:
+
+```text
+1.0.0+1  → Initial release
+1.0.1+2  → First minor patch
+1.0.2+3  → Second minor patch
+1.1.0+4  → Larger feature update
+```
+
+This prevents confusion between the public application version and Android's internal build/version code.
+
+
 ---
 
 ## 22. Veilmi's Current Android Release Configuration
@@ -1022,7 +1116,7 @@ At the time this document was written, Veilmi uses:
 
 ```text
 Application ID: com.veilmi.app
-Version:        1.0.0+2
+Version:        1.0.1+3
 Flutter:        3.47.3 stable
 Android SDK:    36
 Upload alias:   upload
