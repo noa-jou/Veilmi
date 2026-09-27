@@ -107,10 +107,11 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.docsDescription),
           const SizedBox(height: 20),
 
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
               backgroundColor: Colors.amber.shade600,
-              foregroundColor: Colors.white
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.white),
             ),
             onPressed: () => _openUrl(context, _githubUrl),
             icon: const Icon(Icons.code),
@@ -119,11 +120,11 @@ class AboutScreen extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
               backgroundColor: Colors.amber.shade600,
               foregroundColor: Colors.white,
-
+              side: const BorderSide(color: Colors.white),
             ),
             onPressed: () => _openUrl(context, _docsUrl),
             icon: const Icon(Icons.menu_book_outlined),
@@ -141,10 +142,11 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.privacyDescription),
           const SizedBox(height: 20),
 
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
               backgroundColor: Colors.amber.shade600,
-              foregroundColor: Colors.white
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.white),
             ),
             onPressed: () => _openUrl(context, _privacyPolicyUrl),
             icon: const Icon(Icons.privacy_tip_outlined),
@@ -162,11 +164,10 @@ class AboutScreen extends StatelessWidget {
           Text(l10n.supportDescription),
           const SizedBox(height: 20),
 
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
               backgroundColor: Colors.amber.shade600,
               foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white),
             ),
             onPressed: () => _openUrl(context, _supportUrl),
             icon: const Icon(Icons.favorite_outline),
