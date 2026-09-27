@@ -485,3 +485,71 @@ other work.
 - [Testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465)
 - [Control when app changes are reviewed and published](https://support.google.com/googleplay/android-developer/answer/9859654)
 - [Create a group and choose Google Groups settings](https://support.google.com/groups/answer/2464926)
+
+
+# P.S. A Development Log: Uploading a Demo Video for the README
+
+**Date:** September 27, 2026  
+
+**Problem**
+
+The original Veilmi demo video was approximately 30.6 MB. I wanted to reduce its size and upload it as a GitHub Issue attachment to obtain a video URL for playback in the README.
+
+**Solution**
+
+The video was compressed to approximately **3.86 MB**, reducing its size by **87%** while preserving its full duration, audio, and original resolution of 576 × 1280. The frame rate was reduced to 20 FPS.
+
+The equivalent compression command, run from the folder containing the original video, is:
+
+```bash
+ffmpeg -hide_banner -loglevel error \
+  -i veilmi.mp4 \
+  -c:v libx264 -preset fast -crf 28 \
+  -vf fps=20 -pix_fmt yuv420p \
+  -c:a aac -b:a 48k \
+  -movflags +faststart \
+  veilmi-small.mp4
+```
+
+With GitHub CLI (`gh`) installed, log in if necessary:
+
+```bash
+gh auth login
+```
+
+Upload the compressed video and create an Issue:
+
+```bash
+cd ~/Veilmi/assets/video
+
+gh issue create \
+  --repo noa-jou/Veilmi \
+  --title "Veilmi demo video" \
+  --body "Demo video for the README." \
+  --attach "veilmi-small.mp4"
+```
+
+This successfully created [Issue #1](https://github.com/noa-jou/Veilmi/issues/1).
+
+To retrieve the Issue body containing the uploaded video URL:
+
+```bash
+gh issue view 1 \
+  --repo noa-jou/Veilmi \
+  --json body \
+  --jq '.body'
+```
+
+Copy the complete `https://github.com/user-attachments/assets/...` URL into `README.md` on its own line, with a blank line before and after it:
+
+```markdown
+## Demo
+
+https://github.com/user-attachments/assets/REPLACE_WITH_ACTUAL_ASSET_ID
+```
+
+Use the **video attachment URL**, rather than the Issue URL. The URL should not be wrapped in backticks or a code block in the actual README.
+
+**Result**
+
+The compressed video was successfully uploaded to GitHub as an Issue attachment. The remaining step was to add its attachment URL to the README and commit and push the change.
