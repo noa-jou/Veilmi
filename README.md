@@ -32,6 +32,10 @@ is handled locally by Veilmi.
 
 ## Try Veilmi on your phone
 
+https://github.com/user-attachments/assets/ffd22a38-1dc2-4e74-a2f4-a7b1c2c5a105
+
+(The UI has been a little upgraded in this video, but the functions are the same.)
+
 Veilmi is currently available through a **Google Play closed test**.
 
 If you have an Android device, you are welcome to join the test, try the app,
