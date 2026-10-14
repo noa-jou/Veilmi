@@ -30,6 +30,7 @@ Original message
 
 The communication platform transports the encrypted text, while the plaintext
 is handled locally by Veilmi.
+
 ---
 
 ## Try Veilmi on your phone
@@ -157,7 +158,7 @@ Android Studio**. It is called [Color_Match](https://github.com/noa-jou/Color_Ma
 That was a small beginning, and I did not come into Veilmi already knowing
 Flutter or modern cross-platform mobile development.
 
-I started Veilmi mainly with an idea, the general software-engineering
+I started Veilmi mainly with an idea: the general software-engineering
 knowledge I had accumulated through work, some older programming foundations,
 and a willingness to learn what I did not know.
 
@@ -184,7 +185,7 @@ Those two things can be true at the same time.
 
 ## Found a Problem?
 
-If you find a bug, incorrect documentation, interoperability problem, or a
+If you find a bug, incorrect documentation, an interoperability problem, or a
 security weakness, please tell me.
 
 You are also welcome to disclose security findings publicly, including
