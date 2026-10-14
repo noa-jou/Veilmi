@@ -2,7 +2,7 @@
 
 > 在送出訊息之前，先將它加密。
 
-[English README](README.md)
+[雙生專案](https://github.com/noa-jou/UnVeilmi/)
 
 Veilmi 是一款免費且開源的應用程式，讓使用者可以在透過既有的通訊平台傳送文字之前，先在自己的裝置上進行本機加密。
 
@@ -25,6 +25,8 @@ LINE / Messenger / WhatsApp / 電子郵件 / 其他通訊管道
 ````
 
 通訊平台負責傳送加密後的文字，而明文內容則由 Veilmi 在使用者的裝置上進行處理。
+
+[English README](README.md)
 
 ---
 
