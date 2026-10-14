@@ -4,6 +4,8 @@
 
 [中文 README](README.zh.md)
 
+[Twin project: UnVeilmi](https://github.com/noa-jou/UnVeilmi/)
+
 Veilmi is a free and open-source app for locally encrypting text before sending
 it through an existing communication platform.
 
