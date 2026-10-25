@@ -2,7 +2,7 @@
 
 > 在送出訊息之前，先將它加密。
 
-[雙生專案](https://github.com/noa-jou/UnVeilmi/)
+[雙生專案: UnVeilmi](https://github.com/noa-jou/UnVeilmi/)
 
 Veilmi 是一款免費且開源的應用程式，讓使用者可以在透過既有的通訊平台傳送文字之前，先在自己的裝置上進行本機加密。
 
